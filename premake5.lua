@@ -25,12 +25,16 @@ project "UltimateWar"
         "vendor/glfw/include/",
         "vendor/glm/",
         "vendor/imgui/",
-        "vendor/imgui/backends"
+        "vendor/imgui/backends",
+        "vendor/spdlog/include/"
     }
 
-    files { "src/*.cpp" }
+    files {
+        "src/*.cpp",
+        "src/core/*.cpp"
+    }
 
-    links { "GLFW", "GLM", "GLAD", "ImGui"  }
+    links { "GLFW", "GLM", "GLAD", "ImGui" }
 
     filter "system:linux"
         links { "dl", "pthread" }
