@@ -3,11 +3,17 @@ workspace "UltimateWar"
     startproject "UltimateWar"
 
     filter "configurations:Debug"
-        defines { "DEBUG" }
+        defines {
+            "DEBUG",
+            "SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE"
+        }
         symbols "On"
 
     filter "configurations:Release"
-        defines { "RELEASE" }
+        defines {
+            "RELEASE",
+            "SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_OFF"
+        }
         optimize "On"
 
 project "UltimateWar"
