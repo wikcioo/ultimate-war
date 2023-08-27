@@ -3,11 +3,17 @@ workspace "UltimateWar"
     startproject "UltimateWar"
 
     filter "configurations:Debug"
-        defines { "DEBUG" }
+        defines {
+            "DEBUG",
+            "SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE"
+        }
         symbols "On"
 
     filter "configurations:Release"
-        defines { "RELEASE" }
+        defines {
+            "RELEASE",
+            "SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_OFF"
+        }
         optimize "On"
 
 project "UltimateWar"
@@ -25,12 +31,16 @@ project "UltimateWar"
         "vendor/glfw/include/",
         "vendor/glm/",
         "vendor/imgui/",
-        "vendor/imgui/backends"
+        "vendor/imgui/backends",
+        "vendor/spdlog/include/"
     }
 
-    files { "src/*.cpp" }
+    files {
+        "src/*.cpp",
+        "src/core/*.cpp"
+    }
 
-    links { "GLFW", "GLM", "GLAD", "ImGui"  }
+    links { "GLFW", "GLM", "GLAD", "ImGui" }
 
     filter "system:linux"
         links { "dl", "pthread" }
