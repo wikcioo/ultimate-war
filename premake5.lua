@@ -26,7 +26,7 @@ project "UltimateWar"
     objdir "obj/%{cfg.buildcfg}-%{cfg.system}"
 
     includedirs {
-        "include/",
+        "src/",
         "vendor/glad/include/",
         "vendor/glfw/include/",
         "vendor/glm/",
