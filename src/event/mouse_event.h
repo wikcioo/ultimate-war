@@ -1,3 +1,5 @@
+#pragma once
+
 #include "event.h"
 
 class MouseButtonEvent : public Event

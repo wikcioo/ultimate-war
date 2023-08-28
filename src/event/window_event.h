@@ -1,3 +1,5 @@
+#pragma once
+
 #include "event.h"
 
 class WindowClosedEvent : public Event
