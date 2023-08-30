@@ -36,8 +36,8 @@ project "UltimateWar"
     }
 
     files {
-        "src/*.cpp",
-        "src/core/*.cpp"
+        "src/**.h",
+        "src/**.cpp"
     }
 
     links { "GLFW", "GLM", "GLAD", "ImGui" }
