@@ -2,6 +2,7 @@
 
 #include "core/logger.h"
 #include "core/window.h"
+#include "layer/layer_stack.h"
 
 class Application
 {
@@ -13,12 +14,6 @@ public:
     void Run();
 
 private:
-    bool OnKeyPressed(KeyPressedEvent& event);
-    bool OnKeyReleased(KeyReleasedEvent& event);
-    bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
-    bool OnMouseButtonReleased(MouseButtonReleasedEvent& event);
-    bool OnMouseMoved(MouseMovedEvent& event);
-    bool OnMouseScrolled(MouseScrolledEvent& event);
     bool OnWindowClose(WindowClosedEvent& event);
     bool OnWindowResized(WindowResizedEvent& event);
     bool OnWindowMinimized(WindowMinimizedEvent& event);
@@ -26,5 +21,6 @@ private:
 
 private:
     std::unique_ptr<Window> m_Window;
+    LayerStack m_LayerStack;
     bool m_Running = true;
 };

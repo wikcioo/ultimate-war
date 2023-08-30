@@ -16,52 +16,17 @@ Application::~Application()
 void Application::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
-    dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(Application::OnKeyPressed));
-    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(Application::OnKeyReleased));
-    dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(Application::OnMouseButtonPressed));
-    dispatcher.Dispatch<MouseButtonReleasedEvent>(BIND_EVENT_FN(Application::OnMouseButtonReleased));
-    dispatcher.Dispatch<MouseMovedEvent>(BIND_EVENT_FN(Application::OnMouseMoved));
-    dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(Application::OnMouseScrolled));
     dispatcher.Dispatch<WindowClosedEvent>(BIND_EVENT_FN(Application::OnWindowClose));
     dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(Application::OnWindowResized));
     dispatcher.Dispatch<WindowMinimizedEvent>(BIND_EVENT_FN(Application::OnWindowMinimized));
     dispatcher.Dispatch<WindowMaximizedEvent>(BIND_EVENT_FN(Application::OnWindowMaximized));
-}
 
-bool Application::OnKeyPressed(KeyPressedEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
-    return true;
-}
-
-bool Application::OnKeyReleased(KeyReleasedEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
-    return true;
-}
-
-bool Application::OnMouseButtonPressed(MouseButtonPressedEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
-    return true;
-}
-
-bool Application::OnMouseButtonReleased(MouseButtonReleasedEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
-    return true;
-}
-
-bool Application::OnMouseMoved(MouseMovedEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
-    return true;
-}
-
-bool Application::OnMouseScrolled(MouseScrolledEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
-    return true;
+    for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); it++)
+    {
+        if (event.Handled)
+            break;
+        (*it)->OnEvent(event);
+    }
 }
 
 bool Application::OnWindowClose(WindowClosedEvent& event)
