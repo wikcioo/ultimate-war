@@ -46,15 +46,11 @@ void Window::Init()
 
     LOG_INFO("Initialized GLFW window");
 
-    glfwMakeContextCurrent(m_Window);
+    m_GraphicsContext = new GraphicsContext(m_Window);
+    m_GraphicsContext->Init();
+
     glfwSetWindowUserPointer(m_Window, (void*)&m_WindowData);
     SetVSync(true);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        LOG_CRITICAL("Failed to initialize GLAD");
-        return;
-    }
 
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
     {
@@ -156,7 +152,7 @@ void Window::OnUpdate()
     glClear(GL_COLOR_BUFFER_BIT);
 
     glfwPollEvents();
-    glfwSwapBuffers(m_Window);
+    m_GraphicsContext->SwapBuffers();
 }
 
 bool Window::IsVSyncEnabled() const
