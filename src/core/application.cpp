@@ -2,8 +2,12 @@
 
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
+Application* Application::s_Instance = nullptr;
+
 Application::Application()
 {
+    s_Instance = this;
+
     Logger::Init();
     m_Window = std::make_unique<Window>();
     m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));

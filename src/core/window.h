@@ -41,6 +41,8 @@ public:
     void SetVSync(bool enabled);
     void SetEventCallback(std::function<void(Event&)> callback);
 
+    GLFWwindow* GetNativeWindow() { return m_Window; }
+
 private:
     GLFWwindow* m_Window;
 

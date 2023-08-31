@@ -13,6 +13,9 @@ public:
     void OnEvent(Event& event);
     void Run();
 
+    Window* GetWindow() { return m_Window.get(); }
+    static Application& Get() { return *s_Instance; }
+
 private:
     bool OnWindowClose(WindowClosedEvent& event);
     bool OnWindowResized(WindowResizedEvent& event);
@@ -23,4 +26,5 @@ private:
     std::unique_ptr<Window> m_Window;
     LayerStack m_LayerStack;
     bool m_Running = true;
+    static Application* s_Instance;
 };
