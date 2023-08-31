@@ -61,8 +61,13 @@ bool Application::OnWindowMaximized(WindowMaximizedEvent& event)
 
 void Application::Run()
 {
+    static float lastTime = 0.0f;
     while (m_Running)
     {
+        float now = (float)glfwGetTime();
+        m_DeltaTime = now - lastTime;
+        lastTime = now;
+
         glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 

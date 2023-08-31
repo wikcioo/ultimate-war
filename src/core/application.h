@@ -25,6 +25,7 @@ private:
 private:
     std::unique_ptr<Window> m_Window;
     LayerStack m_LayerStack;
+    float m_DeltaTime;
     bool m_Running = true;
     static Application* s_Instance;
 };
