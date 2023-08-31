@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include "debug/debug_layer.h"
+
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 Application* Application::s_Instance = nullptr;
@@ -11,6 +13,10 @@ Application::Application()
     Logger::Init();
     m_Window = std::make_unique<Window>();
     m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+
+    DebugLayer* debugLayer = new DebugLayer();
+    debugLayer->OnAttach();
+    m_LayerStack.PushOverlay(debugLayer);
 }
 
 Application::~Application()
@@ -70,6 +76,11 @@ void Application::Run()
 
         glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        for (auto layer : m_LayerStack)
+        {
+            layer->OnUpdate(m_DeltaTime);
+        }
 
         m_Window->OnUpdate();
     }
