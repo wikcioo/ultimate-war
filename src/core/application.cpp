@@ -1,12 +1,22 @@
 #include "application.h"
 
+#include "debug/debug_layer.h"
+
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+Application* Application::s_Instance = nullptr;
 
 Application::Application()
 {
+    s_Instance = this;
+
     Logger::Init();
     m_Window = std::make_unique<Window>();
     m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+
+    DebugLayer* debugLayer = new DebugLayer();
+    debugLayer->OnAttach();
+    m_LayerStack.PushOverlay(debugLayer);
 }
 
 Application::~Application()
@@ -57,8 +67,21 @@ bool Application::OnWindowMaximized(WindowMaximizedEvent& event)
 
 void Application::Run()
 {
+    static float lastTime = 0.0f;
     while (m_Running)
     {
+        float now = (float)glfwGetTime();
+        m_DeltaTime = now - lastTime;
+        lastTime = now;
+
+        glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        for (auto layer : m_LayerStack)
+        {
+            layer->OnUpdate(m_DeltaTime);
+        }
+
         m_Window->OnUpdate();
     }
 }
