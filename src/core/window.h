@@ -3,13 +3,12 @@
 #include <string>
 #include <functional>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include "event/event.h"
 #include "event/window_event.h"
 #include "event/mouse_event.h"
 #include "event/key_event.h"
+
+#include "renderer/graphics_context.h"
 
 struct WindowProps
 {
@@ -43,6 +42,7 @@ public:
 
 private:
     GLFWwindow* m_Window;
+    GraphicsContext* m_GraphicsContext;
 
     struct WindowData
     {
