@@ -8,7 +8,7 @@
 #include "event/mouse_event.h"
 #include "event/key_event.h"
 
-#include "renderer/graphics_context.h"
+#include "graphics/graphics_context.h"
 
 struct WindowProps
 {
