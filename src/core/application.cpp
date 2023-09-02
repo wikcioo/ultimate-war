@@ -17,6 +17,40 @@ Application::Application()
     DebugLayer* debugLayer = new DebugLayer();
     debugLayer->OnAttach();
     m_LayerStack.PushOverlay(debugLayer);
+
+    m_Shader = std::make_unique<Shader>("assets/shaders/color.glsl");
+
+    float vertices[6 * 3] = {
+        -0.5f,   0.0f, 0.0f,
+        -0.25f,  0.5f, 0.0f,
+         0.25f,  0.5f, 0.0f,
+         0.5f,   0.0f, 0.0f,
+         0.25f, -0.5f, 0.0f,
+        -0.25f, -0.5f, 0.0f
+    };
+
+    unsigned int indices[4 * 3] = {
+        0, 2, 1,
+        0, 3, 2,
+        0, 5, 3,
+        5, 4, 3
+    };
+
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
+
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    unsigned int ibo;
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 }
 
 Application::~Application()
@@ -76,6 +110,12 @@ void Application::Run()
 
         glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        m_Shader->Bind();
+        m_Shader->SetFloat4("u_Color", {0.2f, 0.7f, 0.7f, 1.0f});
+
+        glBindVertexArray(m_VAO);
+        glDrawElements(GL_TRIANGLES, 4 * 3, GL_UNSIGNED_INT, 0);
 
         for (auto layer : m_LayerStack)
         {

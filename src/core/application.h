@@ -3,6 +3,7 @@
 #include "core/logger.h"
 #include "core/window.h"
 #include "layer/layer_stack.h"
+#include "graphics/shader.h"
 
 class Application
 {
@@ -28,4 +29,6 @@ private:
     float m_DeltaTime;
     bool m_Running = true;
     static Application* s_Instance;
+    unsigned int m_VAO;
+    std::unique_ptr<Shader> m_Shader;
 };
