@@ -61,9 +61,6 @@ void Application::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowClosedEvent>(BIND_EVENT_FN(Application::OnWindowClose));
-    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(Application::OnWindowResized));
-    dispatcher.Dispatch<WindowMinimizedEvent>(BIND_EVENT_FN(Application::OnWindowMinimized));
-    dispatcher.Dispatch<WindowMaximizedEvent>(BIND_EVENT_FN(Application::OnWindowMaximized));
 
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); it++)
     {
@@ -75,27 +72,7 @@ void Application::OnEvent(Event& event)
 
 bool Application::OnWindowClose(WindowClosedEvent& event)
 {
-    LOG_DEBUG("{0}", event.ToString());
-
     m_Running = false;
-    return true;
-}
-
-bool Application::OnWindowResized(WindowResizedEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
-    return true;
-}
-
-bool Application::OnWindowMinimized(WindowMinimizedEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
-    return true;
-}
-
-bool Application::OnWindowMaximized(WindowMaximizedEvent& event)
-{
-    LOG_DEBUG("{0}", event.ToString());
     return true;
 }
 

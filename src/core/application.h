@@ -19,9 +19,6 @@ public:
 
 private:
     bool OnWindowClose(WindowClosedEvent& event);
-    bool OnWindowResized(WindowResizedEvent& event);
-    bool OnWindowMinimized(WindowMinimizedEvent& event);
-    bool OnWindowMaximized(WindowMaximizedEvent& event);
 
 private:
     std::unique_ptr<Window> m_Window;
