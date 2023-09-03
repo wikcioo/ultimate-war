@@ -1,6 +1,7 @@
 #include "application.h"
 
 #include "debug/debug_layer.h"
+#include "graphics/renderer.h"
 
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
@@ -18,7 +19,7 @@ Application::Application()
     debugLayer->OnAttach();
     m_LayerStack.PushOverlay(debugLayer);
 
-    m_Shader = std::make_unique<Shader>("assets/shaders/color.glsl");
+    m_Shader = std::make_shared<Shader>("assets/shaders/color.glsl");
 
     float vertices[6 * 3] = {
         -0.5f,   0.0f, 0.0f,
@@ -75,14 +76,11 @@ void Application::Run()
         m_DeltaTime = now - lastTime;
         lastTime = now;
 
-        glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::ClearColor({0.0f, 0.5f, 1.0f, 1.0f});
 
-        m_Shader->Bind();
-        m_Shader->SetFloat4("u_Color", {0.2f, 0.7f, 0.7f, 1.0f});
-
-        m_VertexArray->Bind();
-        glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetIndexCount(), GL_UNSIGNED_INT, 0);
+        Renderer::BeginScene();
+        Renderer::Submit(m_Shader, m_VertexArray);
+        Renderer::EndScene();
 
         for (auto layer : m_LayerStack)
         {
