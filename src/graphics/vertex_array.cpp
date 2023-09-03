@@ -1,0 +1,26 @@
+#include "vertex_array.h"
+
+#include <glad/glad.h>
+
+VertexArray::VertexArray(const std::shared_ptr<VertexBuffer>& vertexBuffer,
+            const std::shared_ptr<IndexBuffer>& indexBuffer,
+            const std::vector<int>& layout)
+{
+    glGenVertexArrays(1, &m_ArrayID);
+    glBindVertexArray(m_ArrayID);
+
+    vertexBuffer->Bind();
+    vertexBuffer->SetLayout(layout);
+
+    indexBuffer->Bind();
+}
+
+void VertexArray::Bind() const
+{
+    glBindVertexArray(m_ArrayID);
+}
+
+void VertexArray::Unbind() const
+{
+    glBindVertexArray(0);
+}
