@@ -4,6 +4,8 @@
 #include "core/window.h"
 #include "layer/layer_stack.h"
 #include "graphics/shader.h"
+#include "graphics/buffer.h"
+#include "graphics/vertex_array.h"
 
 class Application
 {
@@ -27,5 +29,8 @@ private:
     bool m_Running = true;
     static Application* s_Instance;
     unsigned int m_VAO;
+    std::shared_ptr<VertexBuffer> m_VertexBuffer;
+    std::shared_ptr<IndexBuffer> m_IndexBuffer;
+    std::shared_ptr<VertexArray> m_VertexArray;
     std::unique_ptr<Shader> m_Shader;
 };
