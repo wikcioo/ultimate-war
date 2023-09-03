@@ -49,7 +49,8 @@ project "UltimateWar"
     filter "system:windows"
         defines { "_WINDOWS" }
 
-include "vendor/glfw.lua"
-include "vendor/glad.lua"
-include "vendor/glm.lua"
-include "vendor/imgui.lua"
+group "Dependencies"
+    include "vendor/glfw.lua"
+    include "vendor/glad.lua"
+    include "vendor/glm.lua"
+    include "vendor/imgui.lua"
