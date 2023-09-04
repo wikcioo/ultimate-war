@@ -15,6 +15,8 @@ Application::Application()
     m_Window = std::make_unique<Window>();
     m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
+    m_Camera = std::make_shared<OrthographicCamera>((float)m_Window->GetWidth() / (float)m_Window->GetHeight());
+
     DebugLayer* debugLayer = new DebugLayer();
     debugLayer->OnAttach();
     m_LayerStack.PushOverlay(debugLayer);
@@ -52,6 +54,8 @@ void Application::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowClosedEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(Application::OnWindowResize));
+    dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(Application::OnMouseScrolled));
 
     for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); it++)
     {
@@ -67,6 +71,18 @@ bool Application::OnWindowClose(WindowClosedEvent& event)
     return true;
 }
 
+bool Application::OnWindowResize(WindowResizedEvent& event)
+{
+    m_Camera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+    return true;
+}
+
+bool Application::OnMouseScrolled(MouseScrolledEvent& event)
+{
+    m_Camera->SetZoom(m_Camera->GetZoom() + (event.getYOffset() / 10.0f));
+    return true;
+}
+
 void Application::Run()
 {
     static float lastTime = 0.0f;
@@ -78,7 +94,7 @@ void Application::Run()
 
         Renderer::ClearColor({0.0f, 0.5f, 1.0f, 1.0f});
 
-        Renderer::BeginScene();
+        Renderer::BeginScene(m_Camera);
         Renderer::Submit(m_Shader, m_VertexArray);
         Renderer::EndScene();
 
