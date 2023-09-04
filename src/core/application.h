@@ -2,6 +2,7 @@
 
 #include "core/logger.h"
 #include "core/window.h"
+#include "core/camera.h"
 #include "layer/layer_stack.h"
 #include "graphics/shader.h"
 #include "graphics/buffer.h"
@@ -21,6 +22,8 @@ public:
 
 private:
     bool OnWindowClose(WindowClosedEvent& event);
+    bool OnWindowResize(WindowResizedEvent& event);
+    bool OnMouseScrolled(MouseScrolledEvent& event);
 
 private:
     std::unique_ptr<Window> m_Window;
@@ -33,4 +36,5 @@ private:
     std::shared_ptr<IndexBuffer> m_IndexBuffer;
     std::shared_ptr<VertexArray> m_VertexArray;
     std::shared_ptr<Shader> m_Shader;
+    std::shared_ptr<OrthographicCamera> m_Camera;
 };
