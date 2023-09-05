@@ -6,6 +6,7 @@ class VertexBuffer
 {
 public:
     VertexBuffer(float* vertices, unsigned int size);
+    ~VertexBuffer();
 
     void Bind() const;
     void Unbind() const;
@@ -20,6 +21,7 @@ class IndexBuffer
 {
 public:
     IndexBuffer(unsigned int* indices, unsigned int count);
+    ~IndexBuffer();
 
     void Bind() const;
     void Unbind() const;

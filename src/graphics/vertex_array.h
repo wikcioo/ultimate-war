@@ -10,6 +10,7 @@ public:
     VertexArray(const std::shared_ptr<VertexBuffer>& vertexBuffer,
                 const std::shared_ptr<IndexBuffer>& indexBuffer,
                 const std::vector<int>& layout);
+    ~VertexArray();
 
     void Bind() const;
     void Unbind() const;

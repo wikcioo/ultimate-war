@@ -11,6 +11,11 @@ VertexBuffer::VertexBuffer(float* vertices, unsigned int size)
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
 
+VertexBuffer::~VertexBuffer()
+{
+    glDeleteBuffers(1, &m_BufferID);
+}
+
 void VertexBuffer::Bind() const
 {
     glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
@@ -40,6 +45,11 @@ void VertexBuffer::SetLayout(const std::vector<int>& layout)
 
         offset += layout[i];
     }
+}
+
+IndexBuffer::~IndexBuffer()
+{
+    glDeleteBuffers(1, &m_BufferID);
 }
 
 IndexBuffer::IndexBuffer(unsigned int* indices, unsigned int count)
