@@ -9,6 +9,7 @@ VertexBuffer::VertexBuffer(float* vertices, unsigned int size)
     glGenBuffers(1, &m_BufferID);
     glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 VertexBuffer::~VertexBuffer()
@@ -57,6 +58,7 @@ IndexBuffer::IndexBuffer(unsigned int* indices, unsigned int count)
     glGenBuffers(1, &m_BufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_BufferID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     m_IndexCount = count;
 }
