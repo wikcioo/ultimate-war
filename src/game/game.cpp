@@ -5,8 +5,12 @@
 #include "core/core.h"
 #include "core/input.h"
 #include "core/logger.h"
+#include "core/filesystem.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
+
+float h = (0.5 * glm::sqrt(3));
+float w = 1.0f;
 
 GameLayer::GameLayer()
     : Layer("GameLayer")
@@ -17,19 +21,20 @@ GameLayer::GameLayer()
     m_ColorShader = ResourceManager::GetShader("color");
     m_TextureShader = ResourceManager::GetShader("texture");
     m_StarTexture = ResourceManager::GetTexture("star");
+
+    m_GameMap = std::make_unique<GameMap>("assets/maps/simple.map");
 }
 
 void GameLayer::OnAttach()
 {
-    float h = (0.5 * glm::sqrt(3)) / 2;
-
+    float h2 = h / 2;
     float vertices[6 * 3] = {
         -0.5f,   0.0f, 0.0f,
-        -0.25f,     h, 0.0f,
-         0.25f,     h, 0.0f,
+        -0.25f,    h2, 0.0f,
+         0.25f,    h2, 0.0f,
          0.5f,   0.0f, 0.0f,
-         0.25f,    -h, 0.0f,
-        -0.25f,    -h, 0.0f
+         0.25f,   -h2, 0.0f,
+        -0.25f,   -h2, 0.0f
     };
 
     unsigned int indices[4 * 3] = {
@@ -77,8 +82,25 @@ void GameLayer::OnUpdate(float dt)
 
     m_ColorShader->Bind();
 
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.75f, 0.75f, 0.0f));
-    Renderer::Submit(m_ColorShader, m_VertexArray, model);
+    float offset = 0.1f;
+    int height = m_GameMap->GetHeight();
+    int width = m_GameMap->GetWidth();
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            if (!m_GameMap->GetTile(x, y)) continue;
+
+            float dx = (w-(w/4)) * x + (x * offset);
+            float dy = (h * y) + (y * offset);
+            if (x & 1)
+            {
+                dy += (h + offset) / 2;
+            }
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(dx, dy, 0.0f));
+            Renderer::Submit(m_ColorShader, m_VertexArray, model);
+        }
+    }
 
     m_StarTexture->Bind(0);
     m_TextureShader->Bind();
