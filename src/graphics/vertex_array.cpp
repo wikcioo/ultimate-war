@@ -12,8 +12,14 @@ VertexArray::VertexArray(const std::shared_ptr<VertexBuffer>& vertexBuffer,
 
     vertexBuffer->Bind();
     vertexBuffer->SetLayout(layout);
-
     indexBuffer->Bind();
+
+    glBindVertexArray(0);
+}
+
+VertexArray::~VertexArray()
+{
+    glDeleteVertexArrays(1, &m_ArrayID);
 }
 
 void VertexArray::Bind() const

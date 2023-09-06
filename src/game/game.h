@@ -8,6 +8,7 @@
 #include "event/mouse_event.h"
 #include "graphics/shader.h"
 #include "graphics/buffer.h"
+#include "graphics/texture.h"
 #include "graphics/vertex_array.h"
 
 class GameLayer : public Layer
@@ -26,10 +27,11 @@ private:
     bool OnMouseScrolled(MouseScrolledEvent& event);
 
 private:
-    std::shared_ptr<Shader> m_Shader;
+    std::shared_ptr<Shader> m_ColorShader;
+    std::shared_ptr<Shader> m_TextureShader;
+    std::shared_ptr<Texture2D> m_StarTexture;
     std::shared_ptr<VertexArray> m_VertexArray;
-    std::shared_ptr<IndexBuffer> m_IndexBuffer;
-    std::shared_ptr<VertexBuffer> m_VertexBuffer;
+    std::shared_ptr<VertexArray> m_QuadVA;
     std::shared_ptr<OrthographicCamera> m_Camera;
 
     float m_CameraMovementSpeed = 3.0f;

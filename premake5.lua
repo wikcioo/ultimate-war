@@ -27,10 +27,11 @@ project "UltimateWar"
 
     includedirs {
         "src/",
-        "vendor/glad/include/",
-        "vendor/glfw/include/",
+        "vendor/",
         "vendor/glm/",
         "vendor/imgui/",
+        "vendor/glad/include/",
+        "vendor/glfw/include/",
         "vendor/imgui/backends",
         "vendor/spdlog/include/"
     }
@@ -40,7 +41,7 @@ project "UltimateWar"
         "src/**.cpp"
     }
 
-    links { "GLFW", "GLM", "GLAD", "ImGui" }
+    links { "GLFW", "GLM", "GLAD", "ImGui", "stb" }
 
     filter "system:linux"
         links { "dl", "pthread" }
@@ -54,3 +55,4 @@ group "Dependencies"
     include "vendor/glad.lua"
     include "vendor/glm.lua"
     include "vendor/imgui.lua"
+    include "vendor/stb.lua"

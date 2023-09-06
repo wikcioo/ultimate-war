@@ -3,6 +3,7 @@
 #include "game/game.h"
 #include "core/core.h"
 #include "core/logger.h"
+#include "core/resource_manager.h"
 #include "debug/debug_layer.h"
 #include "graphics/renderer.h"
 
@@ -15,6 +16,10 @@ Application::Application()
     Logger::Init();
     m_Window = std::make_unique<Window>();
     m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+
+    ResourceManager::LoadShader("color", "assets/shaders/color.glsl");
+    ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
+    ResourceManager::LoadTexture("star", "assets/textures/star.png");
 
     DebugLayer* debugLayer = new DebugLayer();
     debugLayer->OnAttach();
