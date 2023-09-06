@@ -14,7 +14,7 @@ public:
     inline int GetWidth() const { return !m_GameMap.empty() ? m_GameMap[0].size() : 0; }
     inline int GetHeight() const { return m_GameMap.size(); }
 
-    void Load(const std::string& filepath);
+    void Load(const std::string& filepath, bool flip_vertically = true);
     int GetTile(int x, int y) const;
 
 private:
