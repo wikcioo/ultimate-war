@@ -1,5 +1,7 @@
 #include "camera_controller.h"
 
+#include <algorithm>
+
 #include "core/core.h"
 #include "core/input.h"
 
@@ -53,7 +55,8 @@ bool OrthographicCameraController::OnWindowResize(WindowResizedEvent& event)
 
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)
 {
-    m_Camera->SetZoom(m_Camera->GetZoom() - (event.getYOffset() / 10.0f));
+    float zoom = m_Camera->GetZoom() - (event.getYOffset() / 10.0f);
+    m_Camera->SetZoom(std::max(std::min(zoom, 10.0f), 0.1f));
     m_CameraMovementSpeed = m_Camera->GetZoom();
     return true;
 }
