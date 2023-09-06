@@ -15,14 +15,14 @@ void OrthographicCameraController::OnUpdate(float dt)
 {
     glm::vec3 cameraPosition = m_Camera->GetPosition();
 
-    if (Input::IsKeyPressed(GLFW_KEY_UP))
+    if (Input::IsKeyPressed(GLFW_KEY_W))
         cameraPosition.y += m_CameraMovementSpeed * dt;
-    if (Input::IsKeyPressed(GLFW_KEY_DOWN))
+    if (Input::IsKeyPressed(GLFW_KEY_S))
         cameraPosition.y -= m_CameraMovementSpeed * dt;
 
-    if (Input::IsKeyPressed(GLFW_KEY_LEFT))
+    if (Input::IsKeyPressed(GLFW_KEY_A))
         cameraPosition.x -= m_CameraMovementSpeed * dt;
-    if (Input::IsKeyPressed(GLFW_KEY_RIGHT))
+    if (Input::IsKeyPressed(GLFW_KEY_D))
         cameraPosition.x += m_CameraMovementSpeed * dt;
 
     m_Camera->SetPosition(cameraPosition);
