@@ -26,7 +26,7 @@ void OrthographicCamera::SetZoom(float zoom)
 void OrthographicCamera::SetPosition(const glm::vec3& position)
 {
     m_Position = position;
-    RecalculateProjectionViewMatrix();
+    RecalculateViewMatrix();
 }
 
 void OrthographicCamera::SetRotation(float rotation)
