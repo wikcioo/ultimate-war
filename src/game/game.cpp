@@ -1,5 +1,7 @@
 #include "game.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "core/core.h"
 #include "core/input.h"
 #include "core/logger.h"
@@ -74,11 +76,13 @@ void GameLayer::OnUpdate(float dt)
     Renderer::BeginScene(m_CameraController->GetCamera());
 
     m_ColorShader->Bind();
-    Renderer::Submit(m_ColorShader, m_VertexArray);
+
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.75f, 0.75f, 0.0f));
+    Renderer::Submit(m_ColorShader, m_VertexArray, model);
 
     m_StarTexture->Bind(0);
     m_TextureShader->Bind();
-    Renderer::Submit(m_TextureShader, m_QuadVA);
+    Renderer::Submit(m_TextureShader, m_QuadVA, glm::mat4(1.0f));
 
     Renderer::EndScene();
 }
