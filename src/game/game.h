@@ -10,6 +10,7 @@
 #include "graphics/buffer.h"
 #include "graphics/texture.h"
 #include "graphics/vertex_array.h"
+#include "game/map.h"
 
 class GameLayer : public Layer
 {
@@ -29,4 +30,5 @@ private:
     std::shared_ptr<VertexArray> m_VertexArray;
     std::shared_ptr<VertexArray> m_QuadVA;
     std::shared_ptr<OrthographicCameraController> m_CameraController;
+    std::unique_ptr<GameMap> m_GameMap;
 };

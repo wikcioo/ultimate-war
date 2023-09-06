@@ -1,5 +1,7 @@
 #include "camera_controller.h"
 
+#include <algorithm>
+
 #include "core/core.h"
 #include "core/input.h"
 
@@ -13,14 +15,14 @@ void OrthographicCameraController::OnUpdate(float dt)
 {
     glm::vec3 cameraPosition = m_Camera->GetPosition();
 
-    if (Input::IsKeyPressed(GLFW_KEY_UP))
+    if (Input::IsKeyPressed(GLFW_KEY_W))
         cameraPosition.y += m_CameraMovementSpeed * dt;
-    if (Input::IsKeyPressed(GLFW_KEY_DOWN))
+    if (Input::IsKeyPressed(GLFW_KEY_S))
         cameraPosition.y -= m_CameraMovementSpeed * dt;
 
-    if (Input::IsKeyPressed(GLFW_KEY_LEFT))
+    if (Input::IsKeyPressed(GLFW_KEY_A))
         cameraPosition.x -= m_CameraMovementSpeed * dt;
-    if (Input::IsKeyPressed(GLFW_KEY_RIGHT))
+    if (Input::IsKeyPressed(GLFW_KEY_D))
         cameraPosition.x += m_CameraMovementSpeed * dt;
 
     m_Camera->SetPosition(cameraPosition);
@@ -53,7 +55,8 @@ bool OrthographicCameraController::OnWindowResize(WindowResizedEvent& event)
 
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)
 {
-    m_Camera->SetZoom(m_Camera->GetZoom() - (event.getYOffset() / 10.0f));
+    float zoom = m_Camera->GetZoom() - (event.getYOffset() / 10.0f);
+    m_Camera->SetZoom(std::max(std::min(zoom, 10.0f), 0.1f));
     m_CameraMovementSpeed = m_Camera->GetZoom();
     return true;
 }
