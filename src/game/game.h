@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "core/camera.h"
+#include "core/camera_controller.h"
 #include "layer/layer.h"
 #include "event/window_event.h"
 #include "event/mouse_event.h"
@@ -23,17 +23,10 @@ public:
     virtual void OnEvent(Event& event) override;
 
 private:
-    bool OnWindowResize(WindowResizedEvent& event);
-    bool OnMouseScrolled(MouseScrolledEvent& event);
-
-private:
     std::shared_ptr<Shader> m_ColorShader;
     std::shared_ptr<Shader> m_TextureShader;
     std::shared_ptr<Texture2D> m_StarTexture;
     std::shared_ptr<VertexArray> m_VertexArray;
     std::shared_ptr<VertexArray> m_QuadVA;
-    std::shared_ptr<OrthographicCamera> m_Camera;
-
-    float m_CameraMovementSpeed = 3.0f;
-    float m_CameraRotationSpeed = 90.0f;
+    std::shared_ptr<OrthographicCameraController> m_CameraController;
 };
