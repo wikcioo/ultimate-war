@@ -29,14 +29,18 @@ void DebugLayer::OnDetach()
     ImGui::DestroyContext();
 }
 
-static void ImGuiBeginFrame()
+void DebugLayer::OnEvent(Event& event)
+{
+}
+
+void DebugLayer::BeginFrame()
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-static void ImGuiEndFrame()
+void DebugLayer::EndFrame()
 {
     auto window = Application::Get().GetWindow();
     ImGuiIO& io = ImGui::GetIO();
@@ -44,24 +48,4 @@ static void ImGuiEndFrame()
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void DebugLayer::OnUpdate(float dt)
-{
-    ImGuiBeginFrame();
-
-    static bool show_demo_window = true;
-    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
-
-    ImGui::Begin("Info");
-    ImGui::Text("FPS: %.2f", 1.0f / dt);
-    ImGui::End();
-
-    ImGuiEndFrame();
-}
-
-void DebugLayer::OnEvent(Event& event)
-{
-
 }

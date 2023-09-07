@@ -14,6 +14,7 @@ public:
     virtual void OnDetach() {};
     virtual void OnUpdate(float dt) {};
     virtual void OnEvent(Event& event) {};
+    virtual void OnDebugRender() {};
 
     inline const std::string& GetName() const { return m_Name; }
 

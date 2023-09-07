@@ -21,9 +21,9 @@ Application::Application()
     ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
     ResourceManager::LoadTexture("star", "assets/textures/star.png");
 
-    DebugLayer* debugLayer = new DebugLayer();
-    debugLayer->OnAttach();
-    m_LayerStack.PushOverlay(debugLayer);
+    m_DebugLayer = new DebugLayer();
+    m_DebugLayer->OnAttach();
+    m_LayerStack.PushOverlay(m_DebugLayer);
 
     GameLayer* gameLayer = new GameLayer();
     gameLayer->OnAttach();
@@ -64,6 +64,11 @@ void Application::Run()
 
         for (auto layer : m_LayerStack)
             layer->OnUpdate(m_DeltaTime);
+
+        m_DebugLayer->BeginFrame();
+        for (auto layer : m_LayerStack)
+            layer->OnDebugRender();
+        m_DebugLayer->EndFrame();
 
         m_Window->OnUpdate();
     }

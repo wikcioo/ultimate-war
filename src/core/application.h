@@ -4,6 +4,7 @@
 #include "core/window.h"
 #include "core/camera.h"
 #include "layer/layer_stack.h"
+#include "debug/debug_layer.h"
 #include "graphics/shader.h"
 #include "graphics/buffer.h"
 #include "graphics/vertex_array.h"
@@ -22,12 +23,11 @@ public:
 
 private:
     bool OnWindowClose(WindowClosedEvent& event);
-    bool OnWindowResize(WindowResizedEvent& event);
-    bool OnMouseScrolled(MouseScrolledEvent& event);
 
 private:
     std::unique_ptr<Window> m_Window;
     LayerStack m_LayerStack;
+    DebugLayer* m_DebugLayer;
     float m_DeltaTime;
     bool m_Running = true;
     static Application* s_Instance;
