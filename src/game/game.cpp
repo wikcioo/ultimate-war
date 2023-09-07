@@ -1,5 +1,7 @@
 #include "game.h"
 
+#include <imgui/imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "core/core.h"
@@ -13,7 +15,7 @@ float h = (0.5 * glm::sqrt(3));
 float w = 1.0f;
 
 GameLayer::GameLayer()
-    : Layer("GameLayer")
+    : Layer("GameLayer"), m_TileColor({0.1f, 0.8f, 0.8f})
 {
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
@@ -97,6 +99,7 @@ void GameLayer::OnUpdate(float dt)
             {
                 dy += (h + offset) / 2;
             }
+            m_ColorShader->SetFloat4("u_Color", glm::vec4(m_TileColor, 1.0f));
             glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(dx, dy, 0.0f));
             Renderer::Submit(m_ColorShader, m_VertexArray, model);
         }
@@ -104,6 +107,7 @@ void GameLayer::OnUpdate(float dt)
 
     m_StarTexture->Bind(0);
     m_TextureShader->Bind();
+    m_TextureShader->SetInt("u_Texture", 0);
     Renderer::Submit(m_TextureShader, m_QuadVA, glm::mat4(1.0f));
 
     Renderer::EndScene();
@@ -112,4 +116,12 @@ void GameLayer::OnUpdate(float dt)
 void GameLayer::OnEvent(Event& event)
 {
     m_CameraController->OnEvent(event);
+}
+
+void GameLayer::OnDebugRender()
+{
+    static bool show_settings = true;
+    ImGui::Begin("Settings", &show_settings);
+    ImGui::ColorEdit3("tile color", glm::value_ptr(m_TileColor));
+    ImGui::End();
 }
