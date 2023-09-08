@@ -2,8 +2,10 @@
 
 #include <string>
 #include <fstream>
+#include <filesystem>
 
 #include "logger.h"
+#include "util/util.h"
 
 class FileSystem
 {
@@ -27,5 +29,16 @@ public:
         }
 
         return str;
+    }
+
+    static std::vector<std::string> GetAllFilesInDirectory(const std::string& path, bool includeExtension = true)
+    {
+        std::vector<std::string> files;
+        for (auto& entry : std::filesystem::directory_iterator(path))
+        {
+            files.emplace_back(Util::ExtractFileNameFromPath(entry.path().string(), includeExtension));
+        }
+
+        return files;
     }
 };

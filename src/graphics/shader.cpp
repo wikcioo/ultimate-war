@@ -7,7 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "core/logger.h"
-#include "core/filesystem.h"
+#include "core/file_system.h"
 #include "util/util.h"
 
 Shader::Shader(const std::string& filepath)

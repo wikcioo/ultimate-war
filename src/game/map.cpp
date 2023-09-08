@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-#include "core/filesystem.h"
+#include "core/file_system.h"
 
 GameMap::GameMap(const std::string& filepath)
 {
