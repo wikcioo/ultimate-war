@@ -4,17 +4,24 @@
 
 #include "core/file_system.h"
 
-GameMap::GameMap(const std::string& filepath)
+std::string GameMap::s_MapDirectory = "assets/maps/";
+std::string GameMap::s_MapFileSuffix = ".map";
+
+GameMap::GameMap(const std::string& mapName)
+    : m_SelectedMap("")
 {
-    if (!filepath.empty())
+    if (!mapName.empty())
     {
-        Load(filepath);
+        Load(mapName);
+        m_SelectedMap = mapName;
     }
+
+    RetrieveAvailableMaps();
 }
 
-void GameMap::Load(const std::string& filepath, bool flip_vertically)
+void GameMap::Load(const std::string& mapName, bool flip_vertically)
 {
-    std::string content = FileSystem::ReadFile(filepath);
+    std::string content = FileSystem::ReadFile(GetMapPath(mapName));
     std::istringstream ss(content);
 
     std::string line;
@@ -36,15 +43,35 @@ void GameMap::Load(const std::string& filepath, bool flip_vertically)
         map.emplace_back(row);
     }
 
-    m_GameMap = map;
+    m_MapData = map;
+    m_SelectedMap = mapName;
 }
 
 int GameMap::GetTile(int x, int y) const
 {
     if (x <= GetWidth() && y <= GetHeight() && x > -1 && y > -1)
-    {
-        return m_GameMap[y][x];
-    }
+        return m_MapData[y][x];
 
     return -1;
+}
+
+void GameMap::RetrieveAvailableMaps()
+{
+    std::vector<std::string> files = FileSystem::GetAllFilesInDirectory(s_MapDirectory);
+
+    // Remove all entries in files vector which do not end with s_MapFileSuffix
+    files.erase(std::remove_if(files.begin(), files.end(), [](const std::string& s) {
+        if (s.length() <= s_MapFileSuffix.length()) return true;
+        return (s.compare(s.length() - s_MapFileSuffix.length(), s_MapFileSuffix.length(), s_MapFileSuffix) != 0);
+    }), files.end());
+
+    for (auto& file : files)
+        file = Util::StripFileExtension(file);
+
+    m_AvailableMapList = files;
+}
+
+std::string GameMap::GetMapPath(const std::string& mapName)
+{
+    return s_MapDirectory + mapName + s_MapFileSuffix;
 }
