@@ -7,7 +7,6 @@
 #include "core/core.h"
 #include "core/input.h"
 #include "core/logger.h"
-#include "core/filesystem.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
 
@@ -24,7 +23,7 @@ GameLayer::GameLayer()
     m_TextureShader = ResourceManager::GetShader("texture");
     m_StarTexture = ResourceManager::GetTexture("star");
 
-    m_GameMap = std::make_unique<GameMap>("assets/maps/simple.map");
+    m_GameMap = std::make_unique<GameMap>("");
 }
 
 void GameLayer::OnAttach()
@@ -122,6 +121,24 @@ void GameLayer::OnDebugRender()
 {
     static bool show_settings = true;
     ImGui::Begin("Settings", &show_settings);
+
     ImGui::ColorEdit3("tile color", glm::value_ptr(m_TileColor));
+
+    ImGui::Separator();
+
+    if (ImGui::Button("Select map.."))
+        ImGui::OpenPopup("available_maps_popup");
+
+    if (ImGui::BeginPopup("available_maps_popup"))
+    {
+        for (std::string mapName : m_GameMap->GetAvailableMaps())
+            if (ImGui::Selectable(mapName.c_str()))
+                m_GameMap->Load(mapName);
+        ImGui::EndPopup();
+    }
+
+    std::string selectedMap = m_GameMap->GetSelectedMapName();
+    ImGui::Text(std::string("Currently selected map: " + (selectedMap.empty() ? "None" : selectedMap)).c_str());
+
     ImGui::End();
 }
