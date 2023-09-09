@@ -18,4 +18,12 @@ public:
         int state = glfwGetMouseButton(window, button);
         return state == GLFW_PRESS;
     }
+
+    static std::pair<float, float> GetMousePosition()
+    {
+        auto window = Application::Get().GetWindow()->GetNativeWindow();
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        return { (float)xpos, (float)ypos };
+    }
 };
