@@ -4,17 +4,15 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "game/tile.h"
 #include "core/core.h"
 #include "core/input.h"
 #include "core/logger.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
 
-float h = (0.5 * glm::sqrt(3));
-float w = 1.0f;
-
 GameLayer::GameLayer()
-    : Layer("GameLayer"), m_TileColor({0.1f, 0.8f, 0.8f})
+    : Layer("GameLayer")
 {
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
@@ -24,18 +22,26 @@ GameLayer::GameLayer()
     m_StarTexture = ResourceManager::GetTexture("star");
 
     m_GameMap = std::make_unique<GameMap>("");
+    m_GameMap->SetTileDefaultColor(0, {0.2f, 0.2f, 0.2f, 0.2f});
+    m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
+    m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
+    m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
 }
 
 void GameLayer::OnAttach()
 {
+    float w = tileWidth;
+    float h = tileHeight;
+
     float h2 = h / 2;
+    float w2 = w / 2;
     float vertices[6 * 3] = {
-        -0.5f,   0.0f, 0.0f,
-        -0.25f,    h2, 0.0f,
-         0.25f,    h2, 0.0f,
-         0.5f,   0.0f, 0.0f,
-         0.25f,   -h2, 0.0f,
-        -0.25f,   -h2, 0.0f
+        -w2,   0.0f, 0.0f,
+        -w2/2,   h2, 0.0f,
+         w2/2,   h2, 0.0f,
+         w2,   0.0f, 0.0f,
+         w2/2,  -h2, 0.0f,
+        -w2/2,  -h2, 0.0f
     };
 
     unsigned int indices[4 * 3] = {
@@ -83,23 +89,21 @@ void GameLayer::OnUpdate(float dt)
 
     m_ColorShader->Bind();
 
-    float offset = 0.1f;
-    int height = m_GameMap->GetHeight();
-    int width = m_GameMap->GetWidth();
-    for (int y = 0; y < height; y++)
+    auto [relX, relY] = CalculateRelativeMousePosition();
+    for (int y = 0; y < m_GameMap->GetHeight(); y++)
     {
-        for (int x = 0; x < width; x++)
+        for (int x = 0; x < m_GameMap->GetWidth(); x++)
         {
-            if (!m_GameMap->GetTile(x, y)) continue;
+            Tile* tile = m_GameMap->GetTile(x, y);
 
-            float dx = (w-(w/4)) * x + (x * offset);
-            float dy = (h * y) + (y * offset);
-            if (x & 1)
-            {
-                dy += (h + offset) / 2;
-            }
-            m_ColorShader->SetFloat4("u_Color", glm::vec4(m_TileColor, 1.0f));
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(dx, dy, 0.0f));
+            glm::vec4 tileColor;
+            if (tile->InRange({relX, relY}))
+                tileColor = m_GameMap->GetTileHighlightColor(tile->GetType());
+            else
+                tileColor = m_GameMap->GetTileDefaultColor(tile->GetType());
+
+            m_ColorShader->SetFloat4("u_Color", tileColor);
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(tile->GetPosition(), 0.0f));
             Renderer::Submit(m_ColorShader, m_VertexArray, model);
         }
     }
@@ -122,10 +126,6 @@ void GameLayer::OnDebugRender()
     static bool show_settings = true;
     ImGui::Begin("Settings", &show_settings);
 
-    ImGui::ColorEdit3("tile color", glm::value_ptr(m_TileColor));
-
-    ImGui::Separator();
-
     if (ImGui::Button("Select map.."))
         ImGui::OpenPopup("available_maps_popup");
 
@@ -140,5 +140,40 @@ void GameLayer::OnDebugRender()
     std::string selectedMap = m_GameMap->GetSelectedMapName();
     ImGui::Text(std::string("Currently selected map: " + (selectedMap.empty() ? "None" : selectedMap)).c_str());
 
+    ImGui::Separator();
+
+    auto camera = m_CameraController->GetCamera();
+    auto pos = camera->GetPosition();
+    ImGui::Text("camera");
+    ImGui::Text("position: %f, %f, %f", pos.x, pos.y, pos.z);
+    ImGui::Text("aspect ratio: %f", camera->GetAspectRatio());
+
+    ImGui::Separator();
+
+    auto window = Application::Get().GetWindow();
+    float pixelWidth = (float)window->GetWidth();
+    float pixelHeight = (float)window->GetHeight();
+    ImGui::Text("window");
+    ImGui::Text("width: %f", pixelWidth);
+    ImGui::Text("height: %f", pixelHeight);
+
     ImGui::End();
+}
+
+std::pair<float, float> GameLayer::CalculateRelativeMousePosition()
+{
+    auto [x, y] = Input::GetMousePosition();
+
+    auto window = Application::Get().GetWindow();
+    float pixelWidth = (float)window->GetWidth();
+    float pixelHeight = (float)window->GetHeight();
+
+    auto camera = m_CameraController->GetCamera();
+    float relWidth = camera->GetZoom() * camera->GetAspectRatio() * 2;
+    float relHeight = camera->GetZoom() * 2;
+
+    float relX = (x * relWidth / pixelWidth) - camera->GetZoom() * camera->GetAspectRatio() + camera->GetPosition().x;
+    float relY = ((y * relHeight / pixelHeight) - camera->GetZoom() - camera->GetPosition().y) * -1;
+
+    return {relX, relY};
 }
