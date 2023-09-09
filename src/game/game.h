@@ -25,6 +25,9 @@ public:
     virtual void OnDebugRender() override;
 
 private:
+    std::pair<float, float> CalculateRelativeMousePosition();
+
+private:
     std::shared_ptr<Shader> m_ColorShader;
     std::shared_ptr<Shader> m_TextureShader;
     std::shared_ptr<Texture2D> m_StarTexture;
@@ -32,5 +35,4 @@ private:
     std::shared_ptr<VertexArray> m_QuadVA;
     std::shared_ptr<OrthographicCameraController> m_CameraController;
     std::unique_ptr<GameMap> m_GameMap;
-    glm::vec3 m_TileColor;
 };

@@ -7,8 +7,10 @@
 std::string GameMap::s_MapDirectory = "assets/maps/";
 std::string GameMap::s_MapFileSuffix = ".map";
 
+static Tile g_BadTile(-1, {0.0f, 0.0f});
+
 GameMap::GameMap(const std::string& mapName)
-    : m_SelectedMap("")
+    : m_SelectedMap(""), m_MissingTileTypeColor({1.0f, 0.0f, 1.0f, 1.0f})
 {
     if (!mapName.empty())
     {
@@ -17,6 +19,22 @@ GameMap::GameMap(const std::string& mapName)
     }
 
     RetrieveAvailableMaps();
+}
+
+const glm::vec4& GameMap::GetTileDefaultColor(int type)
+{
+    if (m_TileDefaultColorMap.find(type) != m_TileDefaultColorMap.end())
+        return m_TileDefaultColorMap[type];
+
+    return m_MissingTileTypeColor;
+}
+
+const glm::vec4& GameMap::GetTileHighlightColor(int type)
+{
+    if (m_TileHighlightColorMap.find(type) != m_TileHighlightColorMap.end())
+        return m_TileHighlightColorMap[type];
+
+    return m_MissingTileTypeColor;
 }
 
 void GameMap::Load(const std::string& mapName, bool flip_vertically)
@@ -32,14 +50,22 @@ void GameMap::Load(const std::string& mapName, bool flip_vertically)
     if (flip_vertically)
         std::reverse(rows.begin(), rows.end());
 
+    int x = 0, y = 0;
     int tileCode;
     MapData map;
     for (std::string row_str : rows)
     {
         std::istringstream sstream(row_str);
-        std::vector<int> row;
+        std::vector<Tile*> row;
         while (sstream >> tileCode)
-            row.emplace_back(tileCode);
+        {
+            auto [dx, dy] = CalculateTilePosition(x, y);
+            Tile* t = new Tile(tileCode, {dx, dy});
+            row.emplace_back(t);
+            x++;
+        }
+        x = 0;
+        y++;
         map.emplace_back(row);
     }
 
@@ -47,12 +73,14 @@ void GameMap::Load(const std::string& mapName, bool flip_vertically)
     m_SelectedMap = mapName;
 }
 
-int GameMap::GetTile(int x, int y) const
+Tile* GameMap::GetTile(int x, int y)
 {
-    if (x <= GetWidth() && y <= GetHeight() && x > -1 && y > -1)
+    if (x < GetWidth() && y < GetHeight() && x > -1 && y > -1)
         return m_MapData[y][x];
 
-    return -1;
+    auto [dx, dy] = CalculateTilePosition(x, y);
+    g_BadTile = Tile(-1, {dx, dy});
+    return &g_BadTile;
 }
 
 void GameMap::RetrieveAvailableMaps()
@@ -74,4 +102,20 @@ void GameMap::RetrieveAvailableMaps()
 std::string GameMap::GetMapPath(const std::string& mapName)
 {
     return s_MapDirectory + mapName + s_MapFileSuffix;
+}
+
+std::pair<float, float> GameMap::CalculateTilePosition(int x, int y)
+{
+    float w = tileWidth;
+    float h = tileHeight;
+
+    float dx = (w-(w/4)) * x + (x * tileOffset);
+    float dy = (h * y) + (y * tileOffset);
+
+    if (x & 1)
+    {
+        dy += (h + tileOffset) / 2;
+    }
+
+    return {dx, dy};
 }

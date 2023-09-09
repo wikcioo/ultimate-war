@@ -54,91 +54,91 @@ void Window::Init()
 
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
     {
-        auto data = *(WindowData*)glfwGetWindowUserPointer(window);
+        auto data = (WindowData*)glfwGetWindowUserPointer(window);
 
         if (action == GLFW_PRESS)
         {
             KeyPressedEvent event(key, 0);
-            data.EventCallback(event);
+            data->EventCallback(event);
         }
         else if (action == GLFW_RELEASE)
         {
             KeyReleasedEvent event(key);
-            data.EventCallback(event);
+            data->EventCallback(event);
         }
         else if(action == GLFW_REPEAT)
         {
             KeyPressedEvent event(key, 1);
-            data.EventCallback(event);
+            data->EventCallback(event);
         }
     });
 
     glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
     {
-        auto data = *(WindowData*)glfwGetWindowUserPointer(window);
+        auto data = (WindowData*)glfwGetWindowUserPointer(window);
 
         if (action == GLFW_PRESS)
         {
             MouseButtonPressedEvent event(button);
-            data.EventCallback(event);
+            data->EventCallback(event);
         }
         else if (action == GLFW_RELEASE)
         {
             MouseButtonReleasedEvent event(button);
-            data.EventCallback(event);
+            data->EventCallback(event);
         }
     });
 
     glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos)
     {
-        auto data = *(WindowData*)glfwGetWindowUserPointer(window);
+        auto data = (WindowData*)glfwGetWindowUserPointer(window);
 
         MouseMovedEvent event((float)xpos,(float)ypos);
-        data.EventCallback(event);
+        data->EventCallback(event);
     });
 
     glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset)
     {
-        auto data = *(WindowData*)glfwGetWindowUserPointer(window);
+        auto data = (WindowData*)glfwGetWindowUserPointer(window);
 
         MouseScrolledEvent event((float)xoffset, (float)yoffset);
-        data.EventCallback(event);
+        data->EventCallback(event);
     });
 
     glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
     {
-        auto data = *(WindowData*)glfwGetWindowUserPointer(window);
+        auto data = (WindowData*)glfwGetWindowUserPointer(window);
 
         WindowClosedEvent event;
-        data.EventCallback(event);
+        data->EventCallback(event);
     });
 
     glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
     {
-        auto data = *(WindowData*)glfwGetWindowUserPointer(window);
+        auto data = (WindowData*)glfwGetWindowUserPointer(window);
 
-        data.Width = width;
-        data.Height = height;
+        data->Width = width;
+        data->Height = height;
 
         glViewport(0, 0, width, height);
 
         WindowResizedEvent event(width, height);
-        data.EventCallback(event);
+        data->EventCallback(event);
     });
 
     glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* window, int maximized)
     {
-        auto data = *(WindowData*)glfwGetWindowUserPointer(window);
+        auto data = (WindowData*)glfwGetWindowUserPointer(window);
 
         if (maximized == GLFW_TRUE)
         {
             WindowMaximizedEvent event;
-            data.EventCallback(event);
+            data->EventCallback(event);
         }
         else if (maximized == GLFW_FALSE)
         {
             WindowMinimizedEvent event;
-            data.EventCallback(event);
+            data->EventCallback(event);
         }
     });
 }
