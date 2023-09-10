@@ -11,6 +11,7 @@
 #include "graphics/texture.h"
 #include "graphics/vertex_array.h"
 #include "game/map.h"
+#include "game/arrow.h"
 
 class GameLayer : public Layer
 {
@@ -26,6 +27,7 @@ public:
 
 private:
     std::pair<float, float> CalculateRelativeMousePosition();
+    bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
 
 private:
     std::shared_ptr<Shader> m_ColorShader;
@@ -35,4 +37,7 @@ private:
     std::shared_ptr<VertexArray> m_QuadVA;
     std::shared_ptr<OrthographicCameraController> m_CameraController;
     std::unique_ptr<GameMap> m_GameMap;
+    std::unique_ptr<Arrow> m_Arrow;
+
+    glm::vec2 m_StarPosition = {0.0f, 0.0f};
 };

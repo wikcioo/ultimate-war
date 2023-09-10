@@ -26,6 +26,8 @@ GameLayer::GameLayer()
     m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
     m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
     m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
+
+    m_Arrow = std::make_unique<Arrow>();
 }
 
 void GameLayer::OnAttach()
@@ -90,6 +92,7 @@ void GameLayer::OnUpdate(float dt)
     m_ColorShader->Bind();
 
     auto [relX, relY] = CalculateRelativeMousePosition();
+    bool isCursorInRange = false;
     for (int y = 0; y < m_GameMap->GetHeight(); y++)
     {
         for (int x = 0; x < m_GameMap->GetWidth(); x++)
@@ -98,9 +101,15 @@ void GameLayer::OnUpdate(float dt)
 
             glm::vec4 tileColor;
             if (tile->InRange({relX, relY}))
+            {
+                isCursorInRange = true;
+                m_Arrow->SetEndPosition(tile->GetPosition());
                 tileColor = m_GameMap->GetTileHighlightColor(tile->GetType());
+            }
             else
+            {
                 tileColor = m_GameMap->GetTileDefaultColor(tile->GetType());
+            }
 
             m_ColorShader->SetFloat4("u_Color", tileColor);
             glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(tile->GetPosition(), 0.0f));
@@ -108,10 +117,18 @@ void GameLayer::OnUpdate(float dt)
         }
     }
 
+    if (!isCursorInRange)
+    {
+        auto relativePosition = CalculateRelativeMousePosition();
+        m_Arrow->SetEndPosition({relativePosition.first, relativePosition.second});
+    }
+
+    m_Arrow->Update();
+
     m_StarTexture->Bind(0);
     m_TextureShader->Bind();
     m_TextureShader->SetInt("u_Texture", 0);
-    Renderer::Submit(m_TextureShader, m_QuadVA, glm::mat4(1.0f));
+    Renderer::Submit(m_TextureShader, m_QuadVA, glm::translate(glm::mat4(1.0f), glm::vec3(m_StarPosition, 0.0f)));
 
     Renderer::EndScene();
 }
@@ -119,12 +136,67 @@ void GameLayer::OnUpdate(float dt)
 void GameLayer::OnEvent(Event& event)
 {
     m_CameraController->OnEvent(event);
+
+    EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(GameLayer::OnMouseButtonPressed));
+}
+
+bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
+{
+    static bool arrowClickedOnStarTile = false;
+    auto [relX, relY] = CalculateRelativeMousePosition();
+
+    for (int y = 0; y < m_GameMap->GetHeight(); y++)
+    {
+        for (int x = 0; x < m_GameMap->GetWidth(); x++)
+        {
+            Tile* tile = m_GameMap->GetTile(x, y);
+            if (tile->InRange({relX, relY}))
+            {
+                if (m_Arrow->IsVisible() && arrowClickedOnStarTile)
+                {
+                    m_StarPosition = tile->GetPosition();
+                }
+                else
+                {
+                    if (tile->GetPosition() == m_StarPosition)
+                        arrowClickedOnStarTile = true;
+                    else
+                        arrowClickedOnStarTile = false;
+                }
+
+                m_Arrow->SetVisible(!m_Arrow->IsVisible());
+                m_Arrow->SetStartPosition(tile->GetPosition());
+                return false;
+            }
+        }
+    }
+
+    m_Arrow->SetVisible(false);
+    return false;
 }
 
 void GameLayer::OnDebugRender()
 {
     static bool show_settings = true;
     ImGui::Begin("Settings", &show_settings);
+
+    static bool polygon_mode = false;
+    static bool polygon_mode_active_last_frame = false;
+    ImGui::Checkbox("Polygon mode", &polygon_mode);
+    if (polygon_mode != polygon_mode_active_last_frame)
+    {
+        if (polygon_mode)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            polygon_mode_active_last_frame = true;
+        }
+        else
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            polygon_mode_active_last_frame = false;
+        }
+    }
 
     if (ImGui::Button("Select map.."))
         ImGui::OpenPopup("available_maps_popup");
