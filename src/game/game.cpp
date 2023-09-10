@@ -100,7 +100,7 @@ void GameLayer::OnUpdate(float dt)
             Tile* tile = m_GameMap->GetTile(x, y);
 
             glm::vec4 tileColor;
-            if (tile->InRange({relX, relY}))
+            if (!isCursorInRange && tile->InRange({relX, relY}))
             {
                 isCursorInRange = true;
                 m_Arrow->SetEndPosition(tile->GetPosition());
