@@ -2,16 +2,19 @@
 
 #include <vector>
 
+#include <glad/glad.h>
+
 class VertexBuffer
 {
 public:
-    VertexBuffer(float* vertices, unsigned int size);
+    VertexBuffer(float* vertices, unsigned int size, unsigned int usage = GL_STATIC_DRAW);
     ~VertexBuffer();
 
     void Bind() const;
     void Unbind() const;
 
     void SetLayout(const std::vector<int>& layout);
+    void UpdateData(float* data, unsigned int offset, unsigned int size);
 
 private:
     unsigned int m_BufferID;

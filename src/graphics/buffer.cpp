@@ -2,13 +2,11 @@
 
 #include <numeric>
 
-#include <glad/glad.h>
-
-VertexBuffer::VertexBuffer(float* vertices, unsigned int size)
+VertexBuffer::VertexBuffer(float* vertices, unsigned int size, unsigned int usage)
 {
     glGenBuffers(1, &m_BufferID);
     glBindBuffer(GL_ARRAY_BUFFER, m_BufferID);
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, vertices, usage);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -46,6 +44,11 @@ void VertexBuffer::SetLayout(const std::vector<int>& layout)
 
         offset += layout[i];
     }
+}
+
+void VertexBuffer::UpdateData(float* data, unsigned int offset, unsigned int size)
+{
+    glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
 }
 
 IndexBuffer::~IndexBuffer()
