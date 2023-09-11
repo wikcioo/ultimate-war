@@ -13,6 +13,6 @@ libs/Makefile
 **/*.vcxproj.filters
 .vs/
 
-.vscode/
+.vscode/settings.json
 
 imgui.ini
