@@ -26,7 +26,6 @@ private:
 
 private:
     std::shared_ptr<VertexArray> m_ArrowVA;
-    std::shared_ptr<Shader> m_ColorShader;
     glm::vec2 m_StartPosition;
     glm::vec2 m_EndPosition;
     glm::vec4 m_Color;

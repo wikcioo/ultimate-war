@@ -76,15 +76,6 @@ void Renderer2D::EndScene()
 {
 }
 
-void Renderer2D::Submit(const std::shared_ptr<Shader>& shader, std::shared_ptr<VertexArray>& vertexArray, const glm::mat4& model)
-{
-    shader->SetMat4("u_Model", model);
-    shader->SetMat4("u_ProjectionView", s_Data->Camera->GetProjectionViewMatrix());
-
-    vertexArray->Bind();
-    glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
-}
-
 void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 {
     DrawQuad(glm::vec3(position, 0.0f), size, color);
