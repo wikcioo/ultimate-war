@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "clean",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "command": "make --no-print-directory -C . -f UltimateWar.make clean",
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "make -j",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+        },
+        {
+            "label": "run",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "command": "make -j; if [ $? -eq 0 ] ; then ./bin/Debug-linux/UltimateWar ; fi",
+        }
+    ]
+}

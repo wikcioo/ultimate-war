@@ -25,16 +25,11 @@ private:
     bool OnWindowClose(WindowClosedEvent& event);
 
 private:
+    static Application* s_Instance;
+
     std::unique_ptr<Window> m_Window;
     LayerStack m_LayerStack;
     DebugLayer* m_DebugLayer;
-    float m_DeltaTime;
     bool m_Running = true;
-    static Application* s_Instance;
-    unsigned int m_VAO;
-    std::shared_ptr<VertexBuffer> m_VertexBuffer;
-    std::shared_ptr<IndexBuffer> m_IndexBuffer;
-    std::shared_ptr<VertexArray> m_VertexArray;
-    std::shared_ptr<Shader> m_Shader;
-    std::shared_ptr<OrthographicCamera> m_Camera;
+    float m_DeltaTime;
 };

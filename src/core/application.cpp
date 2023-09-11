@@ -21,6 +21,8 @@ Application::Application()
     ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
     ResourceManager::LoadTexture("star", "assets/textures/star.png");
 
+    Renderer2D::Init();
+
     m_DebugLayer = new DebugLayer();
     m_DebugLayer->OnAttach();
     m_LayerStack.PushOverlay(m_DebugLayer);
