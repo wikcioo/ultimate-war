@@ -31,7 +31,6 @@ Arrow::Arrow(const glm::vec4& color, float thickness, float tipLength)
     std::vector<int> arrowLayout = {2};
 
     m_ArrowVA = std::make_shared<VertexArray>(arrowVB, arrowIB, arrowLayout);
-    m_ColorShader = ResourceManager::GetShader("color");
 }
 
 float* Arrow::GetNewArrowData()
@@ -101,7 +100,5 @@ void Arrow::Update()
     m_ArrowVA->GetVertexBuffer()->UpdateData(data, 0, 14 * sizeof(float));
     delete data;
 
-    m_ColorShader->SetFloat4("u_Color", m_Color);
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-    Renderer2D::Submit(m_ColorShader, m_ArrowVA, model);
+    Renderer2D::DrawGeometry(m_ArrowVA, glm::vec3(0.0f), glm::vec2(1.0f), m_Color);
 }
