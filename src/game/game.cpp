@@ -16,45 +16,16 @@ GameLayer::GameLayer()
 {
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
-
-    m_ColorShader = ResourceManager::GetShader("color");
-
     m_GameMap = std::make_unique<GameMap>("");
-    m_GameMap->SetTileDefaultColor(0, {0.2f, 0.2f, 0.2f, 0.2f});
-    m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
-    m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
-    m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
-
     m_Arrow = std::make_unique<Arrow>();
 }
 
 void GameLayer::OnAttach()
 {
-    float w = tileWidth;
-    float h = tileHeight;
-
-    float h2 = h / 2;
-    float w2 = w / 2;
-    float vertices[6 * 3] = {
-        -w2,   0.0f, 0.0f,
-        -w2/2,   h2, 0.0f,
-         w2/2,   h2, 0.0f,
-         w2,   0.0f, 0.0f,
-         w2/2,  -h2, 0.0f,
-        -w2/2,  -h2, 0.0f
-    };
-
-    unsigned int indices[4 * 3] = {
-        0, 2, 1,
-        0, 3, 2,
-        0, 5, 3,
-        5, 4, 3
-    };
-
-    std::vector<int> layout = {3};
-    auto vertexBuffer = std::make_shared<VertexBuffer>(vertices, sizeof(vertices));
-    auto indexBuffer = std::make_shared<IndexBuffer>(indices, sizeof(indices) / sizeof(unsigned int));
-    m_VertexArray = std::make_shared<VertexArray>(vertexBuffer, indexBuffer, layout);
+    m_GameMap->SetTileDefaultColor(0, {0.2f, 0.2f, 0.2f, 0.2f});
+    m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
+    m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
+    m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
 }
 
 void GameLayer::OnDetach()
@@ -68,8 +39,6 @@ void GameLayer::OnUpdate(float dt)
     Renderer2D::ClearColor({0.0f, 0.5f, 1.0f, 1.0f});
 
     Renderer2D::BeginScene(m_CameraController->GetCamera());
-
-    m_ColorShader->Bind();
 
     auto [relX, relY] = CalculateRelativeMousePosition();
     bool isCursorInRange = false;
@@ -91,9 +60,7 @@ void GameLayer::OnUpdate(float dt)
                 tileColor = m_GameMap->GetTileDefaultColor(tile->GetType());
             }
 
-            m_ColorShader->SetFloat4("u_Color", tileColor);
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(tile->GetPosition(), 0.0f));
-            Renderer2D::Submit(m_ColorShader, m_VertexArray, model);
+            Renderer2D::DrawHexagon(tile->GetPosition(), glm::vec2(0.5f), tileColor);
         }
     }
 
