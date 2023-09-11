@@ -103,5 +103,5 @@ void Arrow::Update()
 
     m_ColorShader->SetFloat4("u_Color", m_Color);
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-    Renderer::Submit(m_ColorShader, m_ArrowVA, model);
+    Renderer2D::Submit(m_ColorShader, m_ArrowVA, model);
 }

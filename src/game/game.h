@@ -31,10 +31,7 @@ private:
 
 private:
     std::shared_ptr<Shader> m_ColorShader;
-    std::shared_ptr<Shader> m_TextureShader;
-    std::shared_ptr<Texture2D> m_StarTexture;
     std::shared_ptr<VertexArray> m_VertexArray;
-    std::shared_ptr<VertexArray> m_QuadVA;
     std::shared_ptr<OrthographicCameraController> m_CameraController;
     std::unique_ptr<GameMap> m_GameMap;
     std::unique_ptr<Arrow> m_Arrow;

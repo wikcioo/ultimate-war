@@ -18,8 +18,6 @@ GameLayer::GameLayer()
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
 
     m_ColorShader = ResourceManager::GetShader("color");
-    m_TextureShader = ResourceManager::GetShader("texture");
-    m_StarTexture = ResourceManager::GetTexture("star");
 
     m_GameMap = std::make_unique<GameMap>("");
     m_GameMap->SetTileDefaultColor(0, {0.2f, 0.2f, 0.2f, 0.2f});
@@ -53,28 +51,10 @@ void GameLayer::OnAttach()
         5, 4, 3
     };
 
-    float quadVertices[4 * 5] = {
-        -0.3f, -0.3f, 0.0f, 0.0f, 0.0f,
-         0.3f, -0.3f, 0.0f, 1.0f, 0.0f,
-         0.3f,  0.3f, 0.0f, 1.0f, 1.0f,
-        -0.3f,  0.3f, 0.0f, 0.0f, 1.0f
-    };
-
-    unsigned int quadIndices[6] = {
-        0, 2, 3,
-        0, 1, 2
-    };
-
+    std::vector<int> layout = {3};
     auto vertexBuffer = std::make_shared<VertexBuffer>(vertices, sizeof(vertices));
     auto indexBuffer = std::make_shared<IndexBuffer>(indices, sizeof(indices) / sizeof(unsigned int));
-    std::vector<int> layout = {3};
-
-    auto quadVB = std::make_shared<VertexBuffer>(quadVertices, sizeof(quadVertices));
-    auto quadIB = std::make_shared<IndexBuffer>(quadIndices, sizeof(quadIndices) / sizeof(unsigned int));
-    std::vector<int> quadLayout = {3, 2};
-
     m_VertexArray = std::make_shared<VertexArray>(vertexBuffer, indexBuffer, layout);
-    m_QuadVA = std::make_shared<VertexArray>(quadVB, quadIB, quadLayout);
 }
 
 void GameLayer::OnDetach()
@@ -85,9 +65,9 @@ void GameLayer::OnUpdate(float dt)
 {
     m_CameraController->OnUpdate(dt);
 
-    Renderer::ClearColor({0.0f, 0.5f, 1.0f, 1.0f});
+    Renderer2D::ClearColor({0.0f, 0.5f, 1.0f, 1.0f});
 
-    Renderer::BeginScene(m_CameraController->GetCamera());
+    Renderer2D::BeginScene(m_CameraController->GetCamera());
 
     m_ColorShader->Bind();
 
@@ -113,7 +93,7 @@ void GameLayer::OnUpdate(float dt)
 
             m_ColorShader->SetFloat4("u_Color", tileColor);
             glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(tile->GetPosition(), 0.0f));
-            Renderer::Submit(m_ColorShader, m_VertexArray, model);
+            Renderer2D::Submit(m_ColorShader, m_VertexArray, model);
         }
     }
 
@@ -125,12 +105,10 @@ void GameLayer::OnUpdate(float dt)
 
     m_Arrow->Update();
 
-    m_StarTexture->Bind(0);
-    m_TextureShader->Bind();
-    m_TextureShader->SetInt("u_Texture", 0);
-    Renderer::Submit(m_TextureShader, m_QuadVA, glm::translate(glm::mat4(1.0f), glm::vec3(m_StarPosition, 0.0f)));
+    static auto starTexture = ResourceManager::GetTexture("star");
+    Renderer2D::DrawQuad(m_StarPosition, glm::vec2(0.3f), starTexture);
 
-    Renderer::EndScene();
+    Renderer2D::EndScene();
 }
 
 void GameLayer::OnEvent(Event& event)
