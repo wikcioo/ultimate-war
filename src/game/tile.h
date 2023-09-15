@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#define tileWidth   1.0f
-#define tileHeight (0.5 * glm::sqrt(3))
+#define tileWidth   2.0f
+#define tileHeight (glm::sqrt(3))
 #define tileOffset  0.1f
 
 class Tile

@@ -73,7 +73,7 @@ void GameLayer::OnUpdate(float dt)
     m_Arrow->Update();
 
     static auto starTexture = ResourceManager::GetTexture("star");
-    Renderer2D::DrawQuad(m_StarPosition, glm::vec2(0.3f), starTexture);
+    Renderer2D::DrawQuad(m_StarPosition, glm::vec2(0.6f), starTexture);
 
     Renderer2D::EndScene();
 }
