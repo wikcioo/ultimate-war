@@ -15,6 +15,9 @@
 
 class GameLayer : public Layer
 {
+#if defined(DEBUG)
+    friend class DebugLayer;
+#endif
 public:
     GameLayer();
     ~GameLayer() = default;
@@ -23,7 +26,6 @@ public:
     virtual void OnDetach() override;
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
-    virtual void OnDebugRender() override;
 
 private:
     std::pair<float, float> CalculateRelativeMousePosition();
@@ -31,8 +33,8 @@ private:
 
 private:
     std::shared_ptr<OrthographicCameraController> m_CameraController;
-    std::unique_ptr<GameMap> m_GameMap;
-    std::unique_ptr<Arrow> m_Arrow;
+    std::shared_ptr<GameMap> m_GameMap;
+    std::shared_ptr<Arrow> m_Arrow;
 
     glm::vec2 m_StarPosition = {0.0f, 0.0f};
 };

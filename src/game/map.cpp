@@ -71,6 +71,15 @@ void GameMap::Load(const std::string& mapName, bool flip_vertically)
 
     m_MapData = map;
     m_SelectedMap = mapName;
+
+    for (int i = 0; i < 5; i++)
+    {
+        m_MapData[0][0]->AddUnit(UnitType::ARCHER);
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        m_MapData[0][0]->AddUnit(UnitType::HARPY);
+    }
 }
 
 Tile* GameMap::GetTile(int x, int y)
@@ -109,7 +118,7 @@ std::pair<float, float> GameMap::CalculateTilePosition(int x, int y)
     float w = tileWidth;
     float h = tileHeight;
 
-    float dx = (w-(w/4)) * x + (x * tileOffset);
+    float dx = (w-(w/4)) * x + (x * tileOffset / 2 * glm::sqrt(3));
     float dy = (h * y) + (y * tileOffset);
 
     if (x & 1)
