@@ -1,6 +1,6 @@
 # Getting started
 
-**Note**: You need to install premake5 to generate the build system for Windows and Linux
+**Note**: You need to install [premake5](https://premake.github.io/) to generate the build system for Windows and Linux
 
 ## Windows
 
