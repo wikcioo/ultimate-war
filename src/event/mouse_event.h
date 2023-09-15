@@ -7,6 +7,8 @@ class MouseButtonEvent : public Event
 public:
     inline int GetMouseButton() const { return m_Button; }
 
+    EVENT_CLASS_CATEGORY(Mouse);
+
 protected:
     MouseButtonEvent(int button)
         : m_Button(button)
@@ -71,6 +73,7 @@ public:
     }
 
     EVENT_CLASS_TYPE(MouseMoved);
+    EVENT_CLASS_CATEGORY(Mouse);
 
 private:
     float m_XPos, m_YPos;
@@ -95,6 +98,7 @@ public:
     }
 
     EVENT_CLASS_TYPE(MouseScrolled);
+    EVENT_CLASS_CATEGORY(Mouse);
 
 private:
     float m_XOffset, m_YOffset;

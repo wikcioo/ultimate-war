@@ -8,6 +8,7 @@ public:
     WindowClosedEvent() {}
 
     EVENT_CLASS_TYPE(WindowClosed);
+    EVENT_CLASS_CATEGORY(Window);
 };
 
 class WindowResizedEvent : public Event
@@ -22,6 +23,7 @@ public:
     inline unsigned int GetHeight() const { return m_Height; }
 
     EVENT_CLASS_TYPE(WindowResized);
+    EVENT_CLASS_CATEGORY(Window);
 
 private:
     unsigned int m_Width, m_Height;
@@ -33,6 +35,7 @@ public:
     WindowMinimizedEvent() {}
 
     EVENT_CLASS_TYPE(WindowMinimized);
+    EVENT_CLASS_CATEGORY(Window);
 };
 
 class WindowMaximizedEvent : public Event
@@ -41,4 +44,5 @@ public:
     WindowMaximizedEvent() {}
 
     EVENT_CLASS_TYPE(WindowMaximized);
+    EVENT_CLASS_CATEGORY(Window);
 };
