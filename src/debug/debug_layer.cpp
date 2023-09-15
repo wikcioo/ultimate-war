@@ -36,6 +36,12 @@ void DebugLayer::OnDetach()
 
 void DebugLayer::OnEvent(Event& event)
 {
+    static auto& io = ImGui::GetIO();
+
+    if (event.GetCategory() == EventCategory::Mouse)
+        event.Handled |= io.WantCaptureMouse;
+    else if (event.GetCategory() == EventCategory::Key)
+        event.Handled |= io.WantCaptureKeyboard;
 }
 
 void DebugLayer::BeginFrame()
