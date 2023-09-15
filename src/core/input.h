@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "application.h"
 
 class Input
@@ -19,11 +21,11 @@ public:
         return state == GLFW_PRESS;
     }
 
-    static std::pair<float, float> GetMousePosition()
+    static glm::vec2 GetMousePosition()
     {
         auto window = Application::Get().GetWindow()->GetNativeWindow();
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        return { (float)xpos, (float)ypos };
+        return { xpos, ypos };
     }
 };

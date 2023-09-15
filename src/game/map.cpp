@@ -59,8 +59,8 @@ void GameMap::Load(const std::string& mapName, bool flip_vertically)
         std::vector<Tile*> row;
         while (sstream >> tileCode)
         {
-            auto [dx, dy] = CalculateTilePosition(x, y);
-            Tile* t = new Tile(tileCode, {dx, dy});
+            auto pos = CalculateTilePosition(x, y);
+            Tile* t = new Tile(tileCode, pos);
             row.emplace_back(t);
             x++;
         }
@@ -87,8 +87,8 @@ Tile* GameMap::GetTile(int x, int y)
     if (x < GetWidth() && y < GetHeight() && x > -1 && y > -1)
         return m_MapData[y][x];
 
-    auto [dx, dy] = CalculateTilePosition(x, y);
-    g_BadTile = Tile(-1, {dx, dy});
+    auto pos = CalculateTilePosition(x, y);
+    g_BadTile = Tile(-1, pos);
     return &g_BadTile;
 }
 
@@ -113,7 +113,7 @@ std::string GameMap::GetMapPath(const std::string& mapName)
     return s_MapDirectory + mapName + s_MapFileSuffix;
 }
 
-std::pair<float, float> GameMap::CalculateTilePosition(int x, int y)
+glm::vec2 GameMap::CalculateTilePosition(int x, int y)
 {
     float w = tileWidth;
     float h = tileHeight;
@@ -126,5 +126,5 @@ std::pair<float, float> GameMap::CalculateTilePosition(int x, int y)
         dy += (h + tileOffset) / 2;
     }
 
-    return {dx, dy};
+    return { dx, dy };
 }

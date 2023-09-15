@@ -32,7 +32,7 @@ public:
 private:
     void RetrieveAvailableMaps();
     std::string GetMapPath(const std::string& mapName);
-    std::pair<float, float> CalculateTilePosition(int x, int y);
+    glm::vec2 CalculateTilePosition(int x, int y);
 
 private:
     MapData m_MapData;

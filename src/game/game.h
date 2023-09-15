@@ -28,7 +28,7 @@ public:
     virtual void OnEvent(Event& event) override;
 
 private:
-    std::pair<float, float> CalculateRelativeMousePosition();
+    glm::vec2 CalculateRelativeMousePosition();
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
 
 private:
