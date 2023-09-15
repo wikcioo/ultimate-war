@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "game/tile.h"
+#include "debug/debug_data.h"
 #include "core/core.h"
 #include "core/input.h"
 #include "core/logger.h"
@@ -60,7 +61,7 @@ void GameLayer::OnUpdate(float dt)
                 tileColor = m_GameMap->GetTileDefaultColor(tile->GetType());
             }
 
-            Renderer2D::DrawHexagon(tile->GetPosition(), glm::vec2(0.5f), tileColor);
+            tile->Draw(tileColor);
         }
     }
 

@@ -2,15 +2,104 @@
 
 #include <vector>
 
+#include "core/resource_manager.h"
+#include "graphics/renderer.h"
+#include "debug/debug_data.h"
+
 Tile::Tile(int type, const glm::vec2& position)
     : m_Type(type), m_Position(position)
 {
 }
 
+Tile::~Tile()
+{
+    for (auto unit : m_Units)
+        delete unit;
+}
+
+void Tile::AddUnit(UnitType type)
+{
+    m_Units.emplace_back(new Unit(type));
+}
+
+void Tile::Draw(const glm::vec4& color)
+{
+    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color);
+
+#if defined(DEBUG)
+    float ratio = DebugData::Get()->TileData.HeightRatio;
+    float L = tileWidth / 2 * ratio;
+    float dx = glm::cos(glm::radians(60.0f)) * L;
+    float dy = glm::sin(glm::radians(60.0f)) * L;
+#else
+    static float ratio = 1.0f;
+    static float L = tileWidth / 2 * ratio;
+    static float dx = glm::cos(glm::radians(60.0f)) * L;
+    static float dy = glm::sin(glm::radians(60.0f)) * L;
+#endif
+
+    glm::vec2 bgPos = {m_Position.x, m_Position.y + dy / 2};
+    glm::vec2 bgSize = {tileWidth - 2 * dx, dy};
+
+    Renderer2D::DrawQuad(bgPos, bgSize, {0.0f, 0.4f, 0.0f, 0.4f});
+
+#if defined(DEBUG)
+    auto unitData = DebugData::Get()->UnitData;
+    int unitsPerRow = unitData.UnitsPerRow;
+    float unitOffsetWidth  = bgSize.x / ((unitData.UnitsPerRow * unitData.UnitWidthToOffsetRatio) + unitData.UnitsPerRow + 1);
+    float unitWidth        = unitData.UnitWidthToOffsetRatio * unitOffsetWidth;
+    float unitHeight       = glm::min(bgSize.y / 2, unitWidth);
+    float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * unitData.UnitRows)) / (unitData.UnitRows + 1));
+#else
+    static int unitRows = 2;
+    static int unitsPerRow = 5;
+    static int unitWidthToOffsetRatio = 10;
+    static float unitOffsetWidth = bgSize.x / ((unitsPerRow * unitWidthToOffsetRatio) + unitsPerRow + 1);
+    static float unitWidth = unitWidthToOffsetRatio * unitOffsetWidth;
+    static float unitHeight = glm::min(bgSize.y / 2, unitWidth);
+    static float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * unitRows)) / (unitRows + 1));
+#endif
+
+    float initialX = bgPos.x - (bgSize.x - unitWidth) / 2 + unitOffsetWidth;
+
+    float currentX = initialX;
+    float currentY = bgPos.y + (bgSize.y - unitHeight) / 2 - unitOffsetHeight;
+
+    for (int i = 0; i < m_Units.size(); i++)
+    {
+#if defined(DEBUG)
+        if (DebugData::Get()->UnitData.ShowUnitBackground)
+        {
+            Renderer2D::DrawQuad(
+                {currentX, currentY},
+                {unitWidth, unitHeight},
+                {0.8f, 0.1f, 0.1f, 0.6f}
+            );
+        }
+#endif
+
+        Renderer2D::DrawQuad(
+            {currentX, currentY},
+            {unitWidth, unitHeight},
+            ResourceManager::GetTexture(UnitTextureMap[(UnitType)((i % 5) + 1)])
+        );
+
+        if ((i + 1) % unitsPerRow == 0)
+        {
+            currentX = initialX;
+            currentY -= (unitOffsetHeight + unitHeight);
+        }
+        else
+        {
+            currentX += unitWidth + unitOffsetWidth;
+        }
+    }
+}
+
 bool Tile::InRange(const glm::vec2& cursorPos)
 {
-    float w = tileWidth;
-    float h = tileHeight;
+    static float w = tileWidth;
+    static float h = tileHeight;
 
     std::vector<glm::vec2> vertices = {
         {m_Position.x - w/2, m_Position.y},

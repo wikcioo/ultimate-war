@@ -71,6 +71,15 @@ void GameMap::Load(const std::string& mapName, bool flip_vertically)
 
     m_MapData = map;
     m_SelectedMap = mapName;
+
+    for (int i = 0; i < 5; i++)
+    {
+        m_MapData[0][0]->AddUnit(UnitType::ARCHER);
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        m_MapData[0][0]->AddUnit(UnitType::HARPY);
+    }
 }
 
 Tile* GameMap::GetTile(int x, int y)
