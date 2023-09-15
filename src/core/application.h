@@ -4,7 +4,6 @@
 #include "core/window.h"
 #include "core/camera.h"
 #include "layer/layer_stack.h"
-#include "debug/debug_layer.h"
 #include "graphics/shader.h"
 #include "graphics/buffer.h"
 #include "graphics/vertex_array.h"
@@ -29,7 +28,6 @@ private:
 
     std::unique_ptr<Window> m_Window;
     LayerStack m_LayerStack;
-    DebugLayer* m_DebugLayer;
     bool m_Running = true;
     float m_DeltaTime;
 };

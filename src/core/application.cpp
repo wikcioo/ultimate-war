@@ -28,13 +28,15 @@ Application::Application()
 
     Renderer2D::Init();
 
-    m_DebugLayer = new DebugLayer();
-    m_DebugLayer->OnAttach();
-    m_LayerStack.PushOverlay(m_DebugLayer);
-
     GameLayer* gameLayer = new GameLayer();
     gameLayer->OnAttach();
     m_LayerStack.PushLayer(gameLayer);
+
+#if defined(DEBUG)
+    auto debugLayer = new DebugLayer(gameLayer);
+    debugLayer->OnAttach();
+    m_LayerStack.PushOverlay(debugLayer);
+#endif
 }
 
 Application::~Application()
@@ -71,11 +73,6 @@ void Application::Run()
 
         for (auto layer : m_LayerStack)
             layer->OnUpdate(m_DeltaTime);
-
-        m_DebugLayer->BeginFrame();
-        for (auto layer : m_LayerStack)
-            layer->OnDebugRender();
-        m_DebugLayer->EndFrame();
 
         m_Window->OnUpdate();
     }

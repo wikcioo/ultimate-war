@@ -122,62 +122,6 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     return false;
 }
 
-void GameLayer::OnDebugRender()
-{
-    static bool show_settings = true;
-    ImGui::Begin("Settings", &show_settings);
-
-    static bool polygon_mode = false;
-    static bool polygon_mode_active_last_frame = false;
-    ImGui::Checkbox("Polygon mode", &polygon_mode);
-    if (polygon_mode != polygon_mode_active_last_frame)
-    {
-        if (polygon_mode)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            polygon_mode_active_last_frame = true;
-        }
-        else
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            polygon_mode_active_last_frame = false;
-        }
-    }
-
-    if (ImGui::Button("Select map.."))
-        ImGui::OpenPopup("available_maps_popup");
-
-    if (ImGui::BeginPopup("available_maps_popup"))
-    {
-        for (std::string mapName : m_GameMap->GetAvailableMaps())
-            if (ImGui::Selectable(mapName.c_str()))
-                m_GameMap->Load(mapName);
-        ImGui::EndPopup();
-    }
-
-    std::string selectedMap = m_GameMap->GetSelectedMapName();
-    ImGui::Text(std::string("Currently selected map: " + (selectedMap.empty() ? "None" : selectedMap)).c_str());
-
-    ImGui::Separator();
-
-    auto camera = m_CameraController->GetCamera();
-    auto pos = camera->GetPosition();
-    ImGui::Text("camera");
-    ImGui::Text("position: %f, %f, %f", pos.x, pos.y, pos.z);
-    ImGui::Text("aspect ratio: %f", camera->GetAspectRatio());
-
-    ImGui::Separator();
-
-    auto window = Application::Get().GetWindow();
-    float pixelWidth = (float)window->GetWidth();
-    float pixelHeight = (float)window->GetHeight();
-    ImGui::Text("window");
-    ImGui::Text("width: %f", pixelWidth);
-    ImGui::Text("height: %f", pixelHeight);
-
-    ImGui::End();
-}
-
 std::pair<float, float> GameLayer::CalculateRelativeMousePosition()
 {
     auto [x, y] = Input::GetMousePosition();
