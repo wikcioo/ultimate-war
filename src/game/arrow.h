@@ -12,7 +12,7 @@ public:
     Arrow(const glm::vec4& color = {0.0f, 1.0f, 1.0f, 1.0f}, float thickness = 0.1f, float tipLength = 0.2f);
     ~Arrow() = default;
 
-    void Update();
+    void Draw();
 
     void SetStartPosition(const glm::vec2& startPosition) { m_StartPosition = startPosition; }
     void SetEndPosition(const glm::vec2& endPosition) { m_EndPosition = endPosition; }

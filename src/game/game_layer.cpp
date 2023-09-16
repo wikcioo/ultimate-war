@@ -69,7 +69,7 @@ void GameLayer::OnUpdate(float dt)
     if (!isCursorInRange)
         m_Arrow->SetEndPosition(relMousePos);
 
-    m_Arrow->Update();
+    m_Arrow->Draw();
 
     static auto starTexture = ResourceManager::GetTexture("star");
     Renderer2D::DrawQuad(m_StarPosition, glm::vec2(0.6f), starTexture);

@@ -91,7 +91,7 @@ float* Arrow::GetNewArrowData()
     return data;
 }
 
-void Arrow::Update()
+void Arrow::Draw()
 {
     if (!m_Visible) return;
 
