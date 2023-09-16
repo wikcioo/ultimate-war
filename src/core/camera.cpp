@@ -13,6 +13,25 @@ OrthographicCamera::OrthographicCamera(float aspectRatio)
     RecalculateViewMatrix();
 }
 
+glm::vec2 OrthographicCamera::ConvertRelativeSizeToPixel(const glm::vec2& size)
+{
+    float relWidth = m_Zoom * m_AspectRatio;
+    float relHeight = m_Zoom;
+
+    static auto window = Application::Get().GetWindow();
+    float pixelSizeX = window->GetWidth() / (relWidth * 2) * size.x;
+    float pixelSizeY = window->GetHeight() / (relHeight * 2) * size.y;
+
+    return { pixelSizeX, pixelSizeY };
+}
+
+glm::vec2 OrthographicCamera::CalculateRelativeBottomLeftPosition()
+{
+    float relWidth = m_Zoom * m_AspectRatio;
+    float relHeight = m_Zoom;
+    return { m_Position.x - relWidth, m_Position.y - relHeight };
+}
+
 glm::vec2 OrthographicCamera::CalculateRelativeMousePosition()
 {
     auto mousePos = Input::GetMousePosition();
