@@ -6,6 +6,7 @@
 #include "core/resource_manager.h"
 #include "debug/debug_layer.h"
 #include "graphics/renderer.h"
+#include "ui/ui.h"
 
 Application* Application::s_Instance = nullptr;
 
@@ -31,6 +32,14 @@ Application::Application()
     GameLayer* gameLayer = new GameLayer();
     gameLayer->OnAttach();
     m_LayerStack.PushLayer(gameLayer);
+
+    UILayerData data = {
+        ._GameCamera = gameLayer->GetCameraController()->GetCamera(),
+        ._GameMap = gameLayer->GetGameMap()
+    };
+    UILayer* uiLayer = new UILayer(data);
+    uiLayer->OnAttach();
+    m_LayerStack.PushOverlay(uiLayer);
 
 #if defined(DEBUG)
     auto debugLayer = new DebugLayer(gameLayer);
