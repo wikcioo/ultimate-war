@@ -27,6 +27,9 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
+    inline std::shared_ptr<OrthographicCameraController> GetCameraController() const { return m_CameraController; }
+    inline std::shared_ptr<GameMap> GetGameMap() const { return m_GameMap; }
+
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
 
