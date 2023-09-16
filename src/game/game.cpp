@@ -43,9 +43,9 @@ void GameLayer::OnUpdate(float dt)
 
     auto relMousePos = CalculateRelativeMousePosition();
     bool isCursorInRange = false;
-    for (int y = 0; y < m_GameMap->GetHeight(); y++)
+    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetWidth(); x++)
+        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
         {
             Tile* tile = m_GameMap->GetTile(x, y);
 
@@ -89,9 +89,9 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     static bool arrowClickedOnStarTile = false;
     auto relMousePos = CalculateRelativeMousePosition();
 
-    for (int y = 0; y < m_GameMap->GetHeight(); y++)
+    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetWidth(); x++)
+        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
         {
             Tile* tile = m_GameMap->GetTile(x, y);
             if (tile->InRange(relMousePos))

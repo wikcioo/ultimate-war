@@ -14,8 +14,8 @@ public:
     GameMap(const std::string& filepath = "");
     ~GameMap() = default;
 
-    inline int GetWidth() const { return !m_MapData.empty() ? m_MapData[0].size() : 0; }
-    inline int GetHeight() const { return m_MapData.size(); }
+    inline int GetTileCountX() const { return !m_MapData.empty() ? m_MapData[0].size() : 0; }
+    inline int GetTileCountY() const { return m_MapData.size(); }
 
     inline std::vector<std::string>& GetAvailableMaps() { return m_AvailableMapList; }
     inline std::string GetSelectedMapName() const { return m_SelectedMap; }
