@@ -8,6 +8,7 @@ public:
 
     inline unsigned int GetWidth() const { return m_Width; }
     inline unsigned int GetHeight() const { return m_Height; }
+    inline unsigned int GetID() const { return m_TextureID; }
 
     void Bind(unsigned int unit) const;
     void Unbind() const;
