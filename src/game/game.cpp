@@ -17,8 +17,8 @@ GameLayer::GameLayer()
 {
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
-    m_GameMap = std::make_unique<GameMap>("");
-    m_Arrow = std::make_unique<Arrow>();
+    m_GameMap = std::make_shared<GameMap>("");
+    m_Arrow = std::make_shared<Arrow>();
 }
 
 void GameLayer::OnAttach()
@@ -27,6 +27,7 @@ void GameLayer::OnAttach()
     m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
     m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
     m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
+    m_GameMap->Load("simple");
 }
 
 void GameLayer::OnDetach()
