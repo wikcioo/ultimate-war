@@ -18,6 +18,7 @@ public:
 
     void AddUnit(UnitType type);
     void Draw(const glm::vec4& color);
+    void DrawBase(const glm::vec4& color);
 
     inline const int GetType() const { return m_Type; }
     inline const glm::vec2& GetPosition() const { return m_Position; }

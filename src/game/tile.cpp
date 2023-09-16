@@ -24,7 +24,7 @@ void Tile::AddUnit(UnitType type)
 
 void Tile::Draw(const glm::vec4& color)
 {
-    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color);
+    DrawBase(color);
 
 #if defined(DEBUG)
     float ratio = DebugData::Get()->TileData.HeightRatio;
@@ -94,6 +94,11 @@ void Tile::Draw(const glm::vec4& color)
             currentX += unitWidth + unitOffsetWidth;
         }
     }
+}
+
+void Tile::DrawBase(const glm::vec4& color)
+{
+    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color);
 }
 
 bool Tile::InRange(const glm::vec2& cursorPos)
