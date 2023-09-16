@@ -1,12 +1,12 @@
 #include "application.h"
 
-#include "game/game.h"
+#include "game/game_layer.h"
 #include "core/core.h"
 #include "core/logger.h"
 #include "core/resource_manager.h"
 #include "debug/debug_layer.h"
 #include "graphics/renderer.h"
-#include "ui/ui.h"
+#include "ui/ui_layer.h"
 
 Application* Application::s_Instance = nullptr;
 

@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "game/game.h"
+#include "game/game_layer.h"
 #include "layer/layer.h"
 
 class DebugLayer : public Layer
 {
 public:
-    DebugLayer(GameLayer* gameLayer, const std::string& name = "Debug Layer");
+    DebugLayer(GameLayer* gameLayer);
     ~DebugLayer() = default;
 
     virtual void OnAttach() override;

@@ -11,8 +11,8 @@
 #include "debug/debug_data.h"
 #include "core/application.h"
 
-DebugLayer::DebugLayer(GameLayer* gameLayer, const std::string& name)
-    : Layer(name), m_GameLayer(gameLayer)
+DebugLayer::DebugLayer(GameLayer* gameLayer)
+    : Layer("DebugLayer"), m_GameLayer(gameLayer)
 {
 }
 
