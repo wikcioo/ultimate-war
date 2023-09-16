@@ -41,7 +41,7 @@ void GameLayer::OnUpdate(float dt)
 
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
-    auto relMousePos = CalculateRelativeMousePosition();
+    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
     bool isCursorInRange = false;
     for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
     {
@@ -87,7 +87,7 @@ void GameLayer::OnEvent(Event& event)
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
     static bool arrowClickedOnStarTile = false;
-    auto relMousePos = CalculateRelativeMousePosition();
+    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
 
     for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
     {
@@ -117,22 +117,4 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 
     m_Arrow->SetVisible(false);
     return false;
-}
-
-glm::vec2 GameLayer::CalculateRelativeMousePosition()
-{
-    auto mousePos = Input::GetMousePosition();
-
-    auto window = Application::Get().GetWindow();
-    float pixelWidth = (float)window->GetWidth();
-    float pixelHeight = (float)window->GetHeight();
-
-    auto camera = m_CameraController->GetCamera();
-    float relWidth = camera->GetZoom() * camera->GetAspectRatio() * 2;
-    float relHeight = camera->GetZoom() * 2;
-
-    float relX = (mousePos.x * relWidth / pixelWidth) - camera->GetZoom() * camera->GetAspectRatio() + camera->GetPosition().x;
-    float relY = ((mousePos.y * relHeight / pixelHeight) - camera->GetZoom() - camera->GetPosition().y) * -1;
-
-    return { relX, relY };
 }

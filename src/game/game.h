@@ -28,7 +28,6 @@ public:
     virtual void OnEvent(Event& event) override;
 
 private:
-    glm::vec2 CalculateRelativeMousePosition();
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
 
 private:
