@@ -1,0 +1,18 @@
+bin/
+obj/
+
+# Linux project files
+Makefile
+libs/Makefile
+**/*.make
+
+# Windows project files
+**/*.sln
+**/*.vcxproj
+**/*.vcxproj.user
+**/*.vcxproj.filters
+.vs/
+
+.vscode/settings.json
+
+imgui.ini
