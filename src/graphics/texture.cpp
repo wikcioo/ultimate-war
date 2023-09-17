@@ -4,16 +4,16 @@
 
 #include <glad/glad.h>
 
-Texture2D::Texture2D(unsigned int width, unsigned int height, unsigned char* data, unsigned int nrChannels)
-    : m_Width(width), m_Height(height)
+Texture2D::Texture2D(unsigned int width, unsigned int height, unsigned char* data, unsigned int nrChannels, bool multisample)
+    : m_Width(width), m_Height(height), m_TextureTarget(multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D)
 {
     glGenTextures(1, &m_TextureID);
-    glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    glBindTexture(m_TextureTarget, m_TextureID);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(m_TextureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(m_TextureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(m_TextureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(m_TextureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int format;
     if (nrChannels == 3)
@@ -23,8 +23,13 @@ Texture2D::Texture2D(unsigned int width, unsigned int height, unsigned char* dat
     else
         LOG_ERROR("Texture: Unsupported texture format");
 
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (m_TextureTarget == GL_TEXTURE_2D_MULTISAMPLE)
+        glTexImage2DMultisample(m_TextureTarget, 4, format, width, height, GL_TRUE);
+    else
+        glTexImage2D(m_TextureTarget, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+    glGenerateMipmap(m_TextureTarget);
+    glBindTexture(m_TextureTarget, 0);
 }
 
 Texture2D::~Texture2D()
@@ -35,10 +40,10 @@ Texture2D::~Texture2D()
 void Texture2D::Bind(unsigned int unit) const
 {
     glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    glBindTexture(m_TextureTarget, m_TextureID);
 }
 
 void Texture2D::Unbind() const
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(m_TextureTarget, 0);
 }
