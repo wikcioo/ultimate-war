@@ -82,17 +82,26 @@ void IndexBuffer::Unbind() const
 FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
     : m_Width(width), m_Height(height)
 {
-    m_MultiSampledColorTexture = std::make_shared<Texture2D>(m_Width, m_Height, nullptr, 3, true);
+    TextureData textureData = {
+        .Size={m_Width, m_Height},
+        .NrChannels=3,
+        .MinFilter=TextureFilter::LINEAR,
+        .MagFilter=TextureFilter::LINEAR,
+        .IsMultisample=true
+    };
+
+    m_MultiSampledColorTexture = std::make_shared<Texture2D>(textureData);
     glGenFramebuffers(1, &m_MultiSampledBufferID);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_MultiSampledBufferID); // attach to draw only
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_MultiSampledBufferID);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_MultiSampledColorTexture->GetID(), 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         LOG_ERROR("Framebuffer: Incomplete multisampled framebuffer");
 
-    m_DisplayedColorTexture = std::make_shared<Texture2D>(m_Width, m_Height, nullptr, 3, false);
+    textureData.IsMultisample = false;
+    m_DisplayedColorTexture = std::make_shared<Texture2D>(textureData);
     glGenFramebuffers(1, &m_IntermediateBufferID);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_IntermediateBufferID); // attach to both read and draw
+    glBindFramebuffer(GL_FRAMEBUFFER, m_IntermediateBufferID);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_DisplayedColorTexture->GetID(), 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

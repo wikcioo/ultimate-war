@@ -31,7 +31,13 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
     stbi_set_flip_vertically_on_load(1);
     unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 0);
 
-    std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(width, height, data, nrChannels);
+    TextureData textureData = {
+        .Size={width, height},
+        .Data=data,
+        .NrChannels=(unsigned int)nrChannels,
+    };
+    std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(textureData);
+
     stbi_image_free(data);
     m_TextureCache[name] = texture;
 }
