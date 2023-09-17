@@ -146,6 +146,12 @@ unsigned int Shader::Compile(const ShaderSourceMap& shaderSources)
     return program;
 }
 
+void Shader::SetBool(const std::string& name, bool value)
+{
+    int location = glGetUniformLocation(m_ProgramID, name.c_str());
+    glUniform1i(location, value);
+}
+
 void Shader::SetInt(const std::string& name, int value)
 {
     int location = glGetUniformLocation(m_ProgramID, name.c_str());

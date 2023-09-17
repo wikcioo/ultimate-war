@@ -27,6 +27,11 @@ public:
         float HeightRatio = 0.8f;
     } TileData;
 
+    struct
+    {
+        float BorderThickness = 0.01f;
+        float Zoom = 3.0f;
+    } MinimapData;
 
 private:
     DebugData() {}

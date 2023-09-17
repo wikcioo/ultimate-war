@@ -8,6 +8,12 @@ public:
     OrthographicCamera(float aspectRatio);
     ~OrthographicCamera() = default;
 
+    glm::vec2 ConvertRelativeSizeToPixel(const glm::vec2& size);
+    glm::vec2 CalculateRelativeBottomLeftPosition();
+    glm::vec2 CalculateRelativeMousePosition();
+    glm::vec2 CalculateScreenRelativeMousePosition();
+    glm::vec2 CalculateRelativeWindowSize();
+
     void SetPosition(const glm::vec3& position);
     void SetAspectRatio(float ratio);
     void SetRotation(float rotation);

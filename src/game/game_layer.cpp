@@ -1,4 +1,4 @@
-#include "game.h"
+#include "game_layer.h"
 
 #include <imgui/imgui.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,8 +17,8 @@ GameLayer::GameLayer()
 {
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
-    m_GameMap = std::make_unique<GameMap>("");
-    m_Arrow = std::make_unique<Arrow>();
+    m_GameMap = std::make_shared<GameMap>("");
+    m_Arrow = std::make_shared<Arrow>();
 }
 
 void GameLayer::OnAttach()
@@ -27,6 +27,7 @@ void GameLayer::OnAttach()
     m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
     m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
     m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
+    m_GameMap->Load("simple");
 }
 
 void GameLayer::OnDetach()
@@ -41,11 +42,11 @@ void GameLayer::OnUpdate(float dt)
 
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
-    auto relMousePos = CalculateRelativeMousePosition();
+    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
     bool isCursorInRange = false;
-    for (int y = 0; y < m_GameMap->GetHeight(); y++)
+    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetWidth(); x++)
+        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
         {
             Tile* tile = m_GameMap->GetTile(x, y);
 
@@ -68,7 +69,7 @@ void GameLayer::OnUpdate(float dt)
     if (!isCursorInRange)
         m_Arrow->SetEndPosition(relMousePos);
 
-    m_Arrow->Update();
+    m_Arrow->Draw();
 
     static auto starTexture = ResourceManager::GetTexture("star");
     Renderer2D::DrawQuad(m_StarPosition, glm::vec2(0.6f), starTexture);
@@ -87,11 +88,11 @@ void GameLayer::OnEvent(Event& event)
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
     static bool arrowClickedOnStarTile = false;
-    auto relMousePos = CalculateRelativeMousePosition();
+    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
 
-    for (int y = 0; y < m_GameMap->GetHeight(); y++)
+    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetWidth(); x++)
+        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
         {
             Tile* tile = m_GameMap->GetTile(x, y);
             if (tile->InRange(relMousePos))
@@ -117,22 +118,4 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 
     m_Arrow->SetVisible(false);
     return false;
-}
-
-glm::vec2 GameLayer::CalculateRelativeMousePosition()
-{
-    auto mousePos = Input::GetMousePosition();
-
-    auto window = Application::Get().GetWindow();
-    float pixelWidth = (float)window->GetWidth();
-    float pixelHeight = (float)window->GetHeight();
-
-    auto camera = m_CameraController->GetCamera();
-    float relWidth = camera->GetZoom() * camera->GetAspectRatio() * 2;
-    float relHeight = camera->GetZoom() * 2;
-
-    float relX = (mousePos.x * relWidth / pixelWidth) - camera->GetZoom() * camera->GetAspectRatio() + camera->GetPosition().x;
-    float relY = ((mousePos.y * relHeight / pixelHeight) - camera->GetZoom() - camera->GetPosition().y) * -1;
-
-    return { relX, relY };
 }

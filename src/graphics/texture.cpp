@@ -4,27 +4,58 @@
 
 #include <glad/glad.h>
 
-Texture2D::Texture2D(unsigned int width, unsigned int height, unsigned char* data, unsigned int nrChannels)
-    : m_Width(width), m_Height(height)
+static unsigned int TextureWrapToGL(TextureWrap wrap)
+{
+    switch (wrap)
+    {
+        case TextureWrap::CLAMP_TO_EDGE: return GL_CLAMP_TO_EDGE;
+        case TextureWrap::CLAMP_TO_BORDER: return GL_CLAMP_TO_BORDER;
+        case TextureWrap::MIRRORED_REPEAT: return GL_MIRRORED_REPEAT;
+        case TextureWrap::REPEAT: return GL_REPEAT;
+    }
+
+    LOG_ERROR("Unknown texture wrap option");
+    return GL_REPEAT;
+}
+
+static unsigned int TextureFilterToGL(TextureFilter filter)
+{
+    switch (filter)
+    {
+        case TextureFilter::NEAREST: return GL_NEAREST;
+        case TextureFilter::LINEAR: return GL_LINEAR;
+    }
+
+    LOG_ERROR("Unknown texture filter option");
+    return GL_LINEAR;
+}
+
+Texture2D::Texture2D(const TextureData& data)
+    : m_Width(data.Size.x), m_Height(data.Size.y), m_TextureTarget(data.IsMultisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D)
 {
     glGenTextures(1, &m_TextureID);
-    glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    glBindTexture(m_TextureTarget, m_TextureID);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(m_TextureTarget, GL_TEXTURE_WRAP_S, TextureWrapToGL(data.WrapHorizontal));
+    glTexParameteri(m_TextureTarget, GL_TEXTURE_WRAP_T, TextureWrapToGL(data.WrapVertical));
+    glTexParameteri(m_TextureTarget, GL_TEXTURE_MIN_FILTER, TextureFilterToGL(data.MinFilter));
+    glTexParameteri(m_TextureTarget, GL_TEXTURE_MAG_FILTER, TextureFilterToGL(data.MagFilter));
 
     int format;
-    if (nrChannels == 3)
+    if (data.NrChannels == 3)
         format = GL_RGB;
-    else if (nrChannels == 4)
+    else if (data.NrChannels == 4)
         format = GL_RGBA;
     else
         LOG_ERROR("Texture: Unsupported texture format");
 
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (m_TextureTarget == GL_TEXTURE_2D_MULTISAMPLE)
+        glTexImage2DMultisample(m_TextureTarget, 4, format, m_Width, m_Height, GL_TRUE);
+    else
+        glTexImage2D(m_TextureTarget, 0, format, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, data.Data);
+
+    glGenerateMipmap(m_TextureTarget);
+    glBindTexture(m_TextureTarget, 0);
 }
 
 Texture2D::~Texture2D()
@@ -35,10 +66,10 @@ Texture2D::~Texture2D()
 void Texture2D::Bind(unsigned int unit) const
 {
     glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(GL_TEXTURE_2D, m_TextureID);
+    glBindTexture(m_TextureTarget, m_TextureID);
 }
 
 void Texture2D::Unbind() const
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTexture(m_TextureTarget, 0);
 }

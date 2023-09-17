@@ -11,8 +11,8 @@
 #include "debug/debug_data.h"
 #include "core/application.h"
 
-DebugLayer::DebugLayer(GameLayer* gameLayer, const std::string& name)
-    : Layer(name), m_GameLayer(gameLayer)
+DebugLayer::DebugLayer(GameLayer* gameLayer)
+    : Layer("DebugLayer"), m_GameLayer(gameLayer)
 {
 }
 
@@ -156,6 +156,12 @@ void DebugLayer::DisplaySettingsWindow()
 
     ImGui::Text("Tile settings");
     ImGui::SliderFloat("Height ratio", &DebugData::Get()->TileData.HeightRatio, 0.1f, 1.0f);
+
+    ImGui::Separator();
+
+    ImGui::Text("Minimap settings");
+    ImGui::SliderFloat("Border", &DebugData::Get()->MinimapData.BorderThickness, 0.01f, 0.1f);
+    ImGui::SliderFloat("Zoom", &DebugData::Get()->MinimapData.Zoom, 1.0f, 10.0f);
 
     ImGui::End();
 }

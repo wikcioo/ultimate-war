@@ -18,8 +18,8 @@ public:
     static void BeginScene(const std::shared_ptr<OrthographicCamera>& camera);
     static void EndScene();
 
-    static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
-    static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
+    static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float borderThickness = -1.0f);
+    static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float borderThickness = -1.0f);
 
     static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture);
     static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture);
@@ -27,7 +27,7 @@ public:
     static void DrawHexagon(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
     static void DrawHexagon(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
 
-    static void DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
+    static void DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float borderThickness = -1.0f);
 
     static void ClearColor(const glm::vec4& color);
 

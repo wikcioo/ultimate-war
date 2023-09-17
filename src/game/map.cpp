@@ -84,7 +84,7 @@ void GameMap::Load(const std::string& mapName, bool flip_vertically)
 
 Tile* GameMap::GetTile(int x, int y)
 {
-    if (x < GetWidth() && y < GetHeight() && x > -1 && y > -1)
+    if (x < GetTileCountX() && y < GetTileCountY() && x > -1 && y > -1)
         return m_MapData[y][x];
 
     auto pos = CalculateTilePosition(x, y);
