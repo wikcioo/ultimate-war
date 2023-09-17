@@ -82,26 +82,32 @@ void IndexBuffer::Unbind() const
 FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
     : m_Width(width), m_Height(height)
 {
-    glGenFramebuffers(1, &m_BufferID);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_BufferID);
-
-    m_Texture = std::make_shared<Texture2D>(width, height, nullptr, 3);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_Texture->GetID(), 0);
+    m_MultiSampledColorTexture = std::make_shared<Texture2D>(m_Width, m_Height, nullptr, 3, true);
+    glGenFramebuffers(1, &m_MultiSampledBufferID);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_MultiSampledBufferID); // attach to draw only
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_MultiSampledColorTexture->GetID(), 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        LOG_ERROR("Framebuffer: Failed to create a complete framebuffer");
+        LOG_ERROR("Framebuffer: Incomplete multisampled framebuffer");
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    m_DisplayedColorTexture = std::make_shared<Texture2D>(m_Width, m_Height, nullptr, 3, false);
+    glGenFramebuffers(1, &m_IntermediateBufferID);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_IntermediateBufferID); // attach to both read and draw
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_DisplayedColorTexture->GetID(), 0);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        LOG_ERROR("Framebuffer: Incomplete multisampled framebuffer");
 }
 
 FrameBuffer::~FrameBuffer()
 {
-    glDeleteFramebuffers(1, &m_BufferID);
+    glDeleteFramebuffers(1, &m_IntermediateBufferID);
+    glDeleteFramebuffers(1, &m_MultiSampledBufferID);
 }
 
 void FrameBuffer::Bind() const
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, m_BufferID);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_MultiSampledBufferID);
     glViewport(0, 0, m_Width, m_Height);
 }
 
@@ -110,4 +116,11 @@ void FrameBuffer::Unbind() const
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     auto window = Application::Get().GetWindow();
     glViewport(0, 0, window->GetWidth(), window->GetHeight());
+}
+
+void FrameBuffer::PostProcess() const
+{
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, m_MultiSampledBufferID);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_IntermediateBufferID);
+    glBlitFramebuffer(0, 0, m_Width, m_Height, 0, 0, m_Width, m_Height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }

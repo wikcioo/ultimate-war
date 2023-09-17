@@ -48,10 +48,14 @@ public:
     void Bind() const;
     void Unbind() const;
 
-    inline std::shared_ptr<Texture2D> GetTexture() const { return m_Texture; }
+    void PostProcess() const;
+
+    inline const std::shared_ptr<Texture2D> GetTexture() const { return m_DisplayedColorTexture; }
 
 private:
-    unsigned int m_BufferID;
     unsigned int m_Width, m_Height;
-    std::shared_ptr<Texture2D> m_Texture;
+    unsigned int m_IntermediateBufferID;
+    unsigned int m_MultiSampledBufferID;
+    std::shared_ptr<Texture2D> m_DisplayedColorTexture;
+    std::shared_ptr<Texture2D> m_MultiSampledColorTexture;
 };
