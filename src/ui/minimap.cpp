@@ -1,14 +1,18 @@
 #include "minimap.h"
 
+#include "util/util.h"
 #include "core/core.h"
 #include "core/logger.h"
+#include "core/application.h"
 #include "debug/debug_data.h"
 #include "graphics/renderer.h"
 
-Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera, const std::shared_ptr<OrthographicCamera>& gameCamera,
-                 const std::shared_ptr<GameMap>& gameMap, const glm::vec2& size)
-    : UIElement(UICamera->CalculateRelativeBottomLeftPosition(), size), m_UICamera(UICamera),
-      m_GameCamera(gameCamera), m_GameMap(gameMap), m_Size(size)
+Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
+            const std::shared_ptr<OrthographicCamera>& gameCamera,
+            const std::shared_ptr<GameMap>& gameMap,
+            const glm::vec2& offset, const glm::vec2& size)
+    : UIElement(UICamera->CalculateRelativeBottomLeftPosition() + offset, {size.y * gameCamera->GetAspectRatio(), size.y}), m_Offset(offset),
+      m_UICamera(UICamera), m_GameCamera(gameCamera), m_GameMap(gameMap), m_MinimapPos(m_Position + m_Size * 0.5f)
 {
     m_MinimapCamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
     m_MinimapCamera->SetZoom(5.0f);
@@ -20,8 +24,15 @@ Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera, const std:
 void Minimap::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
-    dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(Minimap::OnMouseScrolled));
-    dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(Minimap::OnMouseButtonPressed));
+    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(Minimap::OnWindowResized));
+
+    auto mousePos = m_UICamera->CalculateScreenRelativeMousePosition();
+    if (mousePos.x > m_Position.x && mousePos.x < m_Position.x + m_Size.x &&
+        mousePos.y > m_Position.y && mousePos.y < m_Position.y + m_Size.y)
+    {
+        dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(Minimap::OnMouseScrolled));
+        dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(Minimap::OnMouseButtonPressed));
+    }
 }
 
 void Minimap::Draw()
@@ -30,11 +41,12 @@ void Minimap::Draw()
 
     Renderer2D::ClearColor({0.0f, 0.0f, 0.0f, 0.0f});
 
-    auto relTileWidthOffset = (tileOffset / 2.0f * glm::sqrt(3));
-    auto relMapWidth = (m_GameMap->GetTileCountX() - 1) * (tileWidth - tileWidth / 4.0f + relTileWidthOffset);
-    auto relMapHeight = m_GameMap->GetTileCountY() * (tileHeight + tileOffset) - tileHeight / 2.0f;
-
-    m_MinimapCamera->SetPosition({relMapWidth / 2.0f, relMapHeight / 2.0f, 0.0f});
+    m_MinimapCamera->SetPosition(m_GameCamera->GetPosition());
+#if defined(DEBUG)
+    m_MinimapCamera->SetZoom(m_GameCamera->GetZoom() * DebugData::Get()->MinimapData.Zoom);
+#else
+    m_MinimapCamera->SetZoom(m_GameCamera->GetZoom() * 3.0f);
+#endif
 
     Renderer2D::BeginScene(m_MinimapCamera);
 
@@ -48,19 +60,35 @@ void Minimap::Draw()
         }
     }
 
+#if defined(DEBUG)
+    Renderer2D::DrawQuad(m_GameCamera->GetPosition(), m_GameCamera->CalculateRelativeWindowSize(), glm::vec4(1.0f), DebugData::Get()->MinimapData.BorderThickness);
+#else
+    Renderer2D::DrawQuad(m_GameCamera->GetPosition(), m_GameCamera->CalculateRelativeWindowSize(), glm::vec4(1.0f), 0.01f);
+#endif
+
     Renderer2D::EndScene();
 
+    m_Framebuffer->PostProcess();
     m_Framebuffer->Unbind();
 
     Renderer2D::BeginScene(m_UICamera);
 
-    glm::vec2 offset = glm::vec2(0.01f);
-    float minimapPosX = m_Position.x + m_Size.x / 2 + offset.x;
-    float minimapPosY = m_Position.y + m_Size.y / 2 + offset.y;
-
-    Renderer2D::DrawQuad({minimapPosX, minimapPosY}, m_Size, m_Framebuffer->GetTexture());
+    Renderer2D::DrawQuad(m_MinimapPos, m_Size, m_Framebuffer->GetTexture());
 
     Renderer2D::EndScene();
+}
+
+bool Minimap::OnWindowResized(WindowResizedEvent& event)
+{
+    m_UICamera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+    m_Position = m_UICamera->CalculateRelativeBottomLeftPosition() + m_Offset;
+    m_MinimapPos = m_Position + m_Size * 0.5f;
+    return false;
+}
+
+bool Minimap::OnMouseMoved(MouseMovedEvent& event)
+{
+    return true;
 }
 
 bool Minimap::OnMouseScrolled(MouseScrolledEvent& event)

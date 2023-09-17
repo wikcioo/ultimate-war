@@ -28,15 +28,5 @@ void UILayer::OnUpdate(float dt)
 void UILayer::OnEvent(Event& event)
 {
     for (auto element : m_UIElements)
-    {
-        auto mousePos = CalculateScreenRelativeMousePosition();
-        auto elementPos = element->GetPosition();
-        auto elementSize = element->GetSize();
-
-        if (mousePos.x > elementPos.x && mousePos.x < elementPos.x + elementSize.x &&
-            mousePos.y > elementPos.y && mousePos.y < elementPos.y + elementSize.y)
-        {
-            element->OnEvent(event);
-        }
-    }
+        element->OnEvent(event);
 }
