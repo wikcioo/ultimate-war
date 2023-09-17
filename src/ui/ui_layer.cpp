@@ -25,23 +25,6 @@ void UILayer::OnUpdate(float dt)
         element->Draw();
 }
 
-glm::vec2 UILayer::CalculateScreenRelativeMousePosition()
-{
-    auto mousePos = Input::GetMousePosition();
-
-    static auto window = Application::Get().GetWindow();
-    float pixelWidth = (float)window->GetWidth();
-    float pixelHeight = (float)window->GetHeight();
-
-    float relWidth = m_UICamera->GetZoom() * m_UICamera->GetAspectRatio() * 2;
-    float relHeight = m_UICamera->GetZoom() * 2;
-
-    float relX = (mousePos.x * relWidth / pixelWidth) - m_UICamera->GetZoom() * m_UICamera->GetAspectRatio();
-    float relY = ((mousePos.y * relHeight / pixelHeight) - m_UICamera->GetZoom()) * -1;
-
-    return { relX, relY };
-}
-
 void UILayer::OnEvent(Event& event)
 {
     for (auto element : m_UIElements)

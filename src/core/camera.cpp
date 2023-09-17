@@ -40,13 +40,31 @@ glm::vec2 OrthographicCamera::CalculateRelativeMousePosition()
     float pixelWidth = (float)window->GetWidth();
     float pixelHeight = (float)window->GetHeight();
 
-    float relWidth = m_Zoom * m_AspectRatio * 2;
-    float relHeight = m_Zoom * 2;
-
-    float relX = (mousePos.x * relWidth / pixelWidth) - m_Zoom * m_AspectRatio + m_Position.x;
-    float relY = ((mousePos.y * relHeight / pixelHeight) - m_Zoom - m_Position.y) * -1;
+    auto relWindowSize = CalculateRelativeWindowSize();
+    float relX = (mousePos.x * relWindowSize.x / pixelWidth) - m_Zoom * m_AspectRatio + m_Position.x;
+    float relY = ((mousePos.y * relWindowSize.y / pixelHeight) - m_Zoom - m_Position.y) * -1;
 
     return { relX, relY };
+}
+
+glm::vec2 OrthographicCamera::CalculateScreenRelativeMousePosition()
+{
+    auto mousePos = Input::GetMousePosition();
+
+    static auto window = Application::Get().GetWindow();
+    float pixelWidth = (float)window->GetWidth();
+    float pixelHeight = (float)window->GetHeight();
+
+    auto relWindowSize = CalculateRelativeWindowSize();
+    float relX = (mousePos.x * relWindowSize.x / pixelWidth) - m_Zoom * m_AspectRatio;
+    float relY = ((mousePos.y * relWindowSize.y / pixelHeight) - m_Zoom) * -1;
+
+    return { relX, relY };
+}
+
+glm::vec2 OrthographicCamera::CalculateRelativeWindowSize()
+{
+    return { m_Zoom * m_AspectRatio * 2, m_Zoom * 2 };
 }
 
 void OrthographicCamera::SetAspectRatio(float ratio)
