@@ -20,7 +20,8 @@ project "UltimateWar"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"
-	architecture "x86_64"
+    architecture "x86_64"
+    warnings "Default"
 
     targetdir "bin/%{cfg.buildcfg}-%{cfg.system}"
     objdir "obj/%{cfg.buildcfg}-%{cfg.system}"
@@ -44,6 +45,7 @@ project "UltimateWar"
     links { "GLFW", "GLM", "GLAD", "ImGui", "stb" }
 
     filter "system:linux"
+        toolset "clang"
         links { "dl", "pthread" }
         defines { "_X11" }
 
