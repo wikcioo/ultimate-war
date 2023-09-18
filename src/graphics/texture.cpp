@@ -12,10 +12,10 @@ static unsigned int TextureWrapToGL(TextureWrap wrap)
         case TextureWrap::CLAMP_TO_BORDER: return GL_CLAMP_TO_BORDER;
         case TextureWrap::MIRRORED_REPEAT: return GL_MIRRORED_REPEAT;
         case TextureWrap::REPEAT: return GL_REPEAT;
+        default:
+            LOG_ERROR("Unknown texture wrap option");
+            return GL_REPEAT;
     }
-
-    LOG_ERROR("Unknown texture wrap option");
-    return GL_REPEAT;
 }
 
 static unsigned int TextureFilterToGL(TextureFilter filter)
@@ -24,10 +24,10 @@ static unsigned int TextureFilterToGL(TextureFilter filter)
     {
         case TextureFilter::NEAREST: return GL_NEAREST;
         case TextureFilter::LINEAR: return GL_LINEAR;
+        default:
+            LOG_ERROR("Unknown texture filter option");
+            return GL_LINEAR;
     }
-
-    LOG_ERROR("Unknown texture filter option");
-    return GL_LINEAR;
 }
 
 Texture2D::Texture2D(const TextureData& data)

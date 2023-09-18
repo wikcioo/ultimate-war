@@ -142,7 +142,7 @@ void DebugLayer::DisplaySettingsWindow()
 
     ImGui::SameLine();
     std::string selectedMap = m_GameLayer->m_GameMap->GetSelectedMapName();
-    ImGui::Text(std::string("Selected map: " + (selectedMap.empty() ? "None" : selectedMap)).c_str());
+    ImGui::Text("%s", std::string("Selected map: " + (selectedMap.empty() ? "None" : selectedMap)).c_str());
 
     ImGui::Separator();
 
