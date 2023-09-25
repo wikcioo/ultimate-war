@@ -28,6 +28,8 @@ public:
     inline void SetPlayerID(int playerID) { m_PlayerID = playerID; }
 
     bool InRange(const glm::vec2& cursorPos);
+public:
+    static glm::vec2 CalculateTilePosition(int x, int y);
 private:
     int m_Type;
     int m_PlayerID;

@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "game/tile.h"
 #include "core/file_system.h"
 
 std::string GameMap::s_MapDirectory = "assets/maps/";
@@ -87,8 +88,8 @@ Tile* GameMap::GetTile(int x, int y)
     if (x < GetTileCountX() && y < GetTileCountY() && x > -1 && y > -1)
         return m_MapData[y][x];
 
-    auto pos = CalculateTilePosition(x, y);
-    g_BadTile = Tile(-1, pos);
+    auto pos = Tile::CalculateTilePosition(x, y);
+    g_BadTile = Tile(0, pos);
     return &g_BadTile;
 }
 
@@ -111,20 +112,4 @@ void GameMap::RetrieveAvailableMaps()
 std::string GameMap::GetMapPath(const std::string& mapName)
 {
     return s_MapDirectory + mapName + s_MapFileSuffix;
-}
-
-glm::vec2 GameMap::CalculateTilePosition(int x, int y)
-{
-    float w = tileWidth;
-    float h = tileHeight;
-
-    float dx = (w-(w/4)) * x + (x * tileOffset / 2 * glm::sqrt(3));
-    float dy = (h * y) + (y * tileOffset);
-
-    if (x & 1)
-    {
-        dy += (h + tileOffset) / 2;
-    }
-
-    return { dx, dy };
 }
