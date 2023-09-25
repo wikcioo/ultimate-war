@@ -21,12 +21,17 @@ public:
     void DrawBase(const glm::vec4& color);
 
     inline const int GetType() const { return m_Type; }
+    inline const int GetPlayerID() const { return m_PlayerID; }
+    inline const int GetIncomeValue() const { return m_IncomeValue; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
 
-    bool InRange(const glm::vec2& cursorPos);
+    inline void SetPlayerID(int playerID) { m_PlayerID = playerID; }
 
+    bool InRange(const glm::vec2& cursorPos);
 private:
     int m_Type;
+    int m_PlayerID;
+    int m_IncomeValue;
     glm::vec2 m_Position;
     std::vector<Unit*> m_Units;
 };

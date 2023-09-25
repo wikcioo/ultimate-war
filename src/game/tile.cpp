@@ -7,7 +7,7 @@
 #include "debug/debug_data.h"
 
 Tile::Tile(int type, const glm::vec2& position)
-    : m_Type(type), m_Position(position)
+    : m_Type(type), m_Position(position), m_IncomeValue(10), m_PlayerID(-1)
 {
 }
 
