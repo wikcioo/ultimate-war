@@ -16,7 +16,7 @@ GameLayer::GameLayer()
     : Layer("GameLayer")
 {
     auto window = Application::Get().GetWindow();
-    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
+    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
     m_GameMapManager = std::make_shared<GameMapManager>("");
     m_PlayerManager = std::make_shared<PlayerManager>(m_GameMapManager);
     m_Arrow = std::make_shared<Arrow>();
