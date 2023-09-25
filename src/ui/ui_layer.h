@@ -5,12 +5,12 @@
 #include "core/camera.h"
 #include "layer/layer.h"
 #include "ui/minimap.h"
-#include "game/map.h"
+#include "game/map_manager.h"
 
 struct UILayerData
 {
     std::shared_ptr<OrthographicCamera> _GameCamera;
-    std::shared_ptr<GameMap> _GameMap;
+    std::shared_ptr<GameMapManager> _GameMapManager;
 };
 
 class UILayer : public Layer

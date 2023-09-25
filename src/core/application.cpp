@@ -35,7 +35,7 @@ Application::Application()
 
     UILayerData data = {
         ._GameCamera = gameLayer->GetCameraController()->GetCamera(),
-        ._GameMap = gameLayer->GetGameMap()
+        ._GameMapManager = gameLayer->GetGameMapManager()
     };
     UILayer* uiLayer = new UILayer(data);
     uiLayer->OnAttach();

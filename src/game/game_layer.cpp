@@ -17,17 +17,17 @@ GameLayer::GameLayer()
 {
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
-    m_GameMap = std::make_shared<GameMap>("");
+    m_GameMapManager = std::make_shared<GameMapManager>("");
     m_Arrow = std::make_shared<Arrow>();
+    ColorData::Get()->TileColors.PlayerTileColor = {{0.5f, 0.5f, 0.2f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}};
+    ColorData::Get()->TileColors.MiniMapColor = {0.2f, 0.2f, 0.2f, 1.0f};
+    ColorData::Get()->TileColors.TileHoverBorderColor = {0.2f, 0.3f, 0.8f, 1.0f};
+
 }
 
 void GameLayer::OnAttach()
 {
-    m_GameMap->SetTileDefaultColor(0, {0.2f, 0.2f, 0.2f, 0.2f});
-    m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
-    m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
-    m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
-    m_GameMap->Load("simple");
+    m_GameMapManager->Load("simple");
 }
 
 void GameLayer::OnDetach()
@@ -44,22 +44,29 @@ void GameLayer::OnUpdate(float dt)
 
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
     bool isCursorInRange = false;
-    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMap->GetTile(x, y);
+            Tile* tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
             glm::vec4 tileColor;
             if (!isCursorInRange && tile->InRange(relMousePos))
             {
                 isCursorInRange = true;
                 m_Arrow->SetEndPosition(tile->GetPosition());
-                tileColor = m_GameMap->GetTileHighlightColor(tile->GetType());
+                tileColor = ColorData::Get()->TileColors.TileHoverBorderColor;
             }
             else
             {
-                tileColor = m_GameMap->GetTileDefaultColor(tile->GetType());
+                if (tile->GetPlayerID() != -1)
+                {
+                    tileColor = ColorData::Get()->TileColors.PlayerTileColor[tile->GetPlayerID()];
+                }
+                else
+                {
+                    tileColor = glm::vec4(glm::vec3(0.5f), 1.0f);
+                }
             }
 
             tile->Draw(tileColor);
@@ -90,11 +97,11 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     static bool arrowClickedOnStarTile = false;
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
 
-    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMap->GetTile(x, y);
+            Tile* tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->InRange(relMousePos))
             {
                 if (m_Arrow->IsVisible() && arrowClickedOnStarTile)

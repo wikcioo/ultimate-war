@@ -134,14 +134,14 @@ void DebugLayer::DisplaySettingsWindow()
 
     if (ImGui::BeginPopup("available_maps_popup"))
     {
-        for (std::string mapName : m_GameLayer->m_GameMap->GetAvailableMaps())
+        for (std::string mapName : m_GameLayer->m_GameMapManager->GetAvailableMaps())
             if (ImGui::Selectable(mapName.c_str()))
-                m_GameLayer->m_GameMap->Load(mapName);
+                m_GameLayer->m_GameMapManager->Load(mapName);
         ImGui::EndPopup();
     }
 
     ImGui::SameLine();
-    std::string selectedMap = m_GameLayer->m_GameMap->GetSelectedMapName();
+    std::string selectedMap = m_GameLayer->m_GameMapManager->GetSelectedMapName();
     ImGui::Text("%s", std::string("Selected map: " + (selectedMap.empty() ? "None" : selectedMap)).c_str());
 
     ImGui::Separator();

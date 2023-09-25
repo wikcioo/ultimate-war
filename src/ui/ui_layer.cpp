@@ -8,7 +8,7 @@ UILayer::UILayer(const UILayerData& data)
     : Layer("UILayer"), m_GameCamera(data._GameCamera)
 {
     m_UICamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
-    m_UIElements.emplace_back(std::make_shared<Minimap>(m_UICamera, m_GameCamera, data._GameMap));
+    m_UIElements.emplace_back(std::make_shared<Minimap>(m_UICamera, m_GameCamera, data._GameMapManager));
 }
 
 void UILayer::OnAttach()
