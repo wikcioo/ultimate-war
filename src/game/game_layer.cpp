@@ -18,6 +18,7 @@ GameLayer::GameLayer()
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
     m_GameMapManager = std::make_shared<GameMapManager>("");
+    m_PlayerManager = std::make_shared<PlayerManager>(m_GameMapManager);
     m_Arrow = std::make_shared<Arrow>();
     ColorData::Get()->TileColors.PlayerTileColor = {{0.5f, 0.5f, 0.2f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}};
     ColorData::Get()->TileColors.MiniMapColor = {0.2f, 0.2f, 0.2f, 1.0f};
@@ -90,6 +91,18 @@ void GameLayer::OnEvent(Event& event)
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(GameLayer::OnMouseButtonPressed));
+    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(GameLayer::OnKeyReleased));
+}
+
+bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
+{
+    if(event.GetKeyCode() == GLFW_KEY_ENTER)
+    {
+        m_PlayerManager->NextTurn();
+        return true;
+    }
+
+    return false;
 }
 
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)

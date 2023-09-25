@@ -21,6 +21,7 @@ private:
     void EndFrame();
     void DisplayInfoWindow(float dt);
     void DisplaySettingsWindow();
+    void DisplayPlayerWindow();
 
 private:
     GameLayer* m_GameLayer;

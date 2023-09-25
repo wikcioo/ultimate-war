@@ -166,13 +166,35 @@ void DebugLayer::DisplaySettingsWindow()
     ImGui::End();
 }
 
+void DebugLayer::DisplayPlayerWindow()
+{
+    static bool show_player_window = true;
+    if (!show_player_window) return;
+
+    ImGui::Begin("Info", &show_player_window);
+
+
+    auto camera = m_GameLayer->m_CameraController->GetCamera();
+    auto pos = camera->GetPosition();
+    auto players = m_GameLayer->GetPlayerManager()->GetPlayers();
+    ImGui::Text("All players");
+    for (int i = 0; i < players.size(); i++)
+    {
+        ImGui::Text("Player %d", i + 1);
+        ImGui::Text("Gold %d: ", players[i]->GetGold());
+        ImGui::Separator();
+    }
+
+    ImGui::End();
+}
+
 void DebugLayer::OnUpdate(float dt)
 {
     BeginFrame();
 
     DisplayInfoWindow(dt);
     DisplaySettingsWindow();
-
+    DisplayPlayerWindow();
     EndFrame();
 }
 
