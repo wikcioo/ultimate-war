@@ -11,23 +11,39 @@
 #include "core/logger.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
+#include "util/util.h"
+
+GameLayer* GameLayer::s_Instance = nullptr;
 
 GameLayer::GameLayer()
-    : Layer("GameLayer")
+    : Layer("GameLayer"), m_IterationNumber(0)
 {
+    s_Instance = this;
+
     auto window = Application::Get().GetWindow();
-    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
-    m_GameMap = std::make_shared<GameMap>("");
+    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
+    m_GameMapManager = std::make_shared<GameMapManager>("");
+    m_PlayerManager = std::make_shared<PlayerManager>();
     m_Arrow = std::make_shared<Arrow>();
+
+    ColorData::Get()->TileColors.MiniMapColor = {0.2f, 0.2f, 0.2f, 1.0f};
+    ColorData::Get()->TileColors.TileHoverBorderColor = {0.2f, 0.3f, 0.8f, 1.0f};
+
+    m_Arrow = std::make_shared<Arrow>();
+    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {1.0f, 0.0f, 0.0f});
+    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {0.0f, 0.0, 1.0f});
 }
 
 void GameLayer::OnAttach()
 {
-    m_GameMap->SetTileDefaultColor(0, {0.2f, 0.2f, 0.2f, 0.2f});
-    m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
-    m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
-    m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
-    m_GameMap->Load("simple");
+    m_GameMapManager->Load("simple");
+
+    int i = 2;
+    for (auto player : m_PlayerManager->GetAllPlayers())
+    {
+        player->AddOwnedTile(m_GameMapManager->GetGameMap()->GetTile(i-1, i));
+        i++;
+    }
 }
 
 void GameLayer::OnDetach()
@@ -44,22 +60,25 @@ void GameLayer::OnUpdate(float dt)
 
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
     bool isCursorInRange = false;
-    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMap->GetTile(x, y);
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
             glm::vec4 tileColor;
             if (!isCursorInRange && tile->InRange(relMousePos))
             {
                 isCursorInRange = true;
                 m_Arrow->SetEndPosition(tile->GetPosition());
-                tileColor = m_GameMap->GetTileHighlightColor(tile->GetType());
+                tileColor = ColorData::Get()->TileColors.TileHoverBorderColor;
             }
             else
             {
-                tileColor = m_GameMap->GetTileDefaultColor(tile->GetType());
+                if (tile->GetType() == 0)
+                    tileColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
+                else
+                    tileColor = glm::vec4(1.0f);
             }
 
             tile->Draw(tileColor);
@@ -83,6 +102,18 @@ void GameLayer::OnEvent(Event& event)
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(GameLayer::OnMouseButtonPressed));
+    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(GameLayer::OnKeyReleased));
+}
+
+bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
+{
+    if(event.GetKeyCode() == GLFW_KEY_ENTER)
+    {
+        m_PlayerManager->NextTurn();
+        return true;
+    }
+
+    return false;
 }
 
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
@@ -90,11 +121,11 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     static bool arrowClickedOnStarTile = false;
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
 
-    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMap->GetTile(x, y);
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->InRange(relMousePos))
             {
                 if (m_Arrow->IsVisible() && arrowClickedOnStarTile)

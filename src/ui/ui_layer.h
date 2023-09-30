@@ -5,18 +5,12 @@
 #include "core/camera.h"
 #include "layer/layer.h"
 #include "ui/minimap.h"
-#include "game/map.h"
-
-struct UILayerData
-{
-    std::shared_ptr<OrthographicCamera> _GameCamera;
-    std::shared_ptr<GameMap> _GameMap;
-};
+#include "game/map_manager.h"
 
 class UILayer : public Layer
 {
 public:
-    UILayer(const UILayerData& data);
+    UILayer();
     ~UILayer() = default;
 
     virtual void OnAttach() override;

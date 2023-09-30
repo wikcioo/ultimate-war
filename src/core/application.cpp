@@ -33,16 +33,12 @@ Application::Application()
     gameLayer->OnAttach();
     m_LayerStack.PushLayer(gameLayer);
 
-    UILayerData data = {
-        ._GameCamera = gameLayer->GetCameraController()->GetCamera(),
-        ._GameMap = gameLayer->GetGameMap()
-    };
-    UILayer* uiLayer = new UILayer(data);
+    UILayer* uiLayer = new UILayer();
     uiLayer->OnAttach();
     m_LayerStack.PushOverlay(uiLayer);
 
 #if defined(DEBUG)
-    auto debugLayer = new DebugLayer(gameLayer);
+    auto debugLayer = new DebugLayer();
     debugLayer->OnAttach();
     m_LayerStack.PushOverlay(debugLayer);
 #endif

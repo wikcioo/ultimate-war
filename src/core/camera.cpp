@@ -44,7 +44,11 @@ glm::vec2 OrthographicCamera::CalculateRelativeMousePosition()
     float relX = (mousePos.x * relWindowSize.x / pixelWidth) - m_Zoom * m_AspectRatio + m_Position.x;
     float relY = ((mousePos.y * relWindowSize.y / pixelHeight) - m_Zoom - m_Position.y) * -1;
 
-    return { relX, relY };
+    glm::vec2 offset = { relX - m_Position.x, relY - m_Position.y };
+    float r = glm::radians(m_Rotation);
+    float rotatedX = offset.x * glm::cos(r) - offset.y * glm::sin(r) + m_Position.x;
+    float rotatedY = offset.x * glm::sin(r) + offset.y * glm::cos(r) + m_Position.y;
+    return { rotatedX, rotatedY };
 }
 
 glm::vec2 OrthographicCamera::CalculateScreenRelativeMousePosition()

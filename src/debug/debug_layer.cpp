@@ -11,8 +11,8 @@
 #include "debug/debug_data.h"
 #include "core/application.h"
 
-DebugLayer::DebugLayer(GameLayer* gameLayer)
-    : Layer("DebugLayer"), m_GameLayer(gameLayer)
+DebugLayer::DebugLayer()
+    : Layer("DebugLayer"), m_GameLayer(GameLayer::Get())
 {
 }
 
@@ -88,7 +88,7 @@ void DebugLayer::DisplayInfoWindow(float dt)
 
     ImGui::Separator();
 
-    auto camera = m_GameLayer->m_CameraController->GetCamera();
+    auto camera = m_GameLayer.m_CameraController->GetCamera();
     auto pos = camera->GetPosition();
     ImGui::Text("Camera");
     ImGui::Text("  position: %.4f, %.4f, %.4f", pos.x, pos.y, pos.z);
@@ -112,6 +112,11 @@ void DebugLayer::DisplaySettingsWindow()
 
     ImGui::Begin("Settings", &show_settings_window);
 
+    static bool show_demo_window = false;
+    ImGui::Checkbox("Show demo window", &show_demo_window);
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
+
     static bool polygon_mode = false;
     static bool polygon_mode_active_last_frame = false;
     ImGui::Checkbox("Polygon mode", &polygon_mode);
@@ -134,14 +139,14 @@ void DebugLayer::DisplaySettingsWindow()
 
     if (ImGui::BeginPopup("available_maps_popup"))
     {
-        for (std::string mapName : m_GameLayer->m_GameMap->GetAvailableMaps())
+        for (std::string mapName : m_GameLayer.m_GameMapManager->GetAvailableMaps())
             if (ImGui::Selectable(mapName.c_str()))
-                m_GameLayer->m_GameMap->Load(mapName);
+                m_GameLayer.m_GameMapManager->Load(mapName);
         ImGui::EndPopup();
     }
 
     ImGui::SameLine();
-    std::string selectedMap = m_GameLayer->m_GameMap->GetSelectedMapName();
+    std::string selectedMap = m_GameLayer.m_GameMapManager->GetSelectedMapName();
     ImGui::Text("%s", std::string("Selected map: " + (selectedMap.empty() ? "None" : selectedMap)).c_str());
 
     ImGui::Separator();
@@ -166,12 +171,45 @@ void DebugLayer::DisplaySettingsWindow()
     ImGui::End();
 }
 
+void DebugLayer::DisplayPlayerWindow()
+{
+    ImGui::Begin("Players");
+
+    ImGui::Text("Iteration nr: %d", m_GameLayer.m_IterationNumber);
+
+    auto currentPlayer = m_GameLayer.GetPlayerManager()->GetCurrentPlayer();
+    ImGui::Text("Current player: %s", currentPlayer->GetName().c_str());
+
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::TreeNode("Players"))
+    {
+        for (auto player : m_GameLayer.GetPlayerManager()->GetAllPlayers())
+        {
+            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+            if (ImGui::TreeNode(player->GetName().c_str()))
+            {
+                ImGui::Text("gold: (%d)", player->GetGold());
+                ImGui::Text("owned tiles: (%zu)", player->GetOwnedTiles().size());
+                auto clr = player->GetColor();
+                ImGui::Text("color: "); ImGui::SameLine();
+                ImGui::ColorButton("player color", ImVec4(clr.r, clr.g, clr.b, 1.0f));
+                ImGui::TreePop();
+            }
+        }
+
+        ImGui::TreePop();
+    }
+
+    ImGui::End();
+}
+
 void DebugLayer::OnUpdate(float dt)
 {
     BeginFrame();
 
     DisplayInfoWindow(dt);
     DisplaySettingsWindow();
+    DisplayPlayerWindow();
 
     EndFrame();
 }

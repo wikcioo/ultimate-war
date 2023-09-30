@@ -9,7 +9,8 @@ public:
     DebugData& operator=(const DebugData&) = delete;
     ~DebugData() = default;
 
-    static DebugData* Get() {
+    static DebugData* Get()
+    {
         static DebugData* s_Instance = new DebugData();
         return s_Instance;
     }
