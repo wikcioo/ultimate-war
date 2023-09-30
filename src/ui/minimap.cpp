@@ -55,7 +55,7 @@ void Minimap::Draw()
     {
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->GetType())
                 tile->DrawBase(ColorData::Get()->TileColors.MiniMapColor);
         }

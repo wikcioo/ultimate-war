@@ -2,13 +2,24 @@
 
 #include <vector>
 
+#include "core/logger.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
 #include "debug/debug_data.h"
+#include "game/player.h"
 
 Tile::Tile(int type, const glm::vec2& position)
-    : m_Type(type), m_Position(position), m_IncomeValue(10), m_PlayerID(-1)
+    : m_Type(type), m_Position(position)
 {
+    // TODO(Viktor): Refactor the value to be based on buildings, once implemented
+    switch (type)
+    {
+        case 0: m_Value = 0; break;
+        case 1: m_Value = 10; break;
+        case 2: m_Value = 20; break;
+        default:
+            m_Value = 0;
+    }
 }
 
 Tile::~Tile()
@@ -24,7 +35,15 @@ void Tile::AddUnit(UnitType type)
 
 void Tile::Draw(const glm::vec4& color)
 {
-    DrawBase(color);
+    if (!m_OwnedBy)
+        DrawBase(color);
+    else
+    {
+        auto c = m_OwnedBy->GetColor();
+        DrawBase({c.r, c.g, c.b, 1.0f});
+    }
+
+    if (m_Units.empty()) return;
 
 #if defined(DEBUG)
     float ratio = DebugData::Get()->TileData.HeightRatio;
@@ -99,6 +118,11 @@ void Tile::Draw(const glm::vec4& color)
 void Tile::DrawBase(const glm::vec4& color)
 {
     Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color);
+}
+
+void Tile::SetOwnership(std::shared_ptr<Player> player)
+{
+    m_OwnedBy = player;
 }
 
 bool Tile::InRange(const glm::vec2& cursorPos)

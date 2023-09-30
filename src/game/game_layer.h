@@ -36,6 +36,8 @@ public:
     inline std::shared_ptr<GameMapManager> GetGameMapManager() const { return m_GameMapManager; }
     inline std::shared_ptr<PlayerManager> GetPlayerManager() const { return m_PlayerManager; }
 
+    void NextIteration() { m_IterationNumber++; }
+
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
     bool OnKeyReleased(KeyReleasedEvent& event);
@@ -47,6 +49,7 @@ private:
     std::shared_ptr<GameMapManager> m_GameMapManager;
     std::shared_ptr<PlayerManager> m_PlayerManager;
     std::shared_ptr<Arrow> m_Arrow;
+    int m_IterationNumber;
 
     glm::vec2 m_StarPosition = {0.0f, 0.0f};
 };

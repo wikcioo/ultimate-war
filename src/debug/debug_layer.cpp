@@ -173,21 +173,31 @@ void DebugLayer::DisplaySettingsWindow()
 
 void DebugLayer::DisplayPlayerWindow()
 {
-    static bool show_player_window = true;
-    if (!show_player_window) return;
+    ImGui::Begin("Players");
 
-    ImGui::Begin("Info", &show_player_window);
+    ImGui::Text("Iteration nr: %d", m_GameLayer.m_IterationNumber);
 
+    auto currentPlayer = m_GameLayer.GetPlayerManager()->GetCurrentPlayer();
+    ImGui::Text("Current player: %s", currentPlayer->GetName().c_str());
 
-    auto camera = m_GameLayer.m_CameraController->GetCamera();
-    auto pos = camera->GetPosition();
-    auto players = m_GameLayer.GetPlayerManager()->GetPlayers();
-    ImGui::Text("All players");
-    for (int i = 0; i < players.size(); i++)
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::TreeNode("Players"))
     {
-        ImGui::Text("Player %d", i + 1);
-        ImGui::Text("Gold %d: ", players[i]->GetGold());
-        ImGui::Separator();
+        for (auto player : m_GameLayer.GetPlayerManager()->GetAllPlayers())
+        {
+            ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+            if (ImGui::TreeNode(player->GetName().c_str()))
+            {
+                ImGui::Text("gold: (%d)", player->GetGold());
+                ImGui::Text("owned tiles: (%zu)", player->GetOwnedTiles().size());
+                auto clr = player->GetColor();
+                ImGui::Text("color: "); ImGui::SameLine();
+                ImGui::ColorButton("player color", ImVec4(clr.r, clr.g, clr.b, 1.0f));
+                ImGui::TreePop();
+            }
+        }
+
+        ImGui::TreePop();
     }
 
     ImGui::End();
@@ -200,6 +210,7 @@ void DebugLayer::OnUpdate(float dt)
     DisplayInfoWindow(dt);
     DisplaySettingsWindow();
     DisplayPlayerWindow();
+
     EndFrame();
 }
 

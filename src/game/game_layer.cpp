@@ -11,28 +11,39 @@
 #include "core/logger.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
+#include "util/util.h"
 
 GameLayer* GameLayer::s_Instance = nullptr;
 
 GameLayer::GameLayer()
-    : Layer("GameLayer")
+    : Layer("GameLayer"), m_IterationNumber(0)
 {
     s_Instance = this;
 
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
     m_GameMapManager = std::make_shared<GameMapManager>("");
-    m_PlayerManager = std::make_shared<PlayerManager>(m_GameMapManager);
+    m_PlayerManager = std::make_shared<PlayerManager>();
     m_Arrow = std::make_shared<Arrow>();
-    ColorData::Get()->TileColors.PlayerTileColor = {{0.5f, 0.5f, 0.2f, 1.0f}, {0.2f, 0.2f, 0.2f, 1.0f}};
+
     ColorData::Get()->TileColors.MiniMapColor = {0.2f, 0.2f, 0.2f, 1.0f};
     ColorData::Get()->TileColors.TileHoverBorderColor = {0.2f, 0.3f, 0.8f, 1.0f};
 
+    m_Arrow = std::make_shared<Arrow>();
+    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {1.0f, 0.0f, 0.0f});
+    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {0.0f, 0.0, 1.0f});
 }
 
 void GameLayer::OnAttach()
 {
     m_GameMapManager->Load("simple");
+
+    int i = 2;
+    for (auto player : m_PlayerManager->GetAllPlayers())
+    {
+        player->AddOwnedTile(m_GameMapManager->GetGameMap()->GetTile(i-1, i));
+        i++;
+    }
 }
 
 void GameLayer::OnDetach()
@@ -53,7 +64,7 @@ void GameLayer::OnUpdate(float dt)
     {
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
             glm::vec4 tileColor;
             if (!isCursorInRange && tile->InRange(relMousePos))
@@ -64,14 +75,7 @@ void GameLayer::OnUpdate(float dt)
             }
             else
             {
-                if (tile->GetPlayerID() != -1)
-                {
-                    tileColor = ColorData::Get()->TileColors.PlayerTileColor[tile->GetPlayerID()];
-                }
-                else
-                {
-                    tileColor = glm::vec4(glm::vec3(0.5f), 1.0f);
-                }
+                tileColor = glm::vec4(1.0f);
             }
 
             tile->Draw(tileColor);
@@ -118,7 +122,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     {
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->InRange(relMousePos))
             {
                 if (m_Arrow->IsVisible() && arrowClickedOnStarTile)

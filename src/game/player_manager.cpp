@@ -1,37 +1,27 @@
 #include "player_manager.h"
 
+#include "util/util.h"
+#include "game/game_layer.h"
 
-PlayerManager::PlayerManager(const std::shared_ptr<GameMapManager>& gameMapManager)
-    : m_GameMapManager(gameMapManager), m_CurrentPlayer(-1), m_TurnNumber(0)
+PlayerManager::PlayerManager()
+    : m_CurrentPlayerIndex(0)
 {
-    AddPlayer();
-    AddPlayer();
 }
 
-PlayerManager::~PlayerManager()
+void PlayerManager::AddPlayer(const std::string& name, const glm::vec3& color)
 {
-    for (auto player : m_Players)
-        delete player;
-}
-
-void PlayerManager::AddPlayer()
-{
-    m_Players.push_back(new Player(m_Players.size()));
-}
-
-void PlayerManager::Update()
-{
-
+    m_Players.emplace_back(std::make_shared<Player>(name.empty() ? Util::GenerateAnonymousName() : name, color));
 }
 
 void PlayerManager::NextTurn()
 {
-    m_CurrentPlayer++;
-    if (m_CurrentPlayer % m_Players.size() == 0)
+    m_CurrentPlayerIndex++;
+
+    if (m_CurrentPlayerIndex % m_Players.size() == 0)
     {
-        m_CurrentPlayer = 0;
-        m_TurnNumber++;
+        m_CurrentPlayerIndex = 0;
+        GameLayer::Get().NextIteration();
     }
 
-    m_Players[m_CurrentPlayer]->AddGold(m_GameMapManager->GetGameMap()->CalculatePlayerIncome(m_CurrentPlayer));
+    m_Players[m_CurrentPlayerIndex]->CollectGoldFromOwnedTiles();
 }

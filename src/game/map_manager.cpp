@@ -39,11 +39,11 @@ void GameMapManager::Load(const std::string& mapName, bool flip_vertically)
     for (std::string row_str : rows)
     {
         std::istringstream sstream(row_str);
-        std::vector<Tile*> row;
+        std::vector<std::shared_ptr<Tile>> row;
         while (sstream >> tileCode)
         {
             auto pos = Tile::CalculateTilePosition(x, y);
-            Tile* t = new Tile(tileCode, pos);
+            auto t = std::make_shared<Tile>(tileCode, pos);
             row.emplace_back(t);
             x++;
         }
@@ -60,13 +60,9 @@ void GameMapManager::Load(const std::string& mapName, bool flip_vertically)
     {
         map[0][0]->AddUnit(UnitType::HARPY);
     }
-    map[0][0]->SetPlayerID(1);
-    map[1][1]->SetPlayerID(0);
-    map[0][1]->SetPlayerID(0);
 
     m_GameMap = std::make_shared<GameMap>(map);
     m_SelectedMap = mapName;
-
 }
 
 
