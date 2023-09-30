@@ -112,6 +112,11 @@ void DebugLayer::DisplaySettingsWindow()
 
     ImGui::Begin("Settings", &show_settings_window);
 
+    static bool show_demo_window = false;
+    ImGui::Checkbox("Show demo window", &show_demo_window);
+    if (show_demo_window)
+        ImGui::ShowDemoWindow(&show_demo_window);
+
     static bool polygon_mode = false;
     static bool polygon_mode_active_last_frame = false;
     ImGui::Checkbox("Polygon mode", &polygon_mode);
