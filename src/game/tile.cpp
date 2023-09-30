@@ -8,8 +8,8 @@
 #include "debug/debug_data.h"
 #include "game/player.h"
 
-Tile::Tile(int type, const glm::vec2& position)
-    : m_Type(type), m_Position(position)
+Tile::Tile(int type, const glm::ivec2& coords)
+    : m_Type(type), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
 {
     // TODO(Viktor): Refactor the value to be based on buildings, once implemented
     switch (type)
@@ -28,7 +28,7 @@ Tile::~Tile()
         delete unit;
 }
 
-void Tile::AddUnit(UnitType type)
+void Tile::CreateUnit(UnitType type)
 {
     m_Units.emplace_back(new Unit(type));
 }
@@ -100,7 +100,7 @@ void Tile::Draw(const glm::vec4& color)
         Renderer2D::DrawQuad(
             {currentX, currentY},
             {unitWidth, unitHeight},
-            ResourceManager::GetTexture(UnitTextureMap[(UnitType)((i % 5) + 1)])
+            ResourceManager::GetTexture(UnitTextureMap[m_Units[i]->GetType()])
         );
 
         if ((i + 1) % unitsPerRow == 0)
@@ -123,6 +123,14 @@ void Tile::DrawBase(const glm::vec4& color)
 void Tile::SetOwnership(std::shared_ptr<Player> player)
 {
     m_OwnedBy = player;
+}
+
+void Tile::TransferUnitsToTile(std::shared_ptr<Tile> destTile)
+{
+    if (destTile.get() == this) return;
+
+    destTile->GetUnits().insert(destTile->GetUnits().end(), m_Units.begin(), m_Units.end());
+    m_Units.clear();
 }
 
 bool Tile::InRange(const glm::vec2& cursorPos)

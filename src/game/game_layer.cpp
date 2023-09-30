@@ -69,8 +69,13 @@ void GameLayer::OnUpdate(float dt)
             glm::vec4 tileColor;
             if (!isCursorInRange && tile->InRange(relMousePos))
             {
-                isCursorInRange = true;
-                m_Arrow->SetEndPosition(tile->GetPosition());
+                auto startTile = m_Arrow->GetStartTile();
+                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()))
+                {
+                    isCursorInRange = true;
+                    m_Arrow->SetEndPosition(tile->GetPosition());
+                }
+
                 tileColor = ColorData::Get()->TileColors.TileHoverBorderColor;
             }
             else
@@ -85,8 +90,8 @@ void GameLayer::OnUpdate(float dt)
         }
     }
 
-    if (!isCursorInRange)
-        m_Arrow->SetEndPosition(relMousePos);
+    if (m_Arrow->IsVisible() && !isCursorInRange)
+        m_Arrow->SetEndPosition(m_Arrow->GetStartTile()->GetPosition());
 
     m_Arrow->Draw();
 
@@ -130,7 +135,11 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
             {
                 if (m_Arrow->IsVisible() && arrowClickedOnStarTile)
                 {
-                    m_StarPosition = tile->GetPosition();
+                    if (Tile::IsAdjacent({x, y}, m_Arrow->GetStartTile()->GetCoords()))
+                    {
+                        m_StarPosition = tile->GetPosition();
+                        m_Arrow->GetStartTile()->TransferUnitsToTile(tile);
+                    }
                 }
                 else
                 {
@@ -141,7 +150,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
                 }
 
                 m_Arrow->SetVisible(!m_Arrow->IsVisible());
-                m_Arrow->SetStartPosition(tile->GetPosition());
+                m_Arrow->SetStartTile(tile);
                 return false;
             }
         }

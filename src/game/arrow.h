@@ -5,6 +5,7 @@
 
 #include "graphics/shader.h"
 #include "graphics/vertex_array.h"
+#include "game/tile.h"
 
 class Arrow
 {
@@ -14,10 +15,12 @@ public:
 
     void Draw();
 
-    void SetStartPosition(const glm::vec2& startPosition) { m_StartPosition = startPosition; }
+    void SetStartTile(std::shared_ptr<Tile> tile) { m_StartTile = tile; m_StartPosition = tile->GetPosition(); }
     void SetEndPosition(const glm::vec2& endPosition) { m_EndPosition = endPosition; }
     void SetVisible(bool visible) { m_Visible = visible; }
     void SetColor(const glm::vec4& color) { m_Color = color; }
+
+    std::shared_ptr<Tile> GetStartTile() { return m_StartTile; }
 
     inline const bool IsVisible() const { return m_Visible; }
 
@@ -26,6 +29,7 @@ private:
 
 private:
     std::shared_ptr<VertexArray> m_ArrowVA;
+    std::shared_ptr<Tile> m_StartTile;
     glm::vec2 m_StartPosition;
     glm::vec2 m_EndPosition;
     glm::vec4 m_Color;
