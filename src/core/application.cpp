@@ -20,7 +20,6 @@ Application::Application()
 
     ResourceManager::LoadShader("color", "assets/shaders/color.glsl");
     ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
-    ResourceManager::LoadTexture("star", "assets/textures/star.png");
     ResourceManager::LoadTexture("swordsman", "assets/textures/units/swordsman.png");
     ResourceManager::LoadTexture("archer", "assets/textures/units/archer.png");
     ResourceManager::LoadTexture("dwarf", "assets/textures/units/dwarf.png");

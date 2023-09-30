@@ -95,9 +95,6 @@ void GameLayer::OnUpdate(float dt)
 
     m_Arrow->Draw();
 
-    static auto starTexture = ResourceManager::GetTexture("star");
-    Renderer2D::DrawQuad(m_StarPosition, glm::vec2(0.6f), starTexture);
-
     Renderer2D::EndScene();
 }
 
@@ -123,7 +120,6 @@ bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
 
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
-    static bool arrowClickedOnStarTile = false;
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
 
     for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
@@ -133,20 +129,12 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->InRange(relMousePos))
             {
-                if (m_Arrow->IsVisible() && arrowClickedOnStarTile)
+                if (m_Arrow->IsVisible())
                 {
                     if (Tile::IsAdjacent({x, y}, m_Arrow->GetStartTile()->GetCoords()))
                     {
-                        m_StarPosition = tile->GetPosition();
                         m_Arrow->GetStartTile()->TransferUnitsToTile(tile);
                     }
-                }
-                else
-                {
-                    if (tile->GetPosition() == m_StarPosition)
-                        arrowClickedOnStarTile = true;
-                    else
-                        arrowClickedOnStarTile = false;
                 }
 
                 m_Arrow->SetVisible(!m_Arrow->IsVisible());
