@@ -75,7 +75,10 @@ void GameLayer::OnUpdate(float dt)
             }
             else
             {
-                tileColor = glm::vec4(1.0f);
+                if (tile->GetType() == 0)
+                    tileColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
+                else
+                    tileColor = glm::vec4(1.0f);
             }
 
             tile->Draw(tileColor);
