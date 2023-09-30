@@ -29,9 +29,14 @@ public:
     Unit(UnitType type);
     ~Unit() = default;
 
+    void ToggleSelected() { m_IsSelected = !m_IsSelected; }
+    void SetSelected(bool isSelected) { m_IsSelected = isSelected; }
+
     const UnitType GetType() const { return m_Type; }
+    const bool IsSelected() const { return m_IsSelected; }
 
 private:
     UnitType m_Type;
     UnitStats m_Stats;
+    bool m_IsSelected;
 };
