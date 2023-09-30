@@ -11,8 +11,8 @@
 #include "debug/debug_data.h"
 #include "core/application.h"
 
-DebugLayer::DebugLayer(GameLayer* gameLayer)
-    : Layer("DebugLayer"), m_GameLayer(gameLayer)
+DebugLayer::DebugLayer()
+    : Layer("DebugLayer"), m_GameLayer(GameLayer::Get())
 {
 }
 
@@ -88,7 +88,7 @@ void DebugLayer::DisplayInfoWindow(float dt)
 
     ImGui::Separator();
 
-    auto camera = m_GameLayer->m_CameraController->GetCamera();
+    auto camera = m_GameLayer.m_CameraController->GetCamera();
     auto pos = camera->GetPosition();
     ImGui::Text("Camera");
     ImGui::Text("  position: %.4f, %.4f, %.4f", pos.x, pos.y, pos.z);
@@ -134,14 +134,14 @@ void DebugLayer::DisplaySettingsWindow()
 
     if (ImGui::BeginPopup("available_maps_popup"))
     {
-        for (std::string mapName : m_GameLayer->m_GameMapManager->GetAvailableMaps())
+        for (std::string mapName : m_GameLayer.m_GameMapManager->GetAvailableMaps())
             if (ImGui::Selectable(mapName.c_str()))
-                m_GameLayer->m_GameMapManager->Load(mapName);
+                m_GameLayer.m_GameMapManager->Load(mapName);
         ImGui::EndPopup();
     }
 
     ImGui::SameLine();
-    std::string selectedMap = m_GameLayer->m_GameMapManager->GetSelectedMapName();
+    std::string selectedMap = m_GameLayer.m_GameMapManager->GetSelectedMapName();
     ImGui::Text("%s", std::string("Selected map: " + (selectedMap.empty() ? "None" : selectedMap)).c_str());
 
     ImGui::Separator();
@@ -174,9 +174,9 @@ void DebugLayer::DisplayPlayerWindow()
     ImGui::Begin("Info", &show_player_window);
 
 
-    auto camera = m_GameLayer->m_CameraController->GetCamera();
+    auto camera = m_GameLayer.m_CameraController->GetCamera();
     auto pos = camera->GetPosition();
-    auto players = m_GameLayer->GetPlayerManager()->GetPlayers();
+    auto players = m_GameLayer.GetPlayerManager()->GetPlayers();
     ImGui::Text("All players");
     for (int i = 0; i < players.size(); i++)
     {

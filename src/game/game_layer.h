@@ -30,6 +30,8 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
+    static GameLayer& Get() { return *s_Instance; }
+
     inline std::shared_ptr<OrthographicCameraController> GetCameraController() const { return m_CameraController; }
     inline std::shared_ptr<GameMapManager> GetGameMapManager() const { return m_GameMapManager; }
     inline std::shared_ptr<PlayerManager> GetPlayerManager() const { return m_PlayerManager; }
@@ -39,6 +41,8 @@ private:
     bool OnKeyReleased(KeyReleasedEvent& event);
 
 private:
+    static GameLayer* s_Instance;
+
     std::shared_ptr<OrthographicCameraController> m_CameraController;
     std::shared_ptr<GameMapManager> m_GameMapManager;
     std::shared_ptr<PlayerManager> m_PlayerManager;

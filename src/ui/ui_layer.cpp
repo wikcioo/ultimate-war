@@ -3,12 +3,15 @@
 #include "core/core.h"
 #include "core/input.h"
 #include "core/application.h"
+#include "game/game_layer.h"
 
-UILayer::UILayer(const UILayerData& data)
-    : Layer("UILayer"), m_GameCamera(data._GameCamera)
+UILayer::UILayer()
+    : Layer("UILayer")
 {
+    m_GameCamera = GameLayer::Get().GetCameraController()->GetCamera();
     m_UICamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
-    m_UIElements.emplace_back(std::make_shared<Minimap>(m_UICamera, m_GameCamera, data._GameMapManager));
+
+    m_UIElements.emplace_back(std::make_shared<Minimap>(m_UICamera, m_GameCamera, GameLayer::Get().GetGameMapManager()));
 }
 
 void UILayer::OnAttach()

@@ -12,9 +12,13 @@
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
 
+GameLayer* GameLayer::s_Instance = nullptr;
+
 GameLayer::GameLayer()
     : Layer("GameLayer")
 {
+    s_Instance = this;
+
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
     m_GameMapManager = std::make_shared<GameMapManager>("");
