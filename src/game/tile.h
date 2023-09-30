@@ -33,6 +33,7 @@ public:
     bool InRange(const glm::vec2& cursorPos);
 
 public:
+    static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);
     static glm::vec2 CalculateTilePosition(int x, int y);
 
 private:

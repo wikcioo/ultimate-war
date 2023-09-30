@@ -159,6 +159,31 @@ bool Tile::InRange(const glm::vec2& cursorPos)
     return true;
 }
 
+bool Tile::IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2)
+{
+    static std::array<glm::ivec2, 6> adjacentTileOffsets = {
+        glm::ivec2(-1, 1), {0,  1}, {1, 1},
+                  {-1, 0}, {0, -1}, {1, 0}
+    };
+
+    int offset = 0;
+    if (tile1.x % 2 == 0)
+        offset = -1;
+
+    for (auto tileOffset : adjacentTileOffsets)
+    {
+        if (tileOffset.x != 0)
+        {
+            if (tile1.y + offset + tileOffset.y == tile2.y && tile1.x + tileOffset.x == tile2.x) return true;
+        }
+        else
+        {
+            if (tile1.y + tileOffset.y == tile2.y && tile1.x + tileOffset.x == tile2.x) return true;
+        }
+    }
+
+    return false;
+}
 
 glm::vec2 Tile::CalculateTilePosition(int x, int y)
 {
