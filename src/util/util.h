@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <sstream>
+#include <iomanip>
 
 class Util
 {
@@ -22,5 +24,13 @@ public:
         size_t lastDot = file.find_last_of('.');
         size_t count = lastDot == std::string::npos ? file.length() : lastDot;
         return file.substr(0, count);
+    }
+
+    static std::string GenerateAnonymousName()
+    {
+        static int anonymousNameCount = 1;
+        std::stringstream ss;
+        ss << "Anonymous#" << std::setw(4) << std::setfill('0') << std::right << anonymousNameCount++;
+        return ss.str();
     }
 };
