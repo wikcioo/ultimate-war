@@ -47,18 +47,18 @@ void Tile::Draw(const glm::vec4& color)
 
 #if defined(DEBUG)
     float ratio = DebugData::Get()->TileData.HeightRatio;
-    float L = tileWidth / 2 * ratio;
+    float L = TILE_WIDTH / 2 * ratio;
     float dx = glm::cos(glm::radians(60.0f)) * L;
     float dy = glm::sin(glm::radians(60.0f)) * L;
 #else
     static float ratio = 1.0f;
-    static float L = tileWidth / 2 * ratio;
+    static float L = TILE_WIDTH / 2 * ratio;
     static float dx = glm::cos(glm::radians(60.0f)) * L;
     static float dy = glm::sin(glm::radians(60.0f)) * L;
 #endif
 
     glm::vec2 bgPos = {m_Position.x, m_Position.y + dy / 2};
-    glm::vec2 bgSize = {tileWidth - 2 * dx, dy};
+    glm::vec2 bgSize = {TILE_WIDTH - 2 * dx, dy};
 
     Renderer2D::DrawQuad(bgPos, bgSize, {0.0f, 0.4f, 0.0f, 0.4f});
 
@@ -127,8 +127,8 @@ void Tile::SetOwnership(std::shared_ptr<Player> player)
 
 bool Tile::InRange(const glm::vec2& cursorPos)
 {
-    static float w = tileWidth;
-    static float h = tileHeight;
+    static float w = TILE_WIDTH;
+    static float h = TILE_HEIGHT;
 
     std::vector<glm::vec2> vertices = {
         {m_Position.x - w/2, m_Position.y},
@@ -162,15 +162,15 @@ bool Tile::InRange(const glm::vec2& cursorPos)
 
 glm::vec2 Tile::CalculateTilePosition(int x, int y)
 {
-    float w = tileWidth;
-    float h = tileHeight;
+    float w = TILE_WIDTH;
+    float h = TILE_HEIGHT;
 
-    float dx = (w-(w/4)) * x + (x * tileOffset / 2 * glm::sqrt(3));
-    float dy = (h * y) + (y * tileOffset);
+    float dx = (w-(w/4)) * x + (x * TILE_OFFSET / 2 * glm::sqrt(3));
+    float dy = (h * y) + (y * TILE_OFFSET);
 
     if (x & 1)
     {
-        dy += (h + tileOffset) / 2;
+        dy += (h + TILE_OFFSET) / 2;
     }
 
     return { dx, dy };

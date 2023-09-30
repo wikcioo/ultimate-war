@@ -7,9 +7,9 @@
 
 #include "game/unit.h"
 
-#define tileWidth   2.0f
-#define tileHeight (glm::sqrt(3))
-#define tileOffset  0.1f
+#define TILE_WIDTH   2.0f
+#define TILE_HEIGHT (glm::sqrt(3))
+#define TILE_OFFSET  0.1f
 
 class Player;
 
