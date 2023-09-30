@@ -129,6 +129,8 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->InRange(relMousePos))
             {
+                tile->HandleUnitMouseClick(relMousePos);
+
                 if (m_Arrow->IsVisible())
                 {
                     if (Tile::IsAdjacent({x, y}, m_Arrow->GetStartTile()->GetCoords()))

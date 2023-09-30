@@ -7,6 +7,12 @@
 #include "graphics/renderer.h"
 #include "debug/debug_data.h"
 #include "game/player.h"
+#include "util/util.h"
+
+float Tile::s_BackgroundHeightRatio = 0.8f;
+int Tile::s_UnitRows = 2;
+int Tile::s_UnitsPerRow = 5;
+int Tile::s_UnitWidthToOffsetRatio = 10;
 
 Tile::Tile(int type, const glm::ivec2& coords)
     : m_Type(type), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
@@ -45,72 +51,68 @@ void Tile::Draw(const glm::vec4& color)
 
     if (m_Units.empty()) return;
 
-#if defined(DEBUG)
-    float ratio = DebugData::Get()->TileData.HeightRatio;
-    float L = TILE_WIDTH / 2 * ratio;
+    DrawUnits();
+}
+
+UnitDrawData Tile::GetUnitDrawData()
+{
+    float L = TILE_WIDTH / 2 * s_BackgroundHeightRatio;
     float dx = glm::cos(glm::radians(60.0f)) * L;
     float dy = glm::sin(glm::radians(60.0f)) * L;
-#else
-    static float ratio = 1.0f;
-    static float L = TILE_WIDTH / 2 * ratio;
-    static float dx = glm::cos(glm::radians(60.0f)) * L;
-    static float dy = glm::sin(glm::radians(60.0f)) * L;
-#endif
 
     glm::vec2 bgPos = {m_Position.x, m_Position.y + dy / 2};
     glm::vec2 bgSize = {TILE_WIDTH - 2 * dx, dy};
 
-    Renderer2D::DrawQuad(bgPos, bgSize, {0.0f, 0.4f, 0.0f, 0.4f});
-
-#if defined(DEBUG)
-    auto unitData = DebugData::Get()->UnitData;
-    int unitsPerRow = unitData.UnitsPerRow;
-    float unitOffsetWidth  = bgSize.x / ((unitData.UnitsPerRow * unitData.UnitWidthToOffsetRatio) + unitData.UnitsPerRow + 1);
-    float unitWidth        = unitData.UnitWidthToOffsetRatio * unitOffsetWidth;
+    float unitOffsetWidth  = bgSize.x / ((s_UnitsPerRow * s_UnitWidthToOffsetRatio) + s_UnitsPerRow + 1);
+    float unitWidth        = s_UnitWidthToOffsetRatio * unitOffsetWidth;
     float unitHeight       = glm::min(bgSize.y / 2, unitWidth);
-    float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * unitData.UnitRows)) / (unitData.UnitRows + 1));
-#else
-    static int unitRows = 2;
-    static int unitsPerRow = 5;
-    static int unitWidthToOffsetRatio = 10;
-    static float unitOffsetWidth = bgSize.x / ((unitsPerRow * unitWidthToOffsetRatio) + unitsPerRow + 1);
-    static float unitWidth = unitWidthToOffsetRatio * unitOffsetWidth;
-    static float unitHeight = glm::min(bgSize.y / 2, unitWidth);
-    static float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * unitRows)) / (unitRows + 1));
-#endif
+    float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * s_UnitRows)) / (s_UnitRows + 1));
 
-    float initialX = bgPos.x - (bgSize.x - unitWidth) / 2 + unitOffsetWidth;
-
-    float currentX = initialX;
+    float currentX = bgPos.x - (bgSize.x - unitWidth) / 2 + unitOffsetWidth;
     float currentY = bgPos.y + (bgSize.y - unitHeight) / 2 - unitOffsetHeight;
+
+    return
+    {
+        {unitWidth, unitHeight},
+        {unitOffsetWidth, unitOffsetHeight},
+        {currentX, currentY},
+        bgPos,
+        bgSize
+    };
+}
+
+void Tile::DrawUnits()
+{
+    auto unitData = GetUnitDrawData();
+    float initialX = unitData.Position.x;
+
+    Renderer2D::DrawQuad(unitData.UnitsBackgroundPosition, unitData.UnitsBackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
 
     for (int i = 0; i < m_Units.size(); i++)
     {
-#if defined(DEBUG)
-        if (DebugData::Get()->UnitData.ShowUnitBackground)
+        if (m_Units[i]->IsSelected())
         {
             Renderer2D::DrawQuad(
-                {currentX, currentY},
-                {unitWidth, unitHeight},
+                unitData.Position,
+                unitData.Size,
                 {0.8f, 0.1f, 0.1f, 0.6f}
             );
         }
-#endif
 
         Renderer2D::DrawQuad(
-            {currentX, currentY},
-            {unitWidth, unitHeight},
+            unitData.Position,
+            unitData.Size,
             ResourceManager::GetTexture(UnitTextureMap[m_Units[i]->GetType()])
         );
 
-        if ((i + 1) % unitsPerRow == 0)
+        if ((i + 1) % s_UnitsPerRow == 0)
         {
-            currentX = initialX;
-            currentY -= (unitOffsetHeight + unitHeight);
+            unitData.Position.x = initialX;
+            unitData.Position.y -= (unitData.OffsetSize.y + unitData.Size.y);
         }
         else
         {
-            currentX += unitWidth + unitOffsetWidth;
+            unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
         }
     }
 }
@@ -129,8 +131,51 @@ void Tile::TransferUnitsToTile(std::shared_ptr<Tile> destTile)
 {
     if (destTile.get() == this) return;
 
-    destTile->GetUnits().insert(destTile->GetUnits().end(), m_Units.begin(), m_Units.end());
-    m_Units.clear();
+    for (auto unit : m_Units)
+    {
+        if (!unit->IsSelected()) continue;
+
+        destTile->GetUnits().push_back(unit);
+    }
+
+    m_Units.erase(std::remove_if(m_Units.begin(), m_Units.end(), [](Unit* unit) {
+        return unit->IsSelected();
+    }), m_Units.end());
+
+    destTile->DeselectAllUnits();
+}
+
+void Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
+{
+    auto unitData = GetUnitDrawData();
+    float initialX = unitData.Position.x;
+
+    for (int i = 0; i < m_Units.size(); i++)
+    {
+        if (Util::IsPointInRectangle(
+            unitData.Position,
+            unitData.Size,
+             relMousePos))
+        {
+            m_Units[i]->ToggleSelected();
+        }
+
+        if ((i + 1) % s_UnitsPerRow == 0)
+        {
+            unitData.Position.x = initialX;
+            unitData.Position.y -= (unitData.OffsetSize.y + unitData.Size.y);
+        }
+        else
+        {
+            unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
+        }
+    }
+}
+
+void Tile::DeselectAllUnits()
+{
+    for (auto unit : m_Units)
+        unit->SetSelected(false);
 }
 
 bool Tile::InRange(const glm::vec2& cursorPos)

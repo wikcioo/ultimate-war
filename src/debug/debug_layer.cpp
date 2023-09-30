@@ -152,15 +152,14 @@ void DebugLayer::DisplaySettingsWindow()
     ImGui::Separator();
 
     ImGui::Text("Unit settings");
-    ImGui::Checkbox("Show unit background", &DebugData::Get()->UnitData.ShowUnitBackground);
-    ImGui::SliderInt("Unit rows", &DebugData::Get()->UnitData.UnitRows, 1, 3);
-    ImGui::SliderInt("Units per row", &DebugData::Get()->UnitData.UnitsPerRow, 3, 7);
-    ImGui::SliderInt("Unit width/offset ratio", &DebugData::Get()->UnitData.UnitWidthToOffsetRatio, 1, 19);
+    ImGui::SliderInt("Unit rows", &Tile::s_UnitRows, 1, 3);
+    ImGui::SliderInt("Units per row", &Tile::s_UnitsPerRow, 3, 7);
+    ImGui::SliderInt("Unit width/offset ratio", &Tile::s_UnitWidthToOffsetRatio, 1, 19);
 
     ImGui::Separator();
 
     ImGui::Text("Tile settings");
-    ImGui::SliderFloat("Height ratio", &DebugData::Get()->TileData.HeightRatio, 0.1f, 1.0f);
+    ImGui::SliderFloat("Height ratio", &Tile::s_BackgroundHeightRatio, 0.1f, 1.0f);
 
     ImGui::Separator();
 

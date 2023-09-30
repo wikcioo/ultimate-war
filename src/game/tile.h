@@ -11,6 +11,15 @@
 #define TILE_HEIGHT (glm::sqrt(3))
 #define TILE_OFFSET  0.1f
 
+struct UnitDrawData
+{
+    glm::vec2 Size;
+    glm::vec2 OffsetSize;
+    glm::vec2 Position;
+    glm::vec2 UnitsBackgroundPosition;
+    glm::vec2 UnitsBackgroundSize;
+};
+
 class Player;
 
 class Tile
@@ -24,6 +33,8 @@ public:
     void DrawBase(const glm::vec4& color);
     void SetOwnership(std::shared_ptr<Player> player);
     void TransferUnitsToTile(std::shared_ptr<Tile> destTile);
+    void HandleUnitMouseClick(const glm::vec2& relMousePos);
+    void DeselectAllUnits();
 
     inline const int GetType() const { return m_Type; }
     inline const int GetValue() const { return m_Value; }
@@ -37,6 +48,16 @@ public:
 public:
     static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);
     static glm::vec2 CalculateTilePosition(int x, int y);
+
+public:
+    static float s_BackgroundHeightRatio;
+    static int s_UnitRows;
+    static int s_UnitsPerRow;
+    static int s_UnitWidthToOffsetRatio;
+
+private:
+    void DrawUnits();
+    UnitDrawData GetUnitDrawData();
 
 private:
     int m_Type;
