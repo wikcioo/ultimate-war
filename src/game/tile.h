@@ -29,12 +29,14 @@ public:
     ~Tile();
 
     void CreateUnit(UnitType type);
+    void DeselectAllUnits();
     void Draw(const glm::vec4& color);
     void DrawBase(const glm::vec4& color);
-    void SetOwnership(std::shared_ptr<Player> player);
     void TransferUnitsToTile(std::shared_ptr<Tile> destTile);
-    void HandleUnitMouseClick(const glm::vec2& relMousePos);
-    void DeselectAllUnits();
+    bool HasSelectedUnits();
+    bool InRange(const glm::vec2& cursorPos);
+    bool HandleUnitMouseClick(const glm::vec2& relMousePos);
+    bool IsMouseClickedInsideUnitsBox(const glm::vec2& relMousePos);
 
     inline const int GetType() const { return m_Type; }
     inline const int GetValue() const { return m_Value; }
@@ -43,7 +45,7 @@ public:
     inline const glm::vec2& GetPosition() const { return m_Position; }
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
 
-    bool InRange(const glm::vec2& cursorPos);
+    void SetOwnership(std::shared_ptr<Player> player);
 
 public:
     static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);

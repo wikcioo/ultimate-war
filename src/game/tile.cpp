@@ -145,7 +145,7 @@ void Tile::TransferUnitsToTile(std::shared_ptr<Tile> destTile)
     destTile->DeselectAllUnits();
 }
 
-void Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
+bool Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
 {
     auto unitData = GetUnitDrawData();
     float initialX = unitData.Position.x;
@@ -158,6 +158,7 @@ void Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
              relMousePos))
         {
             m_Units[i]->ToggleSelected();
+            return true;
         }
 
         if ((i + 1) % s_UnitsPerRow == 0)
@@ -170,6 +171,14 @@ void Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
             unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
         }
     }
+
+    return false;
+}
+
+bool Tile::IsMouseClickedInsideUnitsBox(const glm::vec2& relMousePos)
+{
+    auto unitData = GetUnitDrawData();
+    return Util::IsPointInRectangle(unitData.UnitsBackgroundPosition, unitData.UnitsBackgroundSize, relMousePos);
 }
 
 void Tile::DeselectAllUnits()
@@ -210,6 +219,17 @@ bool Tile::InRange(const glm::vec2& cursorPos)
     }
 
     return true;
+}
+
+bool Tile::HasSelectedUnits()
+{
+    for (auto unit : m_Units)
+    {
+        if (unit->IsSelected())
+            return true;
+    }
+
+    return false;
 }
 
 bool Tile::IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2)

@@ -129,23 +129,47 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->InRange(relMousePos))
             {
-                tile->HandleUnitMouseClick(relMousePos);
+                if (!m_Arrow->GetStartTile()) m_Arrow->SetStartTile(tile);
 
-                if (m_Arrow->IsVisible())
+                if (m_Arrow->GetStartTile() != tile)
                 {
-                    if (Tile::IsAdjacent({x, y}, m_Arrow->GetStartTile()->GetCoords()))
+                    if (m_Arrow->GetStartTile()->HasSelectedUnits())
                     {
-                        m_Arrow->GetStartTile()->TransferUnitsToTile(tile);
+                        if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
+                        {
+                            m_Arrow->GetStartTile()->TransferUnitsToTile(tile);
+                        }
+                        else
+                        {
+                            m_Arrow->GetStartTile()->DeselectAllUnits();
+                        }
+                    }
+                    else
+                    {
+                        m_Arrow->SetStartTile(tile);
+                        tile->HandleUnitMouseClick(relMousePos);
+                    }
+                }
+                else
+                {
+                    if (!tile->HandleUnitMouseClick(relMousePos))
+                    {
+                        if (!tile->IsMouseClickedInsideUnitsBox(relMousePos))
+                        {
+                            tile->DeselectAllUnits();
+                        }
                     }
                 }
 
-                m_Arrow->SetVisible(!m_Arrow->IsVisible());
-                m_Arrow->SetStartTile(tile);
-                return false;
+                goto outer;
             }
         }
     }
 
-    m_Arrow->SetVisible(false);
-    return false;
+    m_Arrow->GetStartTile()->DeselectAllUnits();
+
+    outer:
+    m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnits());
+
+    return true;
 }
