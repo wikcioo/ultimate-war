@@ -19,7 +19,6 @@ public:
 
     struct
     {
-        std::vector<glm::vec4> PlayerTileColor;
         glm::vec4 MiniMapColor;
         glm::vec4 TileHoverBorderColor;
     } TileColors;

@@ -7,9 +7,15 @@
 #include "graphics/renderer.h"
 #include "debug/debug_data.h"
 #include "game/player.h"
+#include "util/util.h"
 
-Tile::Tile(int type, const glm::vec2& position)
-    : m_Type(type), m_Position(position)
+float Tile::s_BackgroundHeightRatio = 0.8f;
+int Tile::s_UnitRows = 2;
+int Tile::s_UnitsPerRow = 5;
+int Tile::s_UnitWidthToOffsetRatio = 10;
+
+Tile::Tile(int type, const glm::ivec2& coords)
+    : m_Type(type), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
 {
     // TODO(Viktor): Refactor the value to be based on buildings, once implemented
     switch (type)
@@ -28,7 +34,7 @@ Tile::~Tile()
         delete unit;
 }
 
-void Tile::AddUnit(UnitType type)
+void Tile::CreateUnit(UnitType type)
 {
     m_Units.emplace_back(new Unit(type));
 }
@@ -45,72 +51,68 @@ void Tile::Draw(const glm::vec4& color)
 
     if (m_Units.empty()) return;
 
-#if defined(DEBUG)
-    float ratio = DebugData::Get()->TileData.HeightRatio;
-    float L = tileWidth / 2 * ratio;
+    DrawUnits();
+}
+
+UnitDrawData Tile::GetUnitDrawData()
+{
+    float L = TILE_WIDTH / 2 * s_BackgroundHeightRatio;
     float dx = glm::cos(glm::radians(60.0f)) * L;
     float dy = glm::sin(glm::radians(60.0f)) * L;
-#else
-    static float ratio = 1.0f;
-    static float L = tileWidth / 2 * ratio;
-    static float dx = glm::cos(glm::radians(60.0f)) * L;
-    static float dy = glm::sin(glm::radians(60.0f)) * L;
-#endif
 
     glm::vec2 bgPos = {m_Position.x, m_Position.y + dy / 2};
-    glm::vec2 bgSize = {tileWidth - 2 * dx, dy};
+    glm::vec2 bgSize = {TILE_WIDTH - 2 * dx, dy};
 
-    Renderer2D::DrawQuad(bgPos, bgSize, {0.0f, 0.4f, 0.0f, 0.4f});
-
-#if defined(DEBUG)
-    auto unitData = DebugData::Get()->UnitData;
-    int unitsPerRow = unitData.UnitsPerRow;
-    float unitOffsetWidth  = bgSize.x / ((unitData.UnitsPerRow * unitData.UnitWidthToOffsetRatio) + unitData.UnitsPerRow + 1);
-    float unitWidth        = unitData.UnitWidthToOffsetRatio * unitOffsetWidth;
+    float unitOffsetWidth  = bgSize.x / ((s_UnitsPerRow * s_UnitWidthToOffsetRatio) + s_UnitsPerRow + 1);
+    float unitWidth        = s_UnitWidthToOffsetRatio * unitOffsetWidth;
     float unitHeight       = glm::min(bgSize.y / 2, unitWidth);
-    float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * unitData.UnitRows)) / (unitData.UnitRows + 1));
-#else
-    static int unitRows = 2;
-    static int unitsPerRow = 5;
-    static int unitWidthToOffsetRatio = 10;
-    static float unitOffsetWidth = bgSize.x / ((unitsPerRow * unitWidthToOffsetRatio) + unitsPerRow + 1);
-    static float unitWidth = unitWidthToOffsetRatio * unitOffsetWidth;
-    static float unitHeight = glm::min(bgSize.y / 2, unitWidth);
-    static float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * unitRows)) / (unitRows + 1));
-#endif
+    float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * s_UnitRows)) / (s_UnitRows + 1));
 
-    float initialX = bgPos.x - (bgSize.x - unitWidth) / 2 + unitOffsetWidth;
-
-    float currentX = initialX;
+    float currentX = bgPos.x - (bgSize.x - unitWidth) / 2 + unitOffsetWidth;
     float currentY = bgPos.y + (bgSize.y - unitHeight) / 2 - unitOffsetHeight;
+
+    return
+    {
+        {unitWidth, unitHeight},
+        {unitOffsetWidth, unitOffsetHeight},
+        {currentX, currentY},
+        bgPos,
+        bgSize
+    };
+}
+
+void Tile::DrawUnits()
+{
+    auto unitData = GetUnitDrawData();
+    float initialX = unitData.Position.x;
+
+    Renderer2D::DrawQuad(unitData.UnitsBackgroundPosition, unitData.UnitsBackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
 
     for (int i = 0; i < m_Units.size(); i++)
     {
-#if defined(DEBUG)
-        if (DebugData::Get()->UnitData.ShowUnitBackground)
+        if (m_Units[i]->IsSelected())
         {
             Renderer2D::DrawQuad(
-                {currentX, currentY},
-                {unitWidth, unitHeight},
+                unitData.Position,
+                unitData.Size,
                 {0.8f, 0.1f, 0.1f, 0.6f}
             );
         }
-#endif
 
         Renderer2D::DrawQuad(
-            {currentX, currentY},
-            {unitWidth, unitHeight},
-            ResourceManager::GetTexture(UnitTextureMap[(UnitType)((i % 5) + 1)])
+            unitData.Position,
+            unitData.Size,
+            ResourceManager::GetTexture(UnitTextureMap[m_Units[i]->GetType()])
         );
 
-        if ((i + 1) % unitsPerRow == 0)
+        if ((i + 1) % s_UnitsPerRow == 0)
         {
-            currentX = initialX;
-            currentY -= (unitOffsetHeight + unitHeight);
+            unitData.Position.x = initialX;
+            unitData.Position.y -= (unitData.OffsetSize.y + unitData.Size.y);
         }
         else
         {
-            currentX += unitWidth + unitOffsetWidth;
+            unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
         }
     }
 }
@@ -125,10 +127,70 @@ void Tile::SetOwnership(std::shared_ptr<Player> player)
     m_OwnedBy = player;
 }
 
+void Tile::TransferUnitsToTile(std::shared_ptr<Tile> destTile)
+{
+    if (destTile.get() == this) return;
+
+    for (auto unit : m_Units)
+    {
+        if (!unit->IsSelected()) continue;
+
+        destTile->GetUnits().push_back(unit);
+    }
+
+    m_Units.erase(std::remove_if(m_Units.begin(), m_Units.end(), [](Unit* unit) {
+        return unit->IsSelected();
+    }), m_Units.end());
+
+    destTile->DeselectAllUnits();
+}
+
+bool Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
+{
+    auto unitData = GetUnitDrawData();
+    float initialX = unitData.Position.x;
+
+    for (int i = 0; i < m_Units.size(); i++)
+    {
+        if (Util::IsPointInRectangle(
+            unitData.Position,
+            unitData.Size,
+             relMousePos))
+        {
+            m_Units[i]->ToggleSelected();
+            return true;
+        }
+
+        if ((i + 1) % s_UnitsPerRow == 0)
+        {
+            unitData.Position.x = initialX;
+            unitData.Position.y -= (unitData.OffsetSize.y + unitData.Size.y);
+        }
+        else
+        {
+            unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
+        }
+    }
+
+    return false;
+}
+
+bool Tile::IsMouseClickedInsideUnitsBox(const glm::vec2& relMousePos)
+{
+    auto unitData = GetUnitDrawData();
+    return Util::IsPointInRectangle(unitData.UnitsBackgroundPosition, unitData.UnitsBackgroundSize, relMousePos);
+}
+
+void Tile::DeselectAllUnits()
+{
+    for (auto unit : m_Units)
+        unit->SetSelected(false);
+}
+
 bool Tile::InRange(const glm::vec2& cursorPos)
 {
-    static float w = tileWidth;
-    static float h = tileHeight;
+    static float w = TILE_WIDTH;
+    static float h = TILE_HEIGHT;
 
     std::vector<glm::vec2> vertices = {
         {m_Position.x - w/2, m_Position.y},
@@ -159,18 +221,54 @@ bool Tile::InRange(const glm::vec2& cursorPos)
     return true;
 }
 
+bool Tile::HasSelectedUnits()
+{
+    for (auto unit : m_Units)
+    {
+        if (unit->IsSelected())
+            return true;
+    }
+
+    return false;
+}
+
+bool Tile::IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2)
+{
+    static std::array<glm::ivec2, 6> adjacentTileOffsets = {
+        glm::ivec2(-1, 1), {0,  1}, {1, 1},
+                  {-1, 0}, {0, -1}, {1, 0}
+    };
+
+    int offset = 0;
+    if (tile1.x % 2 == 0)
+        offset = -1;
+
+    for (auto tileOffset : adjacentTileOffsets)
+    {
+        if (tileOffset.x != 0)
+        {
+            if (tile1.y + offset + tileOffset.y == tile2.y && tile1.x + tileOffset.x == tile2.x) return true;
+        }
+        else
+        {
+            if (tile1.y + tileOffset.y == tile2.y && tile1.x + tileOffset.x == tile2.x) return true;
+        }
+    }
+
+    return false;
+}
 
 glm::vec2 Tile::CalculateTilePosition(int x, int y)
 {
-    float w = tileWidth;
-    float h = tileHeight;
+    float w = TILE_WIDTH;
+    float h = TILE_HEIGHT;
 
-    float dx = (w-(w/4)) * x + (x * tileOffset / 2 * glm::sqrt(3));
-    float dy = (h * y) + (y * tileOffset);
+    float dx = (w-(w/4)) * x + (x * TILE_OFFSET / 2 * glm::sqrt(3));
+    float dy = (h * y) + (y * TILE_OFFSET);
 
     if (x & 1)
     {
-        dy += (h + tileOffset) / 2;
+        dy += (h + TILE_OFFSET) / 2;
     }
 
     return { dx, dy };

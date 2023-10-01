@@ -69,8 +69,13 @@ void GameLayer::OnUpdate(float dt)
             glm::vec4 tileColor;
             if (!isCursorInRange && tile->InRange(relMousePos))
             {
-                isCursorInRange = true;
-                m_Arrow->SetEndPosition(tile->GetPosition());
+                auto startTile = m_Arrow->GetStartTile();
+                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()))
+                {
+                    isCursorInRange = true;
+                    m_Arrow->SetEndPosition(tile->GetPosition());
+                }
+
                 tileColor = ColorData::Get()->TileColors.TileHoverBorderColor;
             }
             else
@@ -85,13 +90,10 @@ void GameLayer::OnUpdate(float dt)
         }
     }
 
-    if (!isCursorInRange)
-        m_Arrow->SetEndPosition(relMousePos);
+    if (m_Arrow->IsVisible() && !isCursorInRange)
+        m_Arrow->SetEndPosition(m_Arrow->GetStartTile()->GetPosition());
 
     m_Arrow->Draw();
-
-    static auto starTexture = ResourceManager::GetTexture("star");
-    Renderer2D::DrawQuad(m_StarPosition, glm::vec2(0.6f), starTexture);
 
     Renderer2D::EndScene();
 }
@@ -118,7 +120,6 @@ bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
 
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
-    static bool arrowClickedOnStarTile = false;
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
 
     for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
@@ -128,25 +129,47 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->InRange(relMousePos))
             {
-                if (m_Arrow->IsVisible() && arrowClickedOnStarTile)
+                if (!m_Arrow->GetStartTile()) m_Arrow->SetStartTile(tile);
+
+                if (m_Arrow->GetStartTile() != tile)
                 {
-                    m_StarPosition = tile->GetPosition();
+                    if (m_Arrow->GetStartTile()->HasSelectedUnits())
+                    {
+                        if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
+                        {
+                            m_Arrow->GetStartTile()->TransferUnitsToTile(tile);
+                        }
+                        else
+                        {
+                            m_Arrow->GetStartTile()->DeselectAllUnits();
+                        }
+                    }
+                    else
+                    {
+                        m_Arrow->SetStartTile(tile);
+                        tile->HandleUnitMouseClick(relMousePos);
+                    }
                 }
                 else
                 {
-                    if (tile->GetPosition() == m_StarPosition)
-                        arrowClickedOnStarTile = true;
-                    else
-                        arrowClickedOnStarTile = false;
+                    if (!tile->HandleUnitMouseClick(relMousePos))
+                    {
+                        if (!tile->IsMouseClickedInsideUnitsBox(relMousePos))
+                        {
+                            tile->DeselectAllUnits();
+                        }
+                    }
                 }
 
-                m_Arrow->SetVisible(!m_Arrow->IsVisible());
-                m_Arrow->SetStartPosition(tile->GetPosition());
-                return false;
+                goto outer;
             }
         }
     }
 
-    m_Arrow->SetVisible(false);
-    return false;
+    m_Arrow->GetStartTile()->DeselectAllUnits();
+
+    outer:
+    m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnits());
+
+    return true;
 }

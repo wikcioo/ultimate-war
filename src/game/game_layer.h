@@ -50,6 +50,4 @@ private:
     std::shared_ptr<PlayerManager> m_PlayerManager;
     std::shared_ptr<Arrow> m_Arrow;
     int m_IterationNumber;
-
-    glm::vec2 m_StarPosition = {0.0f, 0.0f};
 };

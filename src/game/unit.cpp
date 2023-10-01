@@ -19,6 +19,6 @@ std::unordered_map<UnitType, UnitStats> UnitStatMap = {
 };
 
 Unit::Unit(UnitType type)
-    : m_Type(type), m_Stats(UnitStatMap[type])
+    : m_Type(type), m_Stats(UnitStatMap[type]), m_IsSelected(false)
 {
 }

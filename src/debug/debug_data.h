@@ -17,19 +17,6 @@ public:
 
     struct
     {
-        bool ShowUnitBackground = false;
-        int UnitRows = 2;
-        int UnitsPerRow = 5;
-        int UnitWidthToOffsetRatio = 10;
-    } UnitData;
-
-    struct
-    {
-        float HeightRatio = 0.8f;
-    } TileData;
-
-    struct
-    {
         float BorderThickness = 0.01f;
         float Zoom = 3.0f;
     } MinimapData;

@@ -4,6 +4,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include <glm/glm.hpp>
+
 class Util
 {
 public:
@@ -32,5 +34,11 @@ public:
         std::stringstream ss;
         ss << "Anonymous#" << std::setw(4) << std::setfill('0') << std::right << anonymousNameCount++;
         return ss.str();
+    }
+
+    static bool IsPointInRectangle(const glm::vec2& rectCenter, const glm::vec2& rectSize, const glm::vec2& point)
+    {
+        return (rectCenter.x - rectSize.x / 2 <= point.x && rectCenter.x + rectSize.x / 2 >= point.x &&
+                rectCenter.y - rectSize.y / 2 <= point.y && rectCenter.y + rectSize.y / 2 >= point.y);
     }
 };
