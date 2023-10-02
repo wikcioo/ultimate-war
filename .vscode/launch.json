@@ -7,7 +7,7 @@
             "request": "launch",
             "cwd": "${workspaceRoot}",
             "target": "${workspaceRoot}/bin/Debug-linux/UltimateWar",
-            "stopAtEntry": true,
+            "stopAtEntry": false,
             "valuesFormatting": "parseText",
             "preLaunchTask": "build"
         }
