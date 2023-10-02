@@ -127,6 +127,39 @@ void Tile::SetOwnership(std::shared_ptr<Player> player)
     m_OwnedBy = player;
 }
 
+void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
+{
+    if(destTile->m_OwnedBy == m_OwnedBy)
+    {
+        TransferUnitsToTile(destTile);
+        return;
+    }
+
+    if(CalculateAttackOutcome(destTile))
+    {
+        destTile->GetUnits().clear();
+        destTile->SetOwnership(this->m_OwnedBy);
+        TransferUnitsToTile(destTile);
+    }
+    else
+    {
+        EraseSelectedUnits();
+    }
+}
+
+bool Tile::CalculateAttackOutcome(std::shared_ptr<Tile> destTile)
+{
+    int destUnitCount = destTile->GetUnits().size();
+    int attackerUnitCount = 0;
+    for (auto unit : m_Units)
+    {
+        if (unit->IsSelected())
+            attackerUnitCount++;
+    }
+
+    return attackerUnitCount > destUnitCount;
+}
+
 void Tile::TransferUnitsToTile(std::shared_ptr<Tile> destTile)
 {
     if (destTile.get() == this) return;
@@ -138,13 +171,17 @@ void Tile::TransferUnitsToTile(std::shared_ptr<Tile> destTile)
         destTile->GetUnits().push_back(unit);
     }
 
-    m_Units.erase(std::remove_if(m_Units.begin(), m_Units.end(), [](Unit* unit) {
-        return unit->IsSelected();
-    }), m_Units.end());
+    EraseSelectedUnits();
 
     destTile->DeselectAllUnits();
 }
 
+void Tile::EraseSelectedUnits()
+{
+    m_Units.erase(std::remove_if(m_Units.begin(), m_Units.end(), [](Unit* unit) {
+        return unit->IsSelected();
+    }), m_Units.end());
+}
 bool Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
 {
     auto unitData = GetUnitDrawData();

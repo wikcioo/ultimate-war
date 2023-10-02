@@ -41,7 +41,11 @@ void GameLayer::OnAttach()
     int i = 2;
     for (auto player : m_PlayerManager->GetAllPlayers())
     {
-        player->AddOwnedTile(m_GameMapManager->GetGameMap()->GetTile(i-1, i));
+        auto tile = m_GameMapManager->GetGameMap()->GetTile(i-1, i);
+        tile->CreateUnit(UnitType::SWORDSMAN);
+        tile->CreateUnit(UnitType::DWARF);
+        tile->CreateUnit(UnitType::DEMON);
+        player->AddOwnedTile(tile);
         i++;
     }
 }
@@ -121,6 +125,7 @@ bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
+    auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
 
     for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
@@ -137,20 +142,20 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
                     {
                         if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
                         {
-                            m_Arrow->GetStartTile()->TransferUnitsToTile(tile);
+                            m_Arrow->GetStartTile()->MoveToTile(tile);
                         }
                         else
                         {
                             m_Arrow->GetStartTile()->DeselectAllUnits();
                         }
                     }
-                    else
+                    else if (tile->GetOwnedBy() == currentPlayer)
                     {
                         m_Arrow->SetStartTile(tile);
                         tile->HandleUnitMouseClick(relMousePos);
                     }
                 }
-                else
+                else if (tile->GetOwnedBy() == currentPlayer)
                 {
                     if (!tile->HandleUnitMouseClick(relMousePos))
                     {
