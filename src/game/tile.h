@@ -28,11 +28,11 @@ public:
     Tile(int type, const glm::ivec2& coords);
     ~Tile();
 
+    void MoveToTile(std::shared_ptr<Tile> destTile);
     void CreateUnit(UnitType type);
     void DeselectAllUnits();
     void Draw(const glm::vec4& color);
     void DrawBase(const glm::vec4& color);
-    void TransferUnitsToTile(std::shared_ptr<Tile> destTile);
     bool HasSelectedUnits();
     bool InRange(const glm::vec2& cursorPos);
     bool HandleUnitMouseClick(const glm::vec2& relMousePos);
@@ -40,6 +40,7 @@ public:
 
     inline const int GetType() const { return m_Type; }
     inline const int GetValue() const { return m_Value; }
+    inline const std::shared_ptr<Player> GetOwnedBy() const { return m_OwnedBy; }
     std::vector<Unit*>& GetUnits() { return m_Units; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
@@ -59,6 +60,9 @@ public:
 
 private:
     void DrawUnits();
+    void EraseSelectedUnits();
+    void TransferUnitsToTile(std::shared_ptr<Tile> destTile);
+    bool CalculateAttackOutcome(std::shared_ptr<Tile> destTile);
     UnitDrawData GetUnitDrawData();
 
 private:
