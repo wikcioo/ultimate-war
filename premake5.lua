@@ -42,7 +42,7 @@ project "UltimateWar"
         "src/**.cpp"
     }
 
-    links { "GLFW", "GLM", "GLAD", "ImGui", "stb" }
+    links { "GLFW", "GLM", "GLAD", "ImGui", "stb", "spdlog" }
 
     filter "system:linux"
         toolset "clang"
@@ -58,3 +58,4 @@ group "Dependencies"
     include "vendor/glm.lua"
     include "vendor/imgui.lua"
     include "vendor/stb.lua"
+    include "vendor/spdlog.lua"
