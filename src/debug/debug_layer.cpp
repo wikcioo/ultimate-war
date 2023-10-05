@@ -10,6 +10,7 @@
 
 #include "debug/debug_data.h"
 #include "core/application.h"
+#include "core/resource_manager.h"
 
 DebugLayer::DebugLayer()
     : Layer("DebugLayer"), m_GameLayer(GameLayer::Get())
@@ -170,6 +171,56 @@ void DebugLayer::DisplaySettingsWindow()
     ImGui::End();
 }
 
+void DebugLayer::DisplayFontSettingsWindow()
+{
+    static bool show_font_settings_window = true;
+    if (!show_font_settings_window) return;
+
+    ImGui::Begin("Font settings", &show_font_settings_window);
+
+    static std::vector<std::string> availableFontNames = ResourceManager::GetAvailableFontNames();
+
+    if (ImGui::Button("Select font.."))
+        ImGui::OpenPopup("available_fonts_popup");
+
+    if (ImGui::BeginPopup("available_fonts_popup"))
+    {
+        for (const auto& fontName : availableFontNames)
+            if (ImGui::Selectable(fontName.c_str()))
+                DebugData::Get()->Font.FontName = fontName;
+        ImGui::EndPopup();
+    }
+
+    ImGui::SameLine();
+    std::string selectedFontName = DebugData::Get()->Font.FontName;
+    ImGui::Text("%s", std::string("Selected font: " + (selectedFontName.empty() ? "None" : selectedFontName)).c_str());
+
+    ImGui::ColorEdit3("Color", &DebugData::Get()->Font.Color[0]);
+
+    ImGui::InputTextMultiline("##label", DebugData::Get()->Font.Text, 100, ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 4));
+    ImGui::SliderFloat("Scale", &DebugData::Get()->Font.Scale, 0.2f, 5.0f);
+    ImGui::SliderFloat("PosX", &DebugData::Get()->Font.Pos.x, -2.0f, 2.0f);
+    ImGui::SliderFloat("PosY", &DebugData::Get()->Font.Pos.y, -1.0f, 1.0f);
+
+    static int font_alignment = 1;
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("Alignment");
+    ImGui::SameLine();
+    ImGui::RadioButton("LEFT", &font_alignment, 0);
+    ImGui::SameLine();
+    ImGui::RadioButton("MIDDLE", &font_alignment, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("RIGHT", &font_alignment, 2);
+    if (font_alignment == 0)
+        DebugData::Get()->Font.Alignment = TextAlignment::LEFT;
+    else if (font_alignment == 1)
+        DebugData::Get()->Font.Alignment = TextAlignment::MIDDLE;
+    else if (font_alignment == 2)
+        DebugData::Get()->Font.Alignment = TextAlignment::RIGHT;
+
+    ImGui::End();
+}
+
 void DebugLayer::DisplayPlayerWindow()
 {
     ImGui::Begin("Players");
@@ -208,6 +259,7 @@ void DebugLayer::OnUpdate(float dt)
 
     DisplayInfoWindow(dt);
     DisplaySettingsWindow();
+    DisplayFontSettingsWindow();
     DisplayPlayerWindow();
 
     EndFrame();
