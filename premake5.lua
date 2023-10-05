@@ -34,7 +34,8 @@ project "UltimateWar"
         "vendor/glad/include/",
         "vendor/glfw/include/",
         "vendor/imgui/backends",
-        "vendor/spdlog/include/"
+        "vendor/spdlog/include/",
+        "vendor/freetype/include/"
     }
 
     files {
@@ -42,7 +43,7 @@ project "UltimateWar"
         "src/**.cpp"
     }
 
-    links { "GLFW", "GLM", "GLAD", "ImGui", "stb", "spdlog" }
+    links { "GLFW", "GLM", "GLAD", "ImGui", "stb", "spdlog", "FreeType" }
 
     filter "system:linux"
         toolset "clang"
@@ -59,3 +60,4 @@ group "Dependencies"
     include "vendor/imgui.lua"
     include "vendor/stb.lua"
     include "vendor/spdlog.lua"
+    include "vendor/freetype.lua"
