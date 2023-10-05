@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#include <sstream>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -32,6 +34,23 @@ void Renderer2D::Init()
     auto quadIB = std::make_shared<IndexBuffer>(quadIndices, sizeof(quadIndices) / sizeof(unsigned int));
     s_Data->QuadVertexArray = std::make_shared<VertexArray>(quadVB, quadIB, quadLayout);
 
+    float fontVertices[4 * 2] = {
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+    };
+
+    unsigned int fontIndices[6] = {
+        0, 1, 2,
+        2, 3, 1
+    };
+
+    std::vector<int> fontLayout = {2};
+    auto fontVB = std::make_shared<VertexBuffer>(fontVertices, sizeof(fontVertices));
+    auto fontIB = std::make_shared<IndexBuffer>(fontIndices, sizeof(fontIndices) / sizeof(unsigned int));
+    s_Data->FontVertexArray = std::make_shared<VertexArray>(fontVB, fontIB, fontLayout);
+
     float h = glm::sqrt(3) / 2;
     float hexagonVertices[6 * 3] = {
         -1.0f, 0.0f, 0.0f,
@@ -56,6 +75,7 @@ void Renderer2D::Init()
 
     s_Data->FlatColorShader = ResourceManager::GetShader("color");
     s_Data->TextureShader = ResourceManager::GetShader("texture");
+    s_Data->FontShader = ResourceManager::GetShader("font");
 }
 
 void Renderer2D::Shutdown()
@@ -71,6 +91,9 @@ void Renderer2D::BeginScene(const std::shared_ptr<OrthographicCamera>& camera)
 
     s_Data->TextureShader->Bind();
     s_Data->TextureShader->SetMat4("u_ProjectionView", camera->GetProjectionViewMatrix());
+
+    s_Data->FontShader->Bind();
+    s_Data->FontShader->SetMat4("u_ProjectionView", camera->GetProjectionViewMatrix());
 }
 
 void Renderer2D::EndScene()
@@ -136,6 +159,79 @@ void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, co
 
     vertexArray->Bind();
     glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color,
+                          TextAlignment alignment, const std::string& fontName)
+{
+    glm::vec2 pos_cpy = { position.x, position.y };
+
+    s_Data->FontShader->Bind();
+
+    auto font = ResourceManager::GetFont(fontName);
+    auto characters = font->GetCharacters();
+
+    std::vector<std::string> lines;
+    std::istringstream iss(text);
+    std::string line;
+
+    while (std::getline(iss, line, '\n'))
+        lines.push_back(line);
+
+    float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y);
+    for (const auto& line : lines)
+    {
+        // Determine horizontal length of a line
+        float lineLength = 0.0f;
+        for (std::string::const_iterator it = line.begin(); it != line.end(); it++)
+        {
+            auto c = characters[*it];
+            lineLength += s_Data->Camera->ConvertPixelSizeToRelative((c.Size.x + c.Advance) >> 6) * scale;
+        }
+
+        switch (alignment)
+        {
+            case TextAlignment::LEFT:
+                break;
+            case TextAlignment::MIDDLE:
+                pos_cpy.x -= lineLength / 2;
+                break;
+            case TextAlignment::RIGHT:
+                pos_cpy.x -= lineLength;
+                break;
+        }
+
+        for (std::string::const_iterator c = line.begin(); c != line.end(); c++)
+        {
+            Font::Character ch = characters[*c];
+
+            if (*c == ' ')
+            {
+                pos_cpy.x += s_Data->Camera->ConvertPixelSizeToRelative(ch.Advance >> 6) * scale;
+            }
+            else
+            {
+                float xpos = pos_cpy.x + s_Data->Camera->ConvertPixelSizeToRelative(ch.Bearing.x) * scale;
+                float ypos = pos_cpy.y - s_Data->Camera->ConvertPixelSizeToRelative(ch.Size.y - ch.Bearing.y) * scale;
+                glm::vec2 chRelSize = s_Data->Camera->ConvertPixelSizeToRelative(glm::vec2(ch.Size)) * scale;
+                glm::mat4 chModel = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, 0.0f)) *
+                                    glm::scale(glm::mat4(1.0f), glm::vec3(chRelSize.x, chRelSize.y, 1.0f));
+
+                ch.Texture->Bind(0);
+                s_Data->FontShader->SetInt("u_Texture", 0);
+                s_Data->FontShader->SetMat4("u_Model", chModel);
+                s_Data->FontShader->SetFloat3("u_Color", color);
+
+                s_Data->FontVertexArray->Bind();
+                glDrawElements(GL_TRIANGLES, s_Data->FontVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+
+                pos_cpy.x += s_Data->Camera->ConvertPixelSizeToRelative(ch.Advance >> 6) * scale;
+            }
+        }
+
+        pos_cpy.x = position.x;
+        pos_cpy.y -= relCharHeight * scale * 1.3;
+    }
 }
 
 void Renderer2D::ClearColor(const glm::vec4& color)
