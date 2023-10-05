@@ -42,7 +42,9 @@ Texture2D::Texture2D(const TextureData& data)
     glTexParameteri(m_TextureTarget, GL_TEXTURE_MAG_FILTER, TextureFilterToGL(data.MagFilter));
 
     int format;
-    if (data.NrChannels == 3)
+    if (data.NrChannels == 1)
+        format = GL_RED;
+    else if (data.NrChannels == 3)
         format = GL_RGB;
     else if (data.NrChannels == 4)
         format = GL_RGBA;
