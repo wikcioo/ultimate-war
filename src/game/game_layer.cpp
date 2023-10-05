@@ -171,7 +171,8 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
         }
     }
 
-    m_Arrow->GetStartTile()->DeselectAllUnits();
+    if (m_Arrow->GetStartTile())
+        m_Arrow->GetStartTile()->DeselectAllUnits();
 
     outer:
     m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnits());
