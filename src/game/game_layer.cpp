@@ -16,7 +16,7 @@
 GameLayer* GameLayer::s_Instance = nullptr;
 
 GameLayer::GameLayer()
-    : Layer("GameLayer"), m_IterationNumber(0)
+    : Layer("GameLayer"), m_IterationNumber(0), m_GameActive(true)
 {
     s_Instance = this;
 
@@ -122,8 +122,24 @@ bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
     return false;
 }
 
+void GameLayer::ResetArrow()
+{
+    for(auto tile : m_PlayerManager->GetCurrentPlayer()->GetOwnedTiles())
+    {
+        tile->DeselectAllUnits();
+    }
+    m_Arrow->SetVisible(false);
+}
+
+void GameLayer::EndGame()
+{
+    m_GameActive = false;
+}
+
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
+    if(!m_GameActive) return true;
+
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
     auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
 

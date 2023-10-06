@@ -35,8 +35,11 @@ public:
     inline std::shared_ptr<OrthographicCameraController> GetCameraController() const { return m_CameraController; }
     inline std::shared_ptr<GameMapManager> GetGameMapManager() const { return m_GameMapManager; }
     inline std::shared_ptr<PlayerManager> GetPlayerManager() const { return m_PlayerManager; }
+    inline bool IsGameActive() const { return m_GameActive; }
 
     void NextIteration() { m_IterationNumber++; }
+    void ResetArrow();
+    void EndGame();
 
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
@@ -50,4 +53,5 @@ private:
     std::shared_ptr<PlayerManager> m_PlayerManager;
     std::shared_ptr<Arrow> m_Arrow;
     int m_IterationNumber;
+    bool m_GameActive;
 };

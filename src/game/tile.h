@@ -22,7 +22,7 @@ struct UnitDrawData
 
 class Player;
 
-class Tile
+class Tile : public std::enable_shared_from_this<Tile>
 {
 public:
     Tile(int type, const glm::ivec2& coords);
@@ -47,6 +47,7 @@ public:
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
 
     void SetOwnership(std::shared_ptr<Player> player);
+    void ChangeOwnership(std::shared_ptr<Player> player);
 
 public:
     static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);

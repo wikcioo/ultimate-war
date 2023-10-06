@@ -18,6 +18,7 @@ public:
 
     void AddGold(int amount);
     void AddOwnedTile(std::shared_ptr<Tile> tile);
+    void RemoveOwnedTile(std::shared_ptr<Tile> tile);
     void CollectGoldFromOwnedTiles();
 
 private:
