@@ -130,6 +130,13 @@ void Tile::SetOwnership(std::shared_ptr<Player> player)
     m_OwnedBy = player;
 }
 
+void Tile::ChangeOwnership(std::shared_ptr<Player> player)
+{
+    if(m_OwnedBy != nullptr)
+        m_OwnedBy->RemoveOwnedTile(shared_from_this());
+    player->AddOwnedTile(shared_from_this());
+}
+
 void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
 {
     if(destTile->m_OwnedBy == m_OwnedBy)
@@ -141,7 +148,7 @@ void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
     if(CalculateAttackOutcome(destTile))
     {
         destTile->GetUnits().clear();
-        destTile->SetOwnership(this->m_OwnedBy);
+        destTile->ChangeOwnership(this->m_OwnedBy);
         TransferUnitsToTile(destTile);
     }
     else
