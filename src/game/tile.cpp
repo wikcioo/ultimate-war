@@ -8,6 +8,7 @@
 #include "debug/debug_data.h"
 #include "game/player.h"
 #include "util/util.h"
+#include "game/game_layer.h"
 
 float Tile::s_BackgroundHeightRatio = 0.8f;
 int Tile::s_UnitRows = 2;
@@ -148,8 +149,11 @@ void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
     if(CalculateAttackOutcome(destTile))
     {
         destTile->GetUnits().clear();
+        auto defender = destTile->GetOwnedBy();
         destTile->ChangeOwnership(this->m_OwnedBy);
         TransferUnitsToTile(destTile);
+
+        GameLayer::Get().GetPlayerManager()->UpdatePlayerStatus(defender);
     }
     else
     {
