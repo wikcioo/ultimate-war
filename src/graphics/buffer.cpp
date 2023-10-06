@@ -95,6 +95,14 @@ FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_MultiSampledBufferID);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_MultiSampledColorTexture->GetID(), 0);
 
+    unsigned int multiSampledRenderBuffer;
+    glGenRenderbuffers(1, &multiSampledRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, multiSampledRenderBuffer);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, m_Width, m_Height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, multiSampledRenderBuffer);
+
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         LOG_ERROR("Framebuffer: Incomplete multisampled framebuffer");
 

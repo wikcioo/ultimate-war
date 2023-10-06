@@ -41,4 +41,10 @@ public:
         return (rectCenter.x - rectSize.x / 2 <= point.x && rectCenter.x + rectSize.x / 2 >= point.x &&
                 rectCenter.y - rectSize.y / 2 <= point.y && rectCenter.y + rectSize.y / 2 >= point.y);
     }
+
+    template <typename T>
+    static T Clamp(T v1, T lower, T upper)
+    {
+        return glm::max(glm::min(v1, upper), lower);
+    }
 };

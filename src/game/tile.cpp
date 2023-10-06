@@ -119,7 +119,10 @@ void Tile::DrawUnits()
 
 void Tile::DrawBase(const glm::vec4& color)
 {
-    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color);
+    if (m_Type != 0)
+        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color);
+    else
+        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color, 10.0f);
 }
 
 void Tile::SetOwnership(std::shared_ptr<Player> player)

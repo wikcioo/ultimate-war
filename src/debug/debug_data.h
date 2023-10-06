@@ -19,7 +19,7 @@ public:
 
     struct
     {
-        float BorderThickness = 0.01f;
+        float BorderThickness = 5.0f;
         float Zoom = 3.0f;
     } MinimapData;
 

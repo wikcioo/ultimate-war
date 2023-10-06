@@ -165,7 +165,7 @@ void DebugLayer::DisplaySettingsWindow()
     ImGui::Separator();
 
     ImGui::Text("Minimap settings");
-    ImGui::SliderFloat("Border", &DebugData::Get()->MinimapData.BorderThickness, 0.01f, 0.1f);
+    ImGui::SliderFloat("Border", &DebugData::Get()->MinimapData.BorderThickness, 0.0f, 100.0f);
     ImGui::SliderFloat("Zoom", &DebugData::Get()->MinimapData.Zoom, 1.0f, 10.0f);
 
     ImGui::End();
