@@ -37,6 +37,7 @@ public:
     inline std::shared_ptr<PlayerManager> GetPlayerManager() const { return m_PlayerManager; }
 
     void NextIteration() { m_IterationNumber++; }
+    void ResetArrow();
 
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);

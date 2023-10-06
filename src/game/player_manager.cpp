@@ -15,6 +15,8 @@ void PlayerManager::AddPlayer(const std::string& name, const glm::vec3& color)
 
 void PlayerManager::NextTurn()
 {
+    GameLayer::Get().ResetArrow();
+
     m_CurrentPlayerIndex++;
 
     if (m_CurrentPlayerIndex % m_Players.size() == 0)

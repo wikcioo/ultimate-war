@@ -122,6 +122,15 @@ bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
     return false;
 }
 
+void GameLayer::ResetArrow()
+{
+    for(auto tile : m_PlayerManager->GetCurrentPlayer()->GetOwnedTiles())
+    {
+        tile->DeselectAllUnits();
+    }
+    m_Arrow->SetVisible(false);
+}
+
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
