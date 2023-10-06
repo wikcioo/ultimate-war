@@ -25,6 +25,24 @@ glm::vec2 OrthographicCamera::ConvertRelativeSizeToPixel(const glm::vec2& size)
     return { pixelSizeX, pixelSizeY };
 }
 
+float OrthographicCamera::ConvertPixelSizeToRelative(float size, bool xAxis)
+{
+    auto result = ConvertPixelSizeToRelative({size, size});
+    return xAxis ? result.x : result.y;
+}
+
+glm::vec2 OrthographicCamera::ConvertPixelSizeToRelative(const glm::vec2& size)
+{
+    float relWidth = m_Zoom * m_AspectRatio;
+    float relHeight = m_Zoom;
+
+    static auto window = Application::Get().GetWindow();
+    float relSizeX = size.x * relWidth / window->GetWidth();
+    float relSizeY = size.y * relHeight / window->GetHeight();
+
+    return { relSizeX, relSizeY };
+}
+
 glm::vec2 OrthographicCamera::CalculateRelativeBottomLeftPosition()
 {
     float relWidth = m_Zoom * m_AspectRatio;

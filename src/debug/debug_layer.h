@@ -20,6 +20,7 @@ private:
     void BeginFrame();
     void EndFrame();
     void DisplayInfoWindow(float dt);
+    void DisplayFontSettingsWindow();
     void DisplaySettingsWindow();
     void DisplayPlayerWindow();
 

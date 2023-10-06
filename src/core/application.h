@@ -22,6 +22,7 @@ public:
 
 private:
     bool OnWindowClose(WindowClosedEvent& event);
+    void LoadResources();
 
 private:
     static Application* s_Instance;

@@ -4,8 +4,21 @@
 
 #include "logger.h"
 
+std::unordered_map<std::string, std::shared_ptr<Font>> ResourceManager::m_FontCache;
 std::unordered_map<std::string, std::shared_ptr<Shader>> ResourceManager::m_ShaderCache;
 std::unordered_map<std::string, std::shared_ptr<Texture2D>> ResourceManager::m_TextureCache;
+
+void ResourceManager::LoadFont(const std::string& name, const std::string& filepath)
+{
+    if (m_FontCache.find(name) != m_FontCache.end())
+    {
+        LOG_ERROR("ResourceManager: Font with name {0} already in cache", name);
+        return;
+    }
+
+    std::shared_ptr<Font> font = std::make_shared<Font>(filepath);
+    m_FontCache[name] = font;
+}
 
 void ResourceManager::LoadShader(const std::string& name, const std::string& filepath)
 {
@@ -42,6 +55,17 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
     m_TextureCache[name] = texture;
 }
 
+std::shared_ptr<Font> ResourceManager::GetFont(const std::string& name)
+{
+    if (m_FontCache.find(name) == m_FontCache.end())
+    {
+        LOG_ERROR("ResourceManager: Unknown font with name {0}", name);
+        return nullptr;
+    }
+
+    return m_FontCache[name];
+}
+
 std::shared_ptr<Shader> ResourceManager::GetShader(const std::string& name)
 {
     if (m_ShaderCache.find(name) == m_ShaderCache.end())
@@ -62,4 +86,13 @@ std::shared_ptr<Texture2D> ResourceManager::GetTexture(const std::string& name)
     }
 
     return m_TextureCache[name];
+}
+
+std::vector<std::string> ResourceManager::GetAvailableFontNames()
+{
+    std::vector<std::string> fontNames;
+    for (const auto& font : m_FontCache)
+        fontNames.push_back(font.first);
+
+    return fontNames;
 }
