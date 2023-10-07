@@ -21,7 +21,7 @@ void Player::AddOwnedTile(std::shared_ptr<Tile> tile)
 void Player::RemoveOwnedTile(std::shared_ptr<Tile> tile)
 {
     auto it = std::find(m_OwnedTiles.begin(), m_OwnedTiles.end(), tile);
-    if (it != m_OwnedTiles.end());
+    if (it != m_OwnedTiles.end())
         m_OwnedTiles.erase(it);
 }
 

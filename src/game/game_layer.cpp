@@ -113,6 +113,8 @@ void GameLayer::OnEvent(Event& event)
 
 bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
 {
+    if(!m_GameActive) return true;
+
     if(event.GetKeyCode() == GLFW_KEY_ENTER)
     {
         m_PlayerManager->NextTurn();
