@@ -38,6 +38,15 @@ void UILayer::OnUpdate(float dt)
 
 void UILayer::OnEvent(Event& event)
 {
+    EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(UILayer::OnWindowResized));
+
     for (auto element : m_UIElements)
         element->OnEvent(event);
+}
+
+bool UILayer::OnWindowResized(WindowResizedEvent& event)
+{
+    m_UICamera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+    return false;
 }

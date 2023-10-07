@@ -86,7 +86,6 @@ void Minimap::Draw()
 
 bool Minimap::OnWindowResized(WindowResizedEvent& event)
 {
-    m_UICamera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
     m_Position = m_UICamera->CalculateRelativeBottomLeftPosition() + m_Offset;
     m_MinimapPos = m_Position + m_Size * 0.5f;
     return false;
