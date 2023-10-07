@@ -33,7 +33,6 @@ private:
     glm::vec2 m_Offset;
     glm::vec2 m_MinimapPos;
     std::unique_ptr<FrameBuffer> m_Framebuffer;
-    std::shared_ptr<OrthographicCamera> m_UICamera;
     std::shared_ptr<OrthographicCamera> m_GameCamera;
     std::shared_ptr<OrthographicCamera> m_MinimapCamera;
     std::shared_ptr<GameMapManager> m_GameMapManager;
