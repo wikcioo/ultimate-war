@@ -4,8 +4,9 @@
 
 #include "core/camera.h"
 #include "layer/layer.h"
-#include "ui/minimap.h"
 #include "game/map_manager.h"
+#include "event/window_event.h"
+#include "ui/ui_element.h"
 
 class UILayer : public Layer
 {
@@ -17,6 +18,9 @@ public:
     virtual void OnDetach() override;
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
+
+private:
+    bool OnWindowResized(WindowResizedEvent& event);
 
 private:
     std::shared_ptr<OrthographicCamera> m_UICamera;

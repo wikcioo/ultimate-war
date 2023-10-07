@@ -17,7 +17,7 @@ public:
     Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
             const std::shared_ptr<OrthographicCamera>& gameCamera,
             const std::shared_ptr<GameMapManager>& gameMapManager,
-            const glm::vec2& offset = { 0.0f, 0.0f }, const glm::vec2& size = { 1.0f, 0.5f });
+            const glm::vec2& offset, const glm::vec2& size);
     ~Minimap() = default;
 
     virtual void OnEvent(Event& event) override;
@@ -33,7 +33,6 @@ private:
     glm::vec2 m_Offset;
     glm::vec2 m_MinimapPos;
     std::unique_ptr<FrameBuffer> m_Framebuffer;
-    std::shared_ptr<OrthographicCamera> m_UICamera;
     std::shared_ptr<OrthographicCamera> m_GameCamera;
     std::shared_ptr<OrthographicCamera> m_MinimapCamera;
     std::shared_ptr<GameMapManager> m_GameMapManager;

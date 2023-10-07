@@ -11,10 +11,10 @@ public:
     ColorData& operator=(const ColorData&) = delete;
     ~ColorData() = default;
 
-    static ColorData* Get()
+    static ColorData& Get()
     {
         static ColorData* s_Instance = new ColorData();
-        return s_Instance;
+        return *s_Instance;
     }
 
     struct
@@ -22,6 +22,12 @@ public:
         glm::vec4 MiniMapColor;
         glm::vec4 TileHoverBorderColor;
     } TileColors;
+
+    struct
+    {
+        glm::vec4 UnitPanelBackgroundColor;
+        glm::vec4 UnitPanelHighlighUnitColor;
+    } UITheme;
 
 private:
     ColorData() {}

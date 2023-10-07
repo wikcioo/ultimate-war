@@ -23,6 +23,7 @@ public:
 private:
     bool OnWindowClose(WindowClosedEvent& event);
     void LoadResources();
+    void InitializeColors();
 
 private:
     static Application* s_Instance;

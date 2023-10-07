@@ -5,12 +5,13 @@
 
 enum class UnitType
 {
-    NONE = 0,
     SWORDSMAN,
     ARCHER,
     DWARF,
     DEMON,
-    HARPY
+    HARPY,
+    COUNT,
+    NONE
 };
 
 struct UnitStats

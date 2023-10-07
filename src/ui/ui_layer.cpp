@@ -5,6 +5,8 @@
 #include "core/application.h"
 #include "game/game_layer.h"
 #include "graphics/renderer.h"
+#include "ui/minimap.h"
+#include "ui/unit_panel.h"
 
 UILayer::UILayer()
     : Layer("UILayer")
@@ -12,7 +14,20 @@ UILayer::UILayer()
     m_GameCamera = GameLayer::Get().GetCameraController()->GetCamera();
     m_UICamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
 
-    m_UIElements.emplace_back(std::make_shared<Minimap>(m_UICamera, m_GameCamera, GameLayer::Get().GetGameMapManager()));
+    m_UIElements.emplace_back(
+        std::make_shared<Minimap>(
+            m_UICamera,
+            m_GameCamera,
+            GameLayer::Get().GetGameMapManager(),
+            glm::vec2(0.0f, 0.0f),
+            glm::vec2(0.5f * m_GameCamera->GetAspectRatio(), 0.5f)
+        ));
+
+    m_UIElements.emplace_back(
+        std::make_shared<UnitPanel>(
+            m_UICamera,
+            glm::vec2(0.5f * m_GameCamera->GetAspectRatio() + 0.4f, 0.1f)
+        ));
 }
 
 void UILayer::OnAttach()
@@ -38,6 +53,15 @@ void UILayer::OnUpdate(float dt)
 
 void UILayer::OnEvent(Event& event)
 {
+    EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(UILayer::OnWindowResized));
+
     for (auto element : m_UIElements)
         element->OnEvent(event);
+}
+
+bool UILayer::OnWindowResized(WindowResizedEvent& event)
+{
+    m_UICamera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+    return false;
 }
