@@ -12,7 +12,7 @@ Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
             const std::shared_ptr<OrthographicCamera>& gameCamera,
             const std::shared_ptr<GameMapManager>& gameMapManager,
             const glm::vec2& offset, const glm::vec2& size)
-    : UIElement(UICamera->CalculateRelativeBottomLeftPosition() + offset, {size.y * gameCamera->GetAspectRatio(), size.y}), m_Offset(offset),
+    : UIElement(UICamera->CalculateRelativeBottomLeftPosition() + offset, size), m_Offset(offset),
       m_UICamera(UICamera), m_GameCamera(gameCamera), m_GameMapManager(gameMapManager), m_MinimapPos(m_Position + m_Size * 0.5f)
 {
     m_MinimapCamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
