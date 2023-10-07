@@ -5,6 +5,8 @@
 #include "core/application.h"
 #include "game/game_layer.h"
 #include "graphics/renderer.h"
+#include "ui/minimap.h"
+#include "ui/unit_panel.h"
 
 UILayer::UILayer()
     : Layer("UILayer")
@@ -19,6 +21,12 @@ UILayer::UILayer()
             GameLayer::Get().GetGameMapManager(),
             glm::vec2(0.0f, 0.0f),
             glm::vec2(0.5f * m_GameCamera->GetAspectRatio(), 0.5f)
+        ));
+
+    m_UIElements.emplace_back(
+        std::make_shared<UnitPanel>(
+            m_UICamera,
+            glm::vec2(0.5f * m_GameCamera->GetAspectRatio() + 0.4f, 0.1f)
         ));
 }
 

@@ -4,8 +4,9 @@
 
 #include "core/camera.h"
 #include "layer/layer.h"
-#include "ui/minimap.h"
 #include "game/map_manager.h"
+#include "event/window_event.h"
+#include "ui/ui_element.h"
 
 class UILayer : public Layer
 {
