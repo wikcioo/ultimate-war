@@ -26,6 +26,7 @@ public:
     struct
     {
         glm::vec4 UnitPanelBackgroundColor;
+        glm::vec4 UnitPanelHighlighUnitColor;
     } UITheme;
 
 private:
