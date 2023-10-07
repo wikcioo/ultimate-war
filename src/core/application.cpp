@@ -19,6 +19,7 @@ Application::Application()
     m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
     LoadResources();
+    InitializeColors();
 
     Renderer2D::Init();
 
@@ -90,4 +91,11 @@ void Application::LoadResources()
     ResourceManager::LoadTexture("dwarf", "assets/textures/units/dwarf.png");
     ResourceManager::LoadTexture("demon", "assets/textures/units/demon.png");
     ResourceManager::LoadTexture("harpy", "assets/textures/units/harpy.png");
+}
+
+void Application::InitializeColors()
+{
+    ColorData::Get()->TileColors.MiniMapColor = {0.2f, 0.2f, 0.2f, 1.0f};
+    ColorData::Get()->TileColors.TileHoverBorderColor = {0.2f, 0.3f, 0.8f, 1.0f};
+    ColorData::Get()->UITheme.UnitPanelBackgroundColor = {0.2f, 0.2f, 0.2f, 1.0f};
 }

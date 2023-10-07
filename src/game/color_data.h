@@ -23,6 +23,11 @@ public:
         glm::vec4 TileHoverBorderColor;
     } TileColors;
 
+    struct
+    {
+        glm::vec4 UnitPanelBackgroundColor;
+    } UITheme;
+
 private:
     ColorData() {}
 };
