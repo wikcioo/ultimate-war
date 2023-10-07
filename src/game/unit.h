@@ -10,7 +10,8 @@ enum class UnitType
     DWARF,
     DEMON,
     HARPY,
-    COUNT
+    COUNT,
+    NONE
 };
 
 struct UnitStats
