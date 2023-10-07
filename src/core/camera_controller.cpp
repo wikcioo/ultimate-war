@@ -17,29 +17,36 @@ void OrthographicCameraController::OnUpdate(float dt)
 
     float cameraRotation = m_Camera->GetRotation();
     float r = glm::radians(cameraRotation);
+
+    glm::vec2 movementVector = { 0.0f, 0.0f };
+    float compensatedMovementSpeed = m_CameraMovementSpeed * dt;
     if (Input::IsKeyPressed(GLFW_KEY_W))
     {
-        cameraPosition.x -= m_CameraMovementSpeed * dt * sin(r);
-        cameraPosition.y += m_CameraMovementSpeed * dt * cos(r);
+        movementVector.x -= compensatedMovementSpeed * sin(r);
+        movementVector.y += compensatedMovementSpeed * cos(r);
     }
     if (Input::IsKeyPressed(GLFW_KEY_S))
     {
-        cameraPosition.x += m_CameraMovementSpeed * dt * sin(r);
-        cameraPosition.y -= m_CameraMovementSpeed * dt * cos(r);
+        movementVector.x += compensatedMovementSpeed * sin(r);
+        movementVector.y -= compensatedMovementSpeed * cos(r);
     }
 
     if (Input::IsKeyPressed(GLFW_KEY_A))
     {
-        cameraPosition.x -= m_CameraMovementSpeed * dt * cos(r);
-        cameraPosition.y -= m_CameraMovementSpeed * dt * sin(r);
+        movementVector.x -= compensatedMovementSpeed * cos(r);
+        movementVector.y -= compensatedMovementSpeed * sin(r);
     }
     if (Input::IsKeyPressed(GLFW_KEY_D))
     {
-        cameraPosition.x += m_CameraMovementSpeed * dt * cos(r);
-        cameraPosition.y += m_CameraMovementSpeed * dt * sin(r);
+        movementVector.x += compensatedMovementSpeed * cos(r);
+        movementVector.y += compensatedMovementSpeed * sin(r);
     }
 
-    m_Camera->SetPosition(cameraPosition);
+    if (movementVector.x != 0.0f || movementVector.y != 0.0f)
+    {
+        cameraPosition += glm::vec3(glm::normalize(movementVector) * compensatedMovementSpeed, 0.0f);
+        m_Camera->SetPosition(cameraPosition);
+    }
 
     if (m_Rotate)
     {
