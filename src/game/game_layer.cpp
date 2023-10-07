@@ -76,7 +76,7 @@ void GameLayer::OnUpdate(float dt)
                     m_Arrow->SetEndPosition(tile->GetPosition());
                 }
 
-                tileColor = ColorData::Get()->TileColors.TileHoverBorderColor;
+                tileColor = ColorData::Get().TileColors.TileHoverBorderColor;
             }
             else
             {

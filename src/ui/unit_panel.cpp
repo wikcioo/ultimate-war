@@ -43,7 +43,7 @@ void UnitPanel::Draw()
     if (IsUnitAttachedToCursor())
         Renderer2D::DrawQuad(cursorPos, m_UnitSize * 0.5f, m_CursorAttachedUnit.Texture);
 
-    Renderer2D::DrawQuad(m_Position + m_Size * 0.5f, m_Size, ColorData::Get()->UITheme.UnitPanelBackgroundColor);
+    Renderer2D::DrawQuad(m_Position + m_Size * 0.5f, m_Size, ColorData::Get().UITheme.UnitPanelBackgroundColor);
 
     for (int i = 0; i < m_UnitCount; i++)
     {
@@ -55,7 +55,7 @@ void UnitPanel::Draw()
         Renderer2D::DrawQuad(unitPos, m_UnitSize, ResourceManager::GetTexture(UnitTextureMap[(UnitType)i]));
 
         if (Util::IsPointInRectangle(unitPos, m_UnitSize, cursorPos) || (UnitType)i == m_CursorAttachedUnit.Type)
-            Renderer2D::DrawQuad(unitPos, m_UnitSize + 0.015f, ColorData::Get()->UITheme.UnitPanelHighlighUnitColor, 10.0f);
+            Renderer2D::DrawQuad(unitPos, m_UnitSize + 0.015f, ColorData::Get().UITheme.UnitPanelHighlighUnitColor, 10.0f);
     }
 
     Renderer2D::EndScene();

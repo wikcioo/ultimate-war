@@ -11,10 +11,10 @@ public:
     ColorData& operator=(const ColorData&) = delete;
     ~ColorData() = default;
 
-    static ColorData* Get()
+    static ColorData& Get()
     {
         static ColorData* s_Instance = new ColorData();
-        return s_Instance;
+        return *s_Instance;
     }
 
     struct
