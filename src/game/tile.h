@@ -6,18 +6,19 @@
 #include <glm/glm.hpp>
 
 #include "game/unit.h"
+#include "game/building.h"
 
 #define TILE_WIDTH   2.0f
 #define TILE_HEIGHT (glm::sqrt(3))
 #define TILE_OFFSET  0.1f
 
-struct UnitDrawData
+struct DrawData
 {
     glm::vec2 Size;
     glm::vec2 OffsetSize;
     glm::vec2 Position;
-    glm::vec2 UnitsBackgroundPosition;
-    glm::vec2 UnitsBackgroundSize;
+    glm::vec2 BackgroundPosition;
+    glm::vec2 BackgroundSize;
 };
 
 class Player;
@@ -30,6 +31,7 @@ public:
 
     void MoveToTile(std::shared_ptr<Tile> destTile);
     void CreateUnit(UnitType type);
+    void CreateBuilding(BuildingType type);
     void DeselectAllUnits();
     void Draw(const glm::vec4& color);
     void DrawBase(const glm::vec4& color);
@@ -55,16 +57,23 @@ public:
 
 public:
     static float s_BackgroundHeightRatio;
+
     static int s_UnitRows;
     static int s_UnitsPerRow;
     static int s_UnitWidthToOffsetRatio;
 
+    static int s_BuildingRows;
+    static int s_BuildingsPerRow;
+    static int s_BuildingWidthToOffsetRatio;
+
 private:
     void DrawUnits();
+    void DrawBuildings();
     void EraseSelectedUnits();
     void TransferUnitsToTile(std::shared_ptr<Tile> destTile);
     bool CalculateAttackOutcome(std::shared_ptr<Tile> destTile);
-    UnitDrawData GetUnitDrawData();
+    DrawData GetUnitDrawData();
+    DrawData GetBuildingDrawData();
 
 private:
     int m_Type;
@@ -73,4 +82,5 @@ private:
     glm::vec2 m_Position;
     std::shared_ptr<Player> m_OwnedBy;
     std::vector<Unit*> m_Units;
+    std::vector<Building*> m_Buildings;
 };

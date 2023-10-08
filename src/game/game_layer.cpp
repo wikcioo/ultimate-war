@@ -41,6 +41,7 @@ void GameLayer::OnAttach()
         tile->CreateUnit(UnitType::SWORDSMAN);
         tile->CreateUnit(UnitType::DWARF);
         tile->CreateUnit(UnitType::DEMON);
+        tile->CreateBuilding(BuildingType::DRAGON_LAIR);
         player->AddOwnedTile(tile);
         i++;
     }

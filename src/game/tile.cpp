@@ -11,9 +11,14 @@
 #include "game/game_layer.h"
 
 float Tile::s_BackgroundHeightRatio = 0.8f;
+
 int Tile::s_UnitRows = 2;
 int Tile::s_UnitsPerRow = 5;
 int Tile::s_UnitWidthToOffsetRatio = 10;
+
+int Tile::s_BuildingRows = 1;
+int Tile::s_BuildingsPerRow = 5;
+int Tile::s_BuildingWidthToOffsetRatio = 10;
 
 Tile::Tile(int type, const glm::ivec2& coords)
     : m_Type(type), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
@@ -40,6 +45,11 @@ void Tile::CreateUnit(UnitType type)
     m_Units.emplace_back(new Unit(type));
 }
 
+void Tile::CreateBuilding(BuildingType type)
+{
+    m_Buildings.emplace_back(new Building(type));
+}
+
 void Tile::Draw(const glm::vec4& color)
 {
     if (!m_OwnedBy)
@@ -50,12 +60,12 @@ void Tile::Draw(const glm::vec4& color)
         DrawBase({c.r, c.g, c.b, 1.0f});
     }
 
-    if (m_Units.empty()) return;
 
     DrawUnits();
+    DrawBuildings();
 }
 
-UnitDrawData Tile::GetUnitDrawData()
+DrawData Tile::GetUnitDrawData()
 {
     float L = TILE_WIDTH / 2 * s_BackgroundHeightRatio;
     float dx = glm::cos(glm::radians(60.0f)) * L;
@@ -82,12 +92,41 @@ UnitDrawData Tile::GetUnitDrawData()
     };
 }
 
+DrawData Tile::GetBuildingDrawData()
+{
+    float L = TILE_WIDTH / 2 * 0.4;
+    float dx = glm::cos(glm::radians(60.0f)) * L;
+    float dy = glm::sin(glm::radians(60.0f)) * L;
+
+    glm::vec2 bgPos = {m_Position.x, m_Position.y - dy / 2};
+    glm::vec2 bgSize = {TILE_WIDTH - 2 * dx, dy};
+
+    float buildingOffsetWidth  = bgSize.x / ((s_BuildingsPerRow * s_BuildingWidthToOffsetRatio) + s_BuildingsPerRow + 1);
+    float buildingWidth        = s_BuildingWidthToOffsetRatio * buildingOffsetWidth;
+    float buildingHeight       = glm::min(bgSize.y / 2, buildingWidth);
+    float buildingOffsetHeight = glm::max(0.0f, (bgSize.y - (buildingHeight * s_BuildingRows)) / (s_BuildingRows + 1));
+
+    float currentX = bgPos.x - (bgSize.x - buildingWidth) / 2 + buildingOffsetWidth;
+    float currentY = bgPos.y + (bgSize.y - buildingHeight) / 2 - buildingOffsetHeight;
+
+    return
+    {
+        {buildingWidth, buildingHeight},
+        {buildingOffsetWidth, buildingOffsetHeight},
+        {currentX, currentY},
+        bgPos,
+        bgSize
+    };
+}
+
 void Tile::DrawUnits()
 {
+    if (m_Units.empty()) return;
+
     auto unitData = GetUnitDrawData();
     float initialX = unitData.Position.x;
 
-    Renderer2D::DrawQuad(unitData.UnitsBackgroundPosition, unitData.UnitsBackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
+    Renderer2D::DrawQuad(unitData.BackgroundPosition, unitData.BackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
 
     for (int i = 0; i < m_Units.size(); i++)
     {
@@ -114,6 +153,35 @@ void Tile::DrawUnits()
         else
         {
             unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
+        }
+    }
+}
+
+void Tile::DrawBuildings()
+{
+    if (m_Buildings.empty()) return;
+
+    auto buildingData = GetBuildingDrawData();
+    float initialX = buildingData.Position.x;
+
+    Renderer2D::DrawQuad(buildingData.BackgroundPosition, buildingData.BackgroundSize, {0.4f, 0.4f, 0.4f, 1.0f});
+
+    for (int i = 0; i < m_Buildings.size(); i++)
+    {
+        Renderer2D::DrawQuad(
+            buildingData.Position,
+            buildingData.Size,
+            ResourceManager::GetTexture(BuildingTextureMap[m_Buildings[i]->GetType()])
+        );
+
+        if ((i + 1) % s_BuildingsPerRow == 0)
+        {
+            buildingData.Position.x = initialX;
+            buildingData.Position.y -= (buildingData.OffsetSize.y + buildingData.Size.y);
+        }
+        else
+        {
+            buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
         }
     }
 }
@@ -229,7 +297,7 @@ bool Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
 bool Tile::IsMouseClickedInsideUnitsBox(const glm::vec2& relMousePos)
 {
     auto unitData = GetUnitDrawData();
-    return Util::IsPointInRectangle(unitData.UnitsBackgroundPosition, unitData.UnitsBackgroundSize, relMousePos);
+    return Util::IsPointInRectangle(unitData.BackgroundPosition, unitData.BackgroundSize, relMousePos);
 }
 
 void Tile::DeselectAllUnits()

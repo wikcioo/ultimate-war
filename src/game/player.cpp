@@ -12,6 +12,17 @@ void Player::AddGold(int amount)
     m_Gold += amount;
 }
 
+bool Player::SubtractGold(int amount)
+{
+    if (m_Gold >= amount)
+    {
+        m_Gold -= amount;
+        return true;
+    }
+
+    return false;
+}
+
 void Player::AddOwnedTile(std::shared_ptr<Tile> tile)
 {
     m_OwnedTiles.emplace_back(tile);
