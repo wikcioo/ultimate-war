@@ -17,6 +17,7 @@ public:
     inline std::vector<std::shared_ptr<Tile>>& GetOwnedTiles() { return m_OwnedTiles; }
 
     void AddGold(int amount);
+    bool SubtractGold(int amount);
     void AddOwnedTile(std::shared_ptr<Tile> tile);
     void RemoveOwnedTile(std::shared_ptr<Tile> tile);
     void CollectGoldFromOwnedTiles();

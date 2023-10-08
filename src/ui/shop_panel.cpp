@@ -179,15 +179,13 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
             {
                 if (tile->GetOwnedBy() == currentPlayer)
                 {
-                    if (currentPlayer->GetGold() >= 10 && m_CursorAttachedAsset.UnitType != UnitType::NONE)
+                    if (m_CursorAttachedAsset.UnitType != UnitType::NONE && currentPlayer->SubtractGold(10))
                     {
-                        currentPlayer->AddGold(-10);
                         tile->CreateUnit(m_CursorAttachedAsset.UnitType);
                         return true;
                     }
-                    else if (currentPlayer->GetGold() >= 20 && m_CursorAttachedAsset.BuildingType != BuildingType::NONE)
+                    else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE && currentPlayer->SubtractGold(20))
                     {
-                        currentPlayer->AddGold(-20);
                         tile->CreateBuilding(m_CursorAttachedAsset.BuildingType);
                         return true;
                     }
