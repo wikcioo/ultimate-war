@@ -1,11 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <variant>
 #include <unordered_map>
 
 #include "core/camera.h"
 #include "ui/ui_element.h"
 #include "game/unit.h"
+#include "game/building.h"
 #include "event/mouse_event.h"
 #include "event/window_event.h"
 #include "event/key_event.h"
@@ -26,18 +28,24 @@ private:
     bool OnKeyPressed(KeyPressedEvent& event);
     bool OnMouseButtonPressedPanel(MouseButtonPressedEvent& event);
     bool OnMouseButtonPressedGame(MouseButtonPressedEvent& event);
-    void SetCursorAttachedUnit(UnitType type);
-    bool IsUnitAttachedToCursor() { return m_CursorAttachedUnit.Type != UnitType::NONE; }
+    void SetCursorAttachedAsset(std::variant<UnitType, BuildingType> type);
+    bool IsAssetAttachedToCursor() { return m_CursorAttachedAsset.Texture.get(); }
+
+    void DrawUnits(const glm::vec2& cursorPos);
+    void DrawBuildings(const glm::vec2& cursorPos);
 
 private:
-    std::unordered_map<UnitType, int> m_UnitCostMap;
     int m_UnitCount;
-    float m_UnitOffset;
-    glm::vec2 m_UnitSize;
+    int m_BuildingCount;
+    float m_AssetOffset;
+    float m_AssetBorderMargin;
+    float m_AssetBorderThickness;
+    glm::vec2 m_AssetSize;
 
     struct
     {
-        UnitType Type = UnitType::NONE;
+        UnitType UnitType = UnitType::NONE;
+        BuildingType BuildingType = BuildingType::NONE;
         std::shared_ptr<Texture2D> Texture;
-    } m_CursorAttachedUnit;
+    } m_CursorAttachedAsset;
 };

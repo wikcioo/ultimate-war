@@ -26,7 +26,7 @@ UILayer::UILayer()
     m_UIElements.emplace_back(
         std::make_shared<ShopPanel>(
             m_UICamera,
-            glm::vec2(0.5f * m_GameCamera->GetAspectRatio() + 0.4f, 0.1f)
+            glm::vec2(0.5f * m_GameCamera->GetAspectRatio() + 0.4f, 0.0f)
         ));
 }
 
