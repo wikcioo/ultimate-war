@@ -99,6 +99,8 @@ bool UnitPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
 
 bool UnitPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
 {
+    if (m_CursorAttachedUnit.Type == UnitType::NONE) return false;
+
     auto relMousePos = GameLayer::Get().GetCameraController()->GetCamera()->CalculateRelativeMousePosition();
     auto currentPlayer = GameLayer::Get().GetPlayerManager()->GetCurrentPlayer();
     auto gameMap = GameLayer::Get().GetGameMapManager()->GetGameMap();
