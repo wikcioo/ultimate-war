@@ -11,12 +11,12 @@
 #include "event/key_event.h"
 #include "graphics/texture.h"
 
-class UnitPanel : public UIElement
+class ShopPanel : public UIElement
 {
 public:
-    UnitPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const glm::vec2& offset,
+    ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const glm::vec2& offset,
               const glm::vec2& unitSize = glm::vec2(0.15f), float unitOffset = 0.05f);
-    ~UnitPanel() = default;
+    ~ShopPanel() = default;
 
     virtual void OnEvent(Event& event) override;
     virtual void Draw() override;

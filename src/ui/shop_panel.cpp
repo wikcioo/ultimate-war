@@ -1,4 +1,4 @@
-#include "unit_panel.h"
+#include "shop_panel.h"
 
 #include "util/util.h"
 #include "core/core.h"
@@ -9,7 +9,7 @@
 
 #include <GLFW/glfw3.h>
 
-UnitPanel::UnitPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const glm::vec2& offset,
+ShopPanel::ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const glm::vec2& offset,
                      const glm::vec2& unitSize, float unitOffset)
     : UIElement(UICamera, UICamera->CalculateRelativeBottomLeftPosition() + offset,
       glm::vec2((int)UnitType::COUNT * (unitSize.x + unitOffset) + unitOffset, unitSize.y + unitOffset)),
@@ -17,25 +17,25 @@ UnitPanel::UnitPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const 
 {
 }
 
-void UnitPanel::OnEvent(Event& event)
+void ShopPanel::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
-    dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(UnitPanel::OnKeyPressed));
+    dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(ShopPanel::OnKeyPressed));
 
     auto mousePos = m_UICamera->CalculateRelativeMousePosition();
     if (mousePos.x > m_Position.x && mousePos.x < m_Position.x + m_Size.x &&
         mousePos.y > m_Position.y && mousePos.y < m_Position.y + m_Size.y)
     {
-        dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(UnitPanel::OnMouseScrolled));
-        dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(UnitPanel::OnMouseButtonPressedPanel));
+        dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(ShopPanel::OnMouseScrolled));
+        dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(ShopPanel::OnMouseButtonPressedPanel));
     }
     else
     {
-        dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(UnitPanel::OnMouseButtonPressedGame));
+        dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(ShopPanel::OnMouseButtonPressedGame));
     }
 }
 
-void UnitPanel::Draw()
+void ShopPanel::Draw()
 {
     Renderer2D::BeginScene(m_UICamera);
 
@@ -43,7 +43,7 @@ void UnitPanel::Draw()
     if (IsUnitAttachedToCursor())
         Renderer2D::DrawQuad(cursorPos, m_UnitSize * 0.5f, m_CursorAttachedUnit.Texture);
 
-    Renderer2D::DrawQuad(m_Position + m_Size * 0.5f, m_Size, ColorData::Get().UITheme.UnitPanelBackgroundColor);
+    Renderer2D::DrawQuad(m_Position + m_Size * 0.5f, m_Size, ColorData::Get().UITheme.ShopPanelBackgroundColor);
 
     for (int i = 0; i < m_UnitCount; i++)
     {
@@ -55,18 +55,18 @@ void UnitPanel::Draw()
         Renderer2D::DrawQuad(unitPos, m_UnitSize, ResourceManager::GetTexture(UnitTextureMap[(UnitType)i]));
 
         if (Util::IsPointInRectangle(unitPos, m_UnitSize, cursorPos) || (UnitType)i == m_CursorAttachedUnit.Type)
-            Renderer2D::DrawQuad(unitPos, m_UnitSize + 0.015f, ColorData::Get().UITheme.UnitPanelHighlighUnitColor, 10.0f);
+            Renderer2D::DrawQuad(unitPos, m_UnitSize + 0.015f, ColorData::Get().UITheme.ShopPanelHighlighUnitColor, 10.0f);
     }
 
     Renderer2D::EndScene();
 }
 
-bool UnitPanel::OnMouseScrolled(MouseScrolledEvent& event)
+bool ShopPanel::OnMouseScrolled(MouseScrolledEvent& event)
 {
     return true;
 }
 
-bool UnitPanel::OnKeyPressed(KeyPressedEvent& event)
+bool ShopPanel::OnKeyPressed(KeyPressedEvent& event)
 {
     if (event.GetKeyCode() == GLFW_KEY_ESCAPE)
     {
@@ -77,7 +77,7 @@ bool UnitPanel::OnKeyPressed(KeyPressedEvent& event)
     return false;
 }
 
-bool UnitPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
+bool ShopPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
 {
     auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
     for (int i = 0; i < m_UnitCount; i++)
@@ -97,7 +97,7 @@ bool UnitPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
     return false;
 }
 
-bool UnitPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
+bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
 {
     if (m_CursorAttachedUnit.Type == UnitType::NONE) return false;
 
@@ -128,7 +128,7 @@ bool UnitPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
     return false;
 }
 
-void UnitPanel::SetCursorAttachedUnit(UnitType type)
+void ShopPanel::SetCursorAttachedUnit(UnitType type)
 {
     m_CursorAttachedUnit.Type = type;
 
