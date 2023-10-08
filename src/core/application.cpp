@@ -91,6 +91,11 @@ void Application::LoadResources()
     ResourceManager::LoadTexture("dwarf", "assets/textures/units/dwarf.png");
     ResourceManager::LoadTexture("demon", "assets/textures/units/demon.png");
     ResourceManager::LoadTexture("harpy", "assets/textures/units/harpy.png");
+
+    ResourceManager::LoadTexture("workshop", "assets/textures/buildings/workshop.png");
+    ResourceManager::LoadTexture("gold_mine", "assets/textures/buildings/gold_mine.png");
+    ResourceManager::LoadTexture("dragon_lair", "assets/textures/buildings/dragon_lair.png");
+
 }
 
 void Application::InitializeColors()
