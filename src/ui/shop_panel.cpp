@@ -205,7 +205,10 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitType, BuildingType> type
         if (m_CursorAttachedAsset.UnitType == UnitType::NONE)
             m_CursorAttachedAsset.Texture.reset();
         else
+        {
             m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(UnitTextureMap[m_CursorAttachedAsset.UnitType]);
+            m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
+        }
     }
     else if (std::holds_alternative<BuildingType>(type))
     {
@@ -213,7 +216,10 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitType, BuildingType> type
         if (m_CursorAttachedAsset.BuildingType == BuildingType::NONE)
             m_CursorAttachedAsset.Texture.reset();
         else
+        {
             m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(BuildingTextureMap[m_CursorAttachedAsset.BuildingType]);
+            m_CursorAttachedAsset.UnitType = UnitType::NONE;
+        }
     }
     else
     {
