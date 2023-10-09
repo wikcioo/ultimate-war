@@ -164,7 +164,7 @@ bool ShopPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
 
 bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
 {
-    if (!m_CursorAttachedAsset.Texture.get()) return false;
+    if (!m_CursorAttachedAsset.Texture.get() || !GameLayer::Get().IsGameActive()) return false;
 
     auto relMousePos = GameLayer::Get().GetCameraController()->GetCamera()->CalculateRelativeMousePosition();
     auto currentPlayer = GameLayer::Get().GetPlayerManager()->GetCurrentPlayer();
