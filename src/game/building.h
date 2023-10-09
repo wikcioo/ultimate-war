@@ -12,7 +12,13 @@ enum class BuildingType
     NONE
 };
 
-extern std::unordered_map<BuildingType, std::string> BuildingTextureMap;
+struct BuildingData
+{
+    int Cost;
+    std::string TextureName;
+};
+
+extern std::unordered_map<BuildingType, BuildingData> BuildingDataMap;
 
 class Building
 {

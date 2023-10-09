@@ -67,7 +67,7 @@ void ShopPanel::DrawUnits(const glm::vec2& cursorPos)
             m_Position.y + m_Size.y / 2
         };
 
-        Renderer2D::DrawQuad(unitPos, m_AssetSize, ResourceManager::GetTexture(UnitTextureMap[(UnitType)i]));
+        Renderer2D::DrawQuad(unitPos, m_AssetSize, ResourceManager::GetTexture(UnitDataMap[(UnitType)i].TextureName));
 
         if (Util::IsPointInRectangle(unitPos, m_AssetSize, cursorPos) || (UnitType)i == m_CursorAttachedAsset.UnitType)
         {
@@ -96,7 +96,7 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
             m_Position.y + m_Size.y / 2 + m_Size.y
         };
 
-        Renderer2D::DrawQuad(buildingPos, m_AssetSize, ResourceManager::GetTexture(BuildingTextureMap[(BuildingType)i]));
+        Renderer2D::DrawQuad(buildingPos, m_AssetSize, ResourceManager::GetTexture(BuildingDataMap[(BuildingType)i].TextureName));
 
         if (Util::IsPointInRectangle(buildingPos, m_AssetSize, cursorPos) || (BuildingType)i == m_CursorAttachedAsset.BuildingType)
         {
@@ -179,12 +179,14 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
             {
                 if (tile->GetOwnedBy() == currentPlayer)
                 {
-                    if (m_CursorAttachedAsset.UnitType != UnitType::NONE && currentPlayer->SubtractGold(10))
+                    if (m_CursorAttachedAsset.UnitType != UnitType::NONE &&
+                        currentPlayer->SubtractGold(UnitDataMap[m_CursorAttachedAsset.UnitType].Cost))
                     {
                         tile->CreateUnit(m_CursorAttachedAsset.UnitType);
                         return true;
                     }
-                    else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE && currentPlayer->SubtractGold(20))
+                    else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE &&
+                             currentPlayer->SubtractGold(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
                     {
                         tile->CreateBuilding(m_CursorAttachedAsset.BuildingType);
                         return true;
@@ -206,7 +208,7 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitType, BuildingType> type
             m_CursorAttachedAsset.Texture.reset();
         else
         {
-            m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(UnitTextureMap[m_CursorAttachedAsset.UnitType]);
+            m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(UnitDataMap[m_CursorAttachedAsset.UnitType].TextureName);
             m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
         }
     }
@@ -217,7 +219,7 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitType, BuildingType> type
             m_CursorAttachedAsset.Texture.reset();
         else
         {
-            m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(BuildingTextureMap[m_CursorAttachedAsset.BuildingType]);
+            m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(BuildingDataMap[m_CursorAttachedAsset.BuildingType].TextureName);
             m_CursorAttachedAsset.UnitType = UnitType::NONE;
         }
     }
