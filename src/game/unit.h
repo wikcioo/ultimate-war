@@ -21,8 +21,14 @@ struct UnitStats
     int m_UnitHealth;
 };
 
-extern std::unordered_map<UnitType, std::string> UnitTextureMap;
-extern std::unordered_map<UnitType, UnitStats> UnitStatMap;
+struct UnitData
+{
+    int Cost;
+    UnitStats Stats;
+    std::string TextureName;
+};
+
+extern std::unordered_map<UnitType, UnitData> UnitDataMap;
 
 class Unit
 {

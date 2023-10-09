@@ -142,7 +142,7 @@ void Tile::DrawUnits()
         Renderer2D::DrawQuad(
             unitData.Position,
             unitData.Size,
-            ResourceManager::GetTexture(UnitTextureMap[m_Units[i]->GetType()])
+            ResourceManager::GetTexture(UnitDataMap[m_Units[i]->GetType()].TextureName)
         );
 
         if ((i + 1) % s_UnitsPerRow == 0)
@@ -171,7 +171,7 @@ void Tile::DrawBuildings()
         Renderer2D::DrawQuad(
             buildingData.Position,
             buildingData.Size,
-            ResourceManager::GetTexture(BuildingTextureMap[m_Buildings[i]->GetType()])
+            ResourceManager::GetTexture(BuildingDataMap[m_Buildings[i]->GetType()].TextureName)
         );
 
         if ((i + 1) % s_BuildingsPerRow == 0)

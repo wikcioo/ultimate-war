@@ -1,9 +1,9 @@
 #include "building.h"
 
-std::unordered_map<BuildingType, std::string> BuildingTextureMap = {
-    {BuildingType::WORKSHOP, "workshop"},
-    {BuildingType::GOLD_MINE, "gold_mine"},
-    {BuildingType::DRAGON_LAIR, "dragon_lair"}
+std::unordered_map<BuildingType, BuildingData> BuildingDataMap = {
+    {BuildingType::WORKSHOP,    {30,    "workshop"}},
+    {BuildingType::GOLD_MINE,   {40,   "gold_mine"}},
+    {BuildingType::DRAGON_LAIR, {50, "dragon_lair"}}
 };
 
 Building::Building(BuildingType type)
