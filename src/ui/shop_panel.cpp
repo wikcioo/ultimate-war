@@ -16,7 +16,7 @@ ShopPanel::ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const 
       glm::vec2(5 * (assetSize.x + assetOffset) + assetOffset, assetSize.y + assetOffset)),
       m_AssetSize(assetSize), m_AssetOffset(assetOffset),
       m_UnitCount((int)UnitType::COUNT), m_BuildingCount((int)BuildingType::COUNT),
-      m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f)
+      m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.25f), m_AssetPriceFontName("rexlia")
 {
 }
 
@@ -43,11 +43,12 @@ void ShopPanel::Draw()
     Renderer2D::BeginScene(m_UICamera);
 
     auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
-    if (IsAssetAttachedToCursor())
-        Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
 
     DrawUnits(cursorPos);
     DrawBuildings(cursorPos);
+
+    if (IsAssetAttachedToCursor())
+        Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
 
     Renderer2D::EndScene();
 }
@@ -67,7 +68,9 @@ void ShopPanel::DrawUnits(const glm::vec2& cursorPos)
             m_Position.y + m_Size.y / 2
         };
 
-        Renderer2D::DrawQuad(unitPos, m_AssetSize, ResourceManager::GetTexture(UnitDataMap[(UnitType)i].TextureName));
+        auto unitData = UnitDataMap[(UnitType)i];
+
+        Renderer2D::DrawQuad(unitPos, m_AssetSize, ResourceManager::GetTexture(unitData.TextureName));
 
         if (Util::IsPointInRectangle(unitPos, m_AssetSize, cursorPos) || (UnitType)i == m_CursorAttachedAsset.UnitType)
         {
@@ -78,6 +81,15 @@ void ShopPanel::DrawUnits(const glm::vec2& cursorPos)
                 m_AssetBorderThickness
             );
         }
+
+        Renderer2D::DrawTextStr(
+            std::to_string(unitData.Cost),
+            {unitPos.x + m_AssetSize.x / 2, unitPos.y - m_AssetSize.y / 2},
+            m_AssetPriceSize,
+            glm::vec3(1.0f),
+            TextAlignment::RIGHT,
+            m_AssetPriceFontName
+        );
     }
 }
 
@@ -96,7 +108,9 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
             m_Position.y + m_Size.y / 2 + m_Size.y
         };
 
-        Renderer2D::DrawQuad(buildingPos, m_AssetSize, ResourceManager::GetTexture(BuildingDataMap[(BuildingType)i].TextureName));
+        auto buildingData = BuildingDataMap[(BuildingType)i];
+
+        Renderer2D::DrawQuad(buildingPos, m_AssetSize, ResourceManager::GetTexture(buildingData.TextureName));
 
         if (Util::IsPointInRectangle(buildingPos, m_AssetSize, cursorPos) || (BuildingType)i == m_CursorAttachedAsset.BuildingType)
         {
@@ -107,6 +121,15 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
                 m_AssetBorderThickness
             );
         }
+
+        Renderer2D::DrawTextStr(
+            std::to_string(buildingData.Cost),
+            {buildingPos.x + m_AssetSize.x / 2, buildingPos.y - m_AssetSize.y / 2},
+            m_AssetPriceSize,
+            glm::vec3(1.0f),
+            TextAlignment::RIGHT,
+            m_AssetPriceFontName
+        );
     }
 }
 
