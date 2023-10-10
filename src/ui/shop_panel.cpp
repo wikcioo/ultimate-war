@@ -43,11 +43,12 @@ void ShopPanel::Draw()
     Renderer2D::BeginScene(m_UICamera);
 
     auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
-    if (IsAssetAttachedToCursor())
-        Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
 
     DrawUnits(cursorPos);
     DrawBuildings(cursorPos);
+
+    if (IsAssetAttachedToCursor())
+        Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
 
     Renderer2D::EndScene();
 }
