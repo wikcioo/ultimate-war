@@ -41,6 +41,8 @@ private:
     float m_AssetBorderMargin;
     float m_AssetBorderThickness;
     glm::vec2 m_AssetSize;
+    float m_AssetPriceSize;
+    std::string m_AssetPriceFontName;
 
     struct
     {
