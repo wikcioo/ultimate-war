@@ -2,6 +2,12 @@
 
 **Note**: You need to install [premake5](https://premake.github.io/) to generate the build system for Windows and Linux
 
+## Clone the repository
+```shell
+git clone --recursive https://github.com/wikcioo/ultimate-war.git
+cd ultimate-war
+```
+
 ## Windows
 
 Generate the Visual Studio solution
