@@ -1,7 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include <glm/glm.hpp>
 
+#include "core/camera.h"
 #include "event/event.h"
 
 class UIElement

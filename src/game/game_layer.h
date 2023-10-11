@@ -36,6 +36,7 @@ public:
     inline std::shared_ptr<GameMapManager> GetGameMapManager() const { return m_GameMapManager; }
     inline std::shared_ptr<PlayerManager> GetPlayerManager() const { return m_PlayerManager; }
     inline bool IsGameActive() const { return m_GameActive; }
+    inline int GetIteration() { return m_IterationNumber; }
 
     void NextIteration() { m_IterationNumber++; }
     void ResetArrow();
