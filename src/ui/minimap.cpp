@@ -76,11 +76,6 @@ void Minimap::Draw()
 
     Renderer2D::DrawQuad(m_MinimapPos, m_Size, m_Framebuffer->GetTexture());
 
-#if defined(DEBUG)
-    Renderer2D::DrawTextStr(DebugData::Get()->Font.Text, DebugData::Get()->Font.Pos, DebugData::Get()->Font.Scale,
-                           DebugData::Get()->Font.Color, DebugData::Get()->Font.Alignment, DebugData::Get()->Font.FontName);
-#endif
-
     Renderer2D::EndScene();
 }
 

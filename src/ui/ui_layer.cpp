@@ -7,6 +7,7 @@
 #include "graphics/renderer.h"
 #include "ui/minimap.h"
 #include "ui/shop_panel.h"
+#include "ui/info.h"
 
 UILayer::UILayer()
     : Layer("UILayer")
@@ -28,6 +29,8 @@ UILayer::UILayer()
             m_UICamera,
             glm::vec2(0.5f * m_GameCamera->GetAspectRatio() + 0.4f, 0.0f)
         ));
+
+    m_UIElements.emplace_back(std::make_shared<Info>(m_UICamera, GameLayer::Get().GetPlayerManager()));
 }
 
 void UILayer::OnAttach()
