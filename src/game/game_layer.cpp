@@ -34,10 +34,11 @@ void GameLayer::OnAttach()
 {
     m_GameMapManager->Load("simple");
 
+#if defined(DEBUG)
     int i = 2;
     for (auto player : m_PlayerManager->GetAllPlayers())
     {
-        auto tile = m_GameMapManager->GetGameMap()->GetTile(i-1, i);
+        auto tile = m_GameMapManager->GetGameMap()->GetTile(i-1, i+1);
         tile->CreateUnit(UnitType::SWORDSMAN);
         tile->CreateUnit(UnitType::DWARF);
         tile->CreateUnit(UnitType::DEMON);
@@ -45,6 +46,7 @@ void GameLayer::OnAttach()
         player->AddOwnedTile(tile);
         i++;
     }
+#endif
 }
 
 void GameLayer::OnDetach()

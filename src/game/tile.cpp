@@ -42,12 +42,18 @@ Tile::~Tile()
 
 void Tile::CreateUnit(UnitType type)
 {
-    m_Units.emplace_back(new Unit(type));
+    if (m_Type != 0)
+        m_Units.emplace_back(new Unit(type));
+    else
+        LOG_WARN("Trying to add unit of type '{0}' to non-existent tile", UnitDataMap[type].TextureName);
 }
 
 void Tile::CreateBuilding(BuildingType type)
 {
-    m_Buildings.emplace_back(new Building(type));
+    if (m_Type != 0)
+        m_Buildings.emplace_back(new Building(type));
+    else
+        LOG_WARN("Trying to add building of type '{0}' to non-existent tile", BuildingDataMap[type].TextureName);
 }
 
 void Tile::Draw(const glm::vec4& color)
