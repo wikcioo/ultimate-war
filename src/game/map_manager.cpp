@@ -51,15 +51,6 @@ void GameMapManager::Load(const std::string& mapName, bool flip_vertically)
         map.emplace_back(row);
     }
 
-    for (int i = 0; i < 5; i++)
-    {
-        map[0][0]->CreateUnit(UnitType::ARCHER);
-    }
-    for (int i = 0; i < 5; i++)
-    {
-        map[0][0]->CreateUnit(UnitType::HARPY);
-    }
-
     m_GameMap = std::make_shared<GameMap>(map);
     m_SelectedMap = mapName;
 }
