@@ -71,7 +71,7 @@ void GameLayer::OnUpdate(float dt)
             if (!isCursorInRange && tile->InRange(relMousePos))
             {
                 auto startTile = m_Arrow->GetStartTile();
-                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()))
+                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()) && tile->GetType() != 0)
                 {
                     isCursorInRange = true;
                     m_Arrow->SetEndPosition(tile->GetPosition());
@@ -153,21 +153,28 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 
                 if (m_Arrow->GetStartTile() != tile)
                 {
-                    if (m_Arrow->GetStartTile()->HasSelectedUnits())
+                    if (tile->GetType() != 0)
                     {
-                        if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
+                        if (m_Arrow->GetStartTile()->HasSelectedUnits())
                         {
-                            m_Arrow->GetStartTile()->MoveToTile(tile);
+                            if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
+                            {
+                                m_Arrow->GetStartTile()->MoveToTile(tile);
+                            }
+                            else
+                            {
+                                m_Arrow->GetStartTile()->DeselectAllUnits();
+                            }
                         }
-                        else
+                        else if (tile->GetOwnedBy() == currentPlayer)
                         {
-                            m_Arrow->GetStartTile()->DeselectAllUnits();
+                            m_Arrow->SetStartTile(tile);
+                            tile->HandleUnitMouseClick(relMousePos);
                         }
                     }
-                    else if (tile->GetOwnedBy() == currentPlayer)
+                    else
                     {
-                        m_Arrow->SetStartTile(tile);
-                        tile->HandleUnitMouseClick(relMousePos);
+                        m_Arrow->GetStartTile()->DeselectAllUnits();
                     }
                 }
                 else if (tile->GetOwnedBy() == currentPlayer)
@@ -181,7 +188,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
                     }
                 }
 
-                goto outer;
+                goto tile_in_range;
             }
         }
     }
@@ -189,7 +196,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     if (m_Arrow->GetStartTile())
         m_Arrow->GetStartTile()->DeselectAllUnits();
 
-    outer:
+    tile_in_range:
     m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnits());
 
     return true;
