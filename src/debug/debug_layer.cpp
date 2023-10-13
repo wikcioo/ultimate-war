@@ -152,10 +152,10 @@ void DebugLayer::DisplaySettingsWindow()
 
     ImGui::Separator();
 
-    ImGui::Text("Unit settings");
-    ImGui::SliderInt("Unit rows", &Tile::s_UnitRows, 1, 3);
-    ImGui::SliderInt("Units per row", &Tile::s_UnitsPerRow, 3, 7);
-    ImGui::SliderInt("Unit width/offset ratio", &Tile::s_UnitWidthToOffsetRatio, 1, 19);
+    ImGui::Text("UnitGroup settings");
+    ImGui::SliderInt("UnitGroup rows", &Tile::s_UnitGroupRows, 1, 3);
+    ImGui::SliderInt("UnitGroups per row", &Tile::s_UnitGroupsPerRow, 3, 7);
+    ImGui::SliderInt("UnitGroup width/offset ratio", &Tile::s_UnitGroupWidthToOffsetRatio, 1, 19);
 
     ImGui::Separator();
 

@@ -30,20 +30,20 @@ public:
     ~Tile();
 
     void MoveToTile(std::shared_ptr<Tile> destTile);
-    void CreateUnit(UnitType type);
+    void CreateUnitGroup(UnitGroupType type);
     void CreateBuilding(BuildingType type);
-    void DeselectAllUnits();
+    void DeselectAllUnitGroups();
     void Draw(const glm::vec4& color);
     void DrawBase(const glm::vec4& color);
-    bool HasSelectedUnits();
+    bool HasSelectedUnitGroups();
     bool InRange(const glm::vec2& cursorPos);
-    bool HandleUnitMouseClick(const glm::vec2& relMousePos);
-    bool IsMouseClickedInsideUnitsBox(const glm::vec2& relMousePos);
+    bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);
+    bool IsMouseClickedInsideUnitGroupsBox(const glm::vec2& relMousePos);
 
     inline const int GetType() const { return m_Type; }
     inline const int GetValue() const { return m_Value; }
     inline const std::shared_ptr<Player> GetOwnedBy() const { return m_OwnedBy; }
-    std::vector<Unit*>& GetUnits() { return m_Units; }
+    std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
@@ -58,21 +58,21 @@ public:
 public:
     static float s_BackgroundHeightRatio;
 
-    static int s_UnitRows;
-    static int s_UnitsPerRow;
-    static int s_UnitWidthToOffsetRatio;
+    static int s_UnitGroupRows;
+    static int s_UnitGroupsPerRow;
+    static int s_UnitGroupWidthToOffsetRatio;
 
     static int s_BuildingRows;
     static int s_BuildingsPerRow;
     static int s_BuildingWidthToOffsetRatio;
 
 private:
-    void DrawUnits();
+    void DrawUnitGroups();
     void DrawBuildings();
-    void EraseSelectedUnits();
-    void TransferUnitsToTile(std::shared_ptr<Tile> destTile);
     bool CalculateAttackOutcome(std::shared_ptr<Tile> destTile);
-    DrawData GetUnitDrawData();
+    void EraseSelectedUnitGroups();
+    void TransferUnitGroupsToTile(std::shared_ptr<Tile> destTile);
+    DrawData GetUnitGroupDrawData();
     DrawData GetBuildingDrawData();
 
 private:
@@ -81,6 +81,6 @@ private:
     glm::ivec2 m_Coords;
     glm::vec2 m_Position;
     std::shared_ptr<Player> m_OwnedBy;
-    std::vector<Unit*> m_Units;
+    std::vector<UnitGroup*> m_UnitGroups;
     std::vector<Building*> m_Buildings;
 };

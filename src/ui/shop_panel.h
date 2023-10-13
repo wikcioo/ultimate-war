@@ -28,14 +28,14 @@ private:
     bool OnKeyPressed(KeyPressedEvent& event);
     bool OnMouseButtonPressedPanel(MouseButtonPressedEvent& event);
     bool OnMouseButtonPressedGame(MouseButtonPressedEvent& event);
-    void SetCursorAttachedAsset(std::variant<UnitType, BuildingType> type);
+    void SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType> type);
     bool IsAssetAttachedToCursor() { return m_CursorAttachedAsset.Texture.get(); }
 
-    void DrawUnits(const glm::vec2& cursorPos);
+    void DrawUnitGroups(const glm::vec2& cursorPos);
     void DrawBuildings(const glm::vec2& cursorPos);
 
 private:
-    int m_UnitCount;
+    int m_UnitGroupCount;
     int m_BuildingCount;
     float m_AssetOffset;
     float m_AssetBorderMargin;
@@ -46,7 +46,7 @@ private:
 
     struct
     {
-        UnitType UnitType = UnitType::NONE;
+        UnitGroupType UnitGroupType = UnitGroupType::NONE;
         BuildingType BuildingType = BuildingType::NONE;
         std::shared_ptr<Texture2D> Texture;
     } m_CursorAttachedAsset;
