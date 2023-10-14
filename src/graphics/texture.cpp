@@ -41,6 +41,8 @@ Texture2D::Texture2D(const TextureData& data)
     glTexParameteri(m_TextureTarget, GL_TEXTURE_MIN_FILTER, TextureFilterToGL(data.MinFilter));
     glTexParameteri(m_TextureTarget, GL_TEXTURE_MAG_FILTER, TextureFilterToGL(data.MagFilter));
 
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &data.BorderColor[0]);
+
     int format;
     if (data.NrChannels == 1)
         format = GL_RED;

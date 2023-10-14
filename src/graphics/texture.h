@@ -23,11 +23,12 @@ struct TextureData
     glm::vec2 Size = {0.5f, 0.5f};
     unsigned char* Data = nullptr;
     unsigned int NrChannels = 3;
-    TextureWrap WrapHorizontal = TextureWrap::REPEAT;
-    TextureWrap WrapVertical = TextureWrap::REPEAT;
+    TextureWrap WrapHorizontal = TextureWrap::CLAMP_TO_BORDER;
+    TextureWrap WrapVertical = TextureWrap::CLAMP_TO_BORDER;
     TextureFilter MinFilter = TextureFilter::NEAREST;
     TextureFilter MagFilter = TextureFilter::NEAREST;
     bool IsMultisample = false;
+    glm::vec4 BorderColor = { 1.0f, 0.0f, 1.0f, 0.0f };
 };
 
 class Texture2D
