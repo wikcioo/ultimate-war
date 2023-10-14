@@ -1,37 +1,57 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 
-enum class UnitType
+#include "game/building.h"
+
+enum class UnitGroupType
 {
-    NONE = 0,
     SWORDSMAN,
     ARCHER,
     DWARF,
     DEMON,
-    HARPY
+    HARPY,
+    COUNT,
+    NONE
 };
 
 struct UnitStats
 {
-    int m_Quantity;
-    int m_Attack;
-    int m_UnitHealth;
+    int Attack;
+    int Defense;
+    int Health;
 };
 
-extern std::unordered_map<UnitType, std::string> UnitTextureMap;
-extern std::unordered_map<UnitType, UnitStats> UnitStatMap;
+struct UnitGroupData
+{
+    int Cost;
+    UnitStats Stats;
+    std::string TextureName;
+    BuildingType RequiredBuilding;
+};
 
-class Unit
+extern std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap;
+
+class UnitGroup
 {
 public:
-    Unit(UnitType type);
-    ~Unit() = default;
+    UnitGroup(UnitGroupType type);
+    ~UnitGroup() = default;
 
-    const UnitType GetType() const { return m_Type; }
+    void ToggleSelected() { m_IsSelected = !m_IsSelected; }
+    void SetSelected(bool isSelected) { m_IsSelected = isSelected; }
+
+    // TODO: Rethink
+    void IncrementQuantity(int quantity = 1);
+
+    std::vector<UnitStats*>& GetUnitStats() { return m_Stats; }
+    const UnitGroupType GetType() const { return m_Type; }
+    const bool IsSelected() const { return m_IsSelected; }
 
 private:
-    UnitType m_Type;
-    UnitStats m_Stats;
+    UnitGroupType m_Type;
+    std::vector<UnitStats*> m_Stats;
+    bool m_IsSelected;
 };

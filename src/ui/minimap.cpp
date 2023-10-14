@@ -6,13 +6,14 @@
 #include "core/application.h"
 #include "debug/debug_data.h"
 #include "graphics/renderer.h"
+#include "game/color_data.h"
 
 Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
             const std::shared_ptr<OrthographicCamera>& gameCamera,
-            const std::shared_ptr<GameMap>& gameMap,
+            const std::shared_ptr<GameMapManager>& gameMapManager,
             const glm::vec2& offset, const glm::vec2& size)
-    : UIElement(UICamera->CalculateRelativeBottomLeftPosition() + offset, {size.y * gameCamera->GetAspectRatio(), size.y}), m_Offset(offset),
-      m_UICamera(UICamera), m_GameCamera(gameCamera), m_GameMap(gameMap), m_MinimapPos(m_Position + m_Size * 0.5f)
+    : UIElement(UICamera, UICamera->CalculateRelativeBottomLeftPosition() + offset, size), m_Offset(offset),
+      m_GameCamera(gameCamera), m_GameMapManager(gameMapManager), m_MinimapPos(m_Position + m_Size * 0.5f)
 {
     m_MinimapCamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
     m_MinimapCamera->SetZoom(5.0f);
@@ -50,20 +51,20 @@ void Minimap::Draw()
 
     Renderer2D::BeginScene(m_MinimapCamera);
 
-    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMap->GetTile(x, y);
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->GetType())
-                tile->DrawBase(m_GameMap->GetTileDefaultColor(tile->GetType()));
+                tile->DrawBase(ColorData::Get().TileColors.MiniMapColor);
         }
     }
 
 #if defined(DEBUG)
     Renderer2D::DrawQuad(m_GameCamera->GetPosition(), m_GameCamera->CalculateRelativeWindowSize(), glm::vec4(1.0f), DebugData::Get()->MinimapData.BorderThickness);
 #else
-    Renderer2D::DrawQuad(m_GameCamera->GetPosition(), m_GameCamera->CalculateRelativeWindowSize(), glm::vec4(1.0f), 0.01f);
+    Renderer2D::DrawQuad(m_GameCamera->GetPosition(), m_GameCamera->CalculateRelativeWindowSize(), glm::vec4(1.0f), 5.0);
 #endif
 
     Renderer2D::EndScene();
@@ -80,7 +81,6 @@ void Minimap::Draw()
 
 bool Minimap::OnWindowResized(WindowResizedEvent& event)
 {
-    m_UICamera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
     m_Position = m_UICamera->CalculateRelativeBottomLeftPosition() + m_Offset;
     m_MinimapPos = m_Position + m_Size * 0.5f;
     return false;

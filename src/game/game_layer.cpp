@@ -11,23 +11,42 @@
 #include "core/logger.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
+#include "util/util.h"
+
+GameLayer* GameLayer::s_Instance = nullptr;
 
 GameLayer::GameLayer()
-    : Layer("GameLayer")
+    : Layer("GameLayer"), m_IterationNumber(0), m_GameActive(true)
 {
+    s_Instance = this;
+
     auto window = Application::Get().GetWindow();
-    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight());
-    m_GameMap = std::make_shared<GameMap>("");
+    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
+    m_GameMapManager = std::make_shared<GameMapManager>("");
+    m_PlayerManager = std::make_shared<PlayerManager>();
     m_Arrow = std::make_shared<Arrow>();
+
+    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {1.0f, 0.0f, 0.0f});
+    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {0.0f, 0.0, 1.0f});
 }
 
 void GameLayer::OnAttach()
 {
-    m_GameMap->SetTileDefaultColor(0, {0.2f, 0.2f, 0.2f, 0.2f});
-    m_GameMap->SetTileDefaultColor(1, {0.2f, 0.3f, 0.8f, 1.0f});
-    m_GameMap->SetTileHighlightColor(0, {0.2f, 0.2f, 0.2f, 0.5f});
-    m_GameMap->SetTileHighlightColor(1, {0.1f, 0.8f, 0.2f, 1.0f});
-    m_GameMap->Load("simple");
+    m_GameMapManager->Load("simple");
+
+#if defined(DEBUG)
+    int i = 2;
+    for (auto player : m_PlayerManager->GetAllPlayers())
+    {
+        auto tile = m_GameMapManager->GetGameMap()->GetTile(i-1, i+1);
+        tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
+        tile->CreateUnitGroup(UnitGroupType::DWARF);
+        tile->CreateUnitGroup(UnitGroupType::DEMON);
+        tile->CreateBuilding(BuildingType::DRAGON_LAIR);
+        player->AddOwnedTile(tile);
+        i++;
+    }
+#endif
 }
 
 void GameLayer::OnDetach()
@@ -44,35 +63,40 @@ void GameLayer::OnUpdate(float dt)
 
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
     bool isCursorInRange = false;
-    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMap->GetTile(x, y);
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
             glm::vec4 tileColor;
             if (!isCursorInRange && tile->InRange(relMousePos))
             {
-                isCursorInRange = true;
-                m_Arrow->SetEndPosition(tile->GetPosition());
-                tileColor = m_GameMap->GetTileHighlightColor(tile->GetType());
+                auto startTile = m_Arrow->GetStartTile();
+                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()) && tile->GetType() != 0)
+                {
+                    isCursorInRange = true;
+                    m_Arrow->SetEndPosition(tile->GetPosition());
+                }
+
+                tileColor = ColorData::Get().TileColors.TileHoverBorderColor;
             }
             else
             {
-                tileColor = m_GameMap->GetTileDefaultColor(tile->GetType());
+                if (tile->GetType() == 0)
+                    tileColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
+                else
+                    tileColor = glm::vec4(1.0f);
             }
 
             tile->Draw(tileColor);
         }
     }
 
-    if (!isCursorInRange)
-        m_Arrow->SetEndPosition(relMousePos);
+    if (m_Arrow->IsVisible() && !isCursorInRange)
+        m_Arrow->SetEndPosition(m_Arrow->GetStartTile()->GetPosition());
 
     m_Arrow->Draw();
-
-    static auto starTexture = ResourceManager::GetTexture("star");
-    Renderer2D::DrawQuad(m_StarPosition, glm::vec2(0.6f), starTexture);
 
     Renderer2D::EndScene();
 }
@@ -83,39 +107,99 @@ void GameLayer::OnEvent(Event& event)
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(GameLayer::OnMouseButtonPressed));
+    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(GameLayer::OnKeyReleased));
+}
+
+bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
+{
+    if(!m_GameActive) return true;
+
+    if(event.GetKeyCode() == GLFW_KEY_ENTER)
+    {
+        m_PlayerManager->NextTurn();
+        return true;
+    }
+
+    return false;
+}
+
+void GameLayer::ResetArrow()
+{
+    for(auto tile : m_PlayerManager->GetCurrentPlayer()->GetOwnedTiles())
+    {
+        tile->DeselectAllUnitGroups();
+    }
+    m_Arrow->SetVisible(false);
+}
+
+void GameLayer::EndGame()
+{
+    m_GameActive = false;
 }
 
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
-    static bool arrowClickedOnStarTile = false;
-    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
+    if(!m_GameActive) return true;
 
-    for (int y = 0; y < m_GameMap->GetTileCountY(); y++)
+    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
+    auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
+
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
-        for (int x = 0; x < m_GameMap->GetTileCountX(); x++)
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
-            Tile* tile = m_GameMap->GetTile(x, y);
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
             if (tile->InRange(relMousePos))
             {
-                if (m_Arrow->IsVisible() && arrowClickedOnStarTile)
+                if (!m_Arrow->GetStartTile()) m_Arrow->SetStartTile(tile);
+
+                if (m_Arrow->GetStartTile() != tile)
                 {
-                    m_StarPosition = tile->GetPosition();
-                }
-                else
-                {
-                    if (tile->GetPosition() == m_StarPosition)
-                        arrowClickedOnStarTile = true;
+                    if (tile->GetType() != 0)
+                    {
+                        if (m_Arrow->GetStartTile()->HasSelectedUnitGroups())
+                        {
+                            if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
+                            {
+                                m_Arrow->GetStartTile()->MoveToTile(tile);
+                            }
+                            else
+                            {
+                                m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+                            }
+                        }
+                        else if (tile->GetOwnedBy() == currentPlayer)
+                        {
+                            m_Arrow->SetStartTile(tile);
+                            tile->HandleUnitGroupMouseClick(relMousePos);
+                        }
+                    }
                     else
-                        arrowClickedOnStarTile = false;
+                    {
+                        m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+                    }
+                }
+                else if (tile->GetOwnedBy() == currentPlayer)
+                {
+                    if (!tile->HandleUnitGroupMouseClick(relMousePos))
+                    {
+                        if (!tile->IsMouseClickedInsideUnitGroupsBox(relMousePos))
+                        {
+                            tile->DeselectAllUnitGroups();
+                        }
+                    }
                 }
 
-                m_Arrow->SetVisible(!m_Arrow->IsVisible());
-                m_Arrow->SetStartPosition(tile->GetPosition());
-                return false;
+                goto tile_in_range;
             }
         }
     }
 
-    m_Arrow->SetVisible(false);
-    return false;
+    if (m_Arrow->GetStartTile())
+        m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+
+    tile_in_range:
+    m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
+
+    return true;
 }

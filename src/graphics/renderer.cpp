@@ -1,10 +1,14 @@
 #include "renderer.h"
 
+#include <sstream>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "util/util.h"
+#include "core/logger.h"
 #include "core/resource_manager.h"
 
 Renderer2D::Renderer2DData* Renderer2D::s_Data = new Renderer2DData();
@@ -14,6 +18,8 @@ void Renderer2D::Init()
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     float quadVertices[4 * 5] = {
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -31,6 +37,23 @@ void Renderer2D::Init()
     auto quadVB = std::make_shared<VertexBuffer>(quadVertices, sizeof(quadVertices));
     auto quadIB = std::make_shared<IndexBuffer>(quadIndices, sizeof(quadIndices) / sizeof(unsigned int));
     s_Data->QuadVertexArray = std::make_shared<VertexArray>(quadVB, quadIB, quadLayout);
+
+    float fontVertices[4 * 2] = {
+        0.0f, 0.0f,
+        0.0f, 1.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+    };
+
+    unsigned int fontIndices[6] = {
+        0, 1, 2,
+        2, 3, 1
+    };
+
+    std::vector<int> fontLayout = {2};
+    auto fontVB = std::make_shared<VertexBuffer>(fontVertices, sizeof(fontVertices));
+    auto fontIB = std::make_shared<IndexBuffer>(fontIndices, sizeof(fontIndices) / sizeof(unsigned int));
+    s_Data->FontVertexArray = std::make_shared<VertexArray>(fontVB, fontIB, fontLayout);
 
     float h = glm::sqrt(3) / 2;
     float hexagonVertices[6 * 3] = {
@@ -56,6 +79,7 @@ void Renderer2D::Init()
 
     s_Data->FlatColorShader = ResourceManager::GetShader("color");
     s_Data->TextureShader = ResourceManager::GetShader("texture");
+    s_Data->FontShader = ResourceManager::GetShader("font");
 }
 
 void Renderer2D::Shutdown()
@@ -71,18 +95,21 @@ void Renderer2D::BeginScene(const std::shared_ptr<OrthographicCamera>& camera)
 
     s_Data->TextureShader->Bind();
     s_Data->TextureShader->SetMat4("u_ProjectionView", camera->GetProjectionViewMatrix());
+
+    s_Data->FontShader->Bind();
+    s_Data->FontShader->SetMat4("u_ProjectionView", camera->GetProjectionViewMatrix());
 }
 
 void Renderer2D::EndScene()
 {
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, float borderThickness)
+void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
 {
     DrawQuad(glm::vec3(position, 0.0f), size, color, borderThickness);
 }
 
-void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float borderThickness)
+void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
 {
     DrawGeometry(s_Data->QuadVertexArray, position, size, color, borderThickness);
 }
@@ -105,41 +132,139 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, cons
     glDrawElements(GL_TRIANGLES, s_Data->QuadVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
 }
 
-void Renderer2D::DrawHexagon(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+void Renderer2D::DrawHexagon(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
 {
-    DrawHexagon(glm::vec3(position, 0.0f), size, color);
+    DrawHexagon(glm::vec3(position, 0.0f), size, color, borderThickness);
 }
 
-void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
+void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
 {
-    DrawGeometry(s_Data->HexagonVertexArray, position, size, color);
+    DrawGeometry(s_Data->HexagonVertexArray, position, size, color, borderThickness);
 }
 
-void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, float borderThickness)
+void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
 {
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(size.x, size.y, 1.0f));
-
+    glm::mat4 fullScaleModel = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(size.x, size.y, 1.0f));
+    vertexArray->Bind();
     s_Data->FlatColorShader->Bind();
-    s_Data->FlatColorShader->SetMat4("u_Model", model);
-    s_Data->FlatColorShader->SetFloat4("u_Color", color);
 
-    if (borderThickness > 0)
+    if (!borderThickness.has_value())
     {
-        s_Data->FlatColorShader->SetBool("u_Filled", false);
-        s_Data->FlatColorShader->SetFloat("u_BorderThickness", borderThickness);
-        s_Data->FlatColorShader->SetFloat("u_AspectRatio", s_Data->Camera->GetAspectRatio());
+        s_Data->FlatColorShader->SetMat4("u_Model", fullScaleModel);
+        s_Data->FlatColorShader->SetFloat4("u_Color", color);
+        glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
     }
     else
     {
-        s_Data->FlatColorShader->SetBool("u_Filled", true);
-    }
+        float thickness = borderThickness.value();
+        if (thickness < 0.0f || thickness > 100.0f)
+        {
+            LOG_WARN("Renderer2D::DrawGeometry: borderThickness parameter outside of 0-100 bound");
+            thickness = Util::Clamp<float>(thickness, 0.0f, 100.0f);
+        }
 
-    vertexArray->Bind();
-    glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+        float ratio = (100.0f - thickness) / 100.0f;
+        float outerHeight = size.y;
+        float innerHeight = ratio * size.y;
+        float heightDiff = outerHeight - innerHeight;
+        float innerWidth = size.x - heightDiff;
+
+        glClear(GL_STENCIL_BUFFER_BIT);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+
+        glm::mat4 scaledDownModel = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(innerWidth, innerHeight, 1.0f));
+        s_Data->FlatColorShader->SetMat4("u_Model", scaledDownModel);
+        s_Data->FlatColorShader->SetFloat4("u_Color", glm::vec4(0.0f));
+        glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+
+        s_Data->FlatColorShader->SetMat4("u_Model", fullScaleModel);
+        s_Data->FlatColorShader->SetFloat4("u_Color", color);
+        glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+    }
+}
+
+void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color,
+                          TextAlignment alignment, const std::string& fontName)
+{
+    glm::vec2 pos_cpy = { position.x, position.y };
+
+    s_Data->FontShader->Bind();
+
+    auto font = ResourceManager::GetFont(fontName);
+    auto characters = font->GetCharacters();
+
+    std::vector<std::string> lines;
+    std::istringstream iss(text);
+    std::string line;
+
+    while (std::getline(iss, line, '\n'))
+        lines.push_back(line);
+
+    float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y);
+    for (const auto& line : lines)
+    {
+        // Determine horizontal length of a line
+        float lineLength = 0.0f;
+        for (std::string::const_iterator it = line.begin(); it != line.end(); it++)
+        {
+            auto c = characters[*it];
+            lineLength += s_Data->Camera->ConvertPixelSizeToRelative((c.Size.x + c.Advance) >> 6) * scale;
+        }
+
+        switch (alignment)
+        {
+            case TextAlignment::LEFT:
+                break;
+            case TextAlignment::MIDDLE:
+                pos_cpy.x -= lineLength / 2;
+                break;
+            case TextAlignment::RIGHT:
+                pos_cpy.x -= lineLength;
+                break;
+        }
+
+        for (std::string::const_iterator c = line.begin(); c != line.end(); c++)
+        {
+            Font::Character ch = characters[*c];
+
+            if (*c == ' ')
+            {
+                pos_cpy.x += s_Data->Camera->ConvertPixelSizeToRelative(ch.Advance >> 6) * scale;
+            }
+            else
+            {
+                float xpos = pos_cpy.x + s_Data->Camera->ConvertPixelSizeToRelative(ch.Bearing.x) * scale;
+                float ypos = pos_cpy.y - s_Data->Camera->ConvertPixelSizeToRelative(ch.Size.y - ch.Bearing.y) * scale;
+                glm::vec2 chRelSize = s_Data->Camera->ConvertPixelSizeToRelative(glm::vec2(ch.Size)) * scale;
+                glm::mat4 chModel = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, 0.0f)) *
+                                    glm::scale(glm::mat4(1.0f), glm::vec3(chRelSize.x, chRelSize.y, 1.0f));
+
+                ch.Texture->Bind(0);
+                s_Data->FontShader->SetInt("u_Texture", 0);
+                s_Data->FontShader->SetMat4("u_Model", chModel);
+                s_Data->FontShader->SetFloat3("u_Color", color);
+
+                s_Data->FontVertexArray->Bind();
+                glDrawElements(GL_TRIANGLES, s_Data->FontVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+
+                pos_cpy.x += s_Data->Camera->ConvertPixelSizeToRelative(ch.Advance >> 6) * scale;
+            }
+        }
+
+        pos_cpy.x = position.x;
+        pos_cpy.y -= relCharHeight * scale * 1.3;
+    }
 }
 
 void Renderer2D::ClearColor(const glm::vec4& color)
 {
     glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }

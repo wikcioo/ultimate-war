@@ -8,7 +8,7 @@
 class DebugLayer : public Layer
 {
 public:
-    DebugLayer(GameLayer* gameLayer);
+    DebugLayer();
     ~DebugLayer() = default;
 
     virtual void OnAttach() override;
@@ -20,10 +20,12 @@ private:
     void BeginFrame();
     void EndFrame();
     void DisplayInfoWindow(float dt);
+    void DisplayFontSettingsWindow();
     void DisplaySettingsWindow();
+    void DisplayPlayerWindow();
 
 private:
-    GameLayer* m_GameLayer;
+    GameLayer& m_GameLayer;
 };
 
 #endif

@@ -8,6 +8,8 @@ public:
     OrthographicCamera(float aspectRatio);
     ~OrthographicCamera() = default;
 
+    float ConvertPixelSizeToRelative(float size, bool xAxis = true);
+    glm::vec2 ConvertPixelSizeToRelative(const glm::vec2& size);
     glm::vec2 ConvertRelativeSizeToPixel(const glm::vec2& size);
     glm::vec2 CalculateRelativeBottomLeftPosition();
     glm::vec2 CalculateRelativeMousePosition();

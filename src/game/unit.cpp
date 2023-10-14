@@ -1,24 +1,25 @@
 #include "unit.h"
 
-std::unordered_map<UnitType, std::string> UnitTextureMap = {
-    {UnitType::NONE, "none"},
-    {UnitType::SWORDSMAN, "swordsman"},
-    {UnitType::ARCHER, "archer"},
-    {UnitType::DWARF, "dwarf"},
-    {UnitType::DEMON, "demon"},
-    {UnitType::HARPY, "harpy"}
+#include "core/logger.h"
+
+std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap = {
+    {UnitGroupType::SWORDSMAN, {5,  {3,  4,  6}, "swordsman", BuildingType::NONE}},
+    {UnitGroupType::ARCHER,    {6,  {5,  2,  4},    "archer", BuildingType::WORKSHOP}},
+    {UnitGroupType::DWARF,     {7,  {4,  6,  8},     "dwarf", BuildingType::GOLD_MINE}},
+    {UnitGroupType::DEMON,     {10, {8,  3,  7},     "demon", BuildingType::DEMON_CASTLE}},
+    {UnitGroupType::HARPY,     {9,  {6,  1,  5},     "harpy", BuildingType::HARPY_TOWER}}
 };
 
-std::unordered_map<UnitType, UnitStats> UnitStatMap = {
-    {UnitType::NONE, {0, 0, 0}},
-    {UnitType::SWORDSMAN, {6, 3, 5}},
-    {UnitType::ARCHER, {5, 5, 3}},
-    {UnitType::DWARF, {3, 3, 3}},
-    {UnitType::DEMON, {2, 10, 4}},
-    {UnitType::HARPY, {10, 1, 2}}
-};
-
-Unit::Unit(UnitType type)
-    : m_Type(type), m_Stats(UnitStatMap[type])
+UnitGroup::UnitGroup(UnitGroupType type)
+    : m_Type(type), m_IsSelected(false)
 {
+    m_Stats.push_back(new UnitStats(UnitGroupDataMap[type].Stats));
+}
+
+void UnitGroup::IncrementQuantity(int quantity)
+{
+    if (quantity > 0)
+        m_Stats.insert(m_Stats.end(), quantity, new UnitStats(UnitGroupDataMap[m_Type].Stats));
+    else
+        LOG_WARN("Trying to increment unit quantity with incorrect value: {0}", quantity);
 }

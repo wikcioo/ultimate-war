@@ -8,12 +8,22 @@
                 "kind": "build",
                 "isDefault": false
             },
-            "command": "make --no-print-directory -C . -f UltimateWar.make clean",
+            "linux": {
+                "command": "make --no-print-directory -C . -f UltimateWar.make clean",
+            },
+            "windows": {
+                "command": "msbuild .\\UltimateWar.sln /t:Clean"
+            }
         },
         {
             "label": "build",
             "type": "shell",
-            "command": "make -j",
+            "linux": {
+                "command": "make -j",
+            },
+            "windows": {
+                "command": "msbuild .\\UltimateWar.sln"
+            },
             "group": {
                 "kind": "build",
                 "isDefault": false
@@ -26,7 +36,12 @@
                 "kind": "build",
                 "isDefault": false
             },
-            "command": "make -j; if [ $? -eq 0 ] ; then ./bin/Debug-linux/UltimateWar ; fi",
+            "linux": {
+                "command": "make -j; if [ $? -eq 0 ] ; then ./bin/Debug-linux/UltimateWar ; fi",
+            },
+            "windows": {
+                "command": "msbuild .\\UltimateWar.sln; if (!$LastExitCode) { .\\bin\\Debug-windows\\UltimateWar.exe }"
+            }
         }
     ]
 }

@@ -18,14 +18,8 @@ Application::Application()
     m_Window = std::make_unique<Window>();
     m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
 
-    ResourceManager::LoadShader("color", "assets/shaders/color.glsl");
-    ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
-    ResourceManager::LoadTexture("star", "assets/textures/star.png");
-    ResourceManager::LoadTexture("swordsman", "assets/textures/units/swordsman.png");
-    ResourceManager::LoadTexture("archer", "assets/textures/units/archer.png");
-    ResourceManager::LoadTexture("dwarf", "assets/textures/units/dwarf.png");
-    ResourceManager::LoadTexture("demon", "assets/textures/units/demon.png");
-    ResourceManager::LoadTexture("harpy", "assets/textures/units/harpy.png");
+    LoadResources();
+    InitializeColors();
 
     Renderer2D::Init();
 
@@ -33,16 +27,12 @@ Application::Application()
     gameLayer->OnAttach();
     m_LayerStack.PushLayer(gameLayer);
 
-    UILayerData data = {
-        ._GameCamera = gameLayer->GetCameraController()->GetCamera(),
-        ._GameMap = gameLayer->GetGameMap()
-    };
-    UILayer* uiLayer = new UILayer(data);
+    UILayer* uiLayer = new UILayer();
     uiLayer->OnAttach();
     m_LayerStack.PushOverlay(uiLayer);
 
 #if defined(DEBUG)
-    auto debugLayer = new DebugLayer(gameLayer);
+    auto debugLayer = new DebugLayer();
     debugLayer->OnAttach();
     m_LayerStack.PushOverlay(debugLayer);
 #endif
@@ -85,4 +75,35 @@ void Application::Run()
 
         m_Window->OnUpdate();
     }
+}
+
+void Application::LoadResources()
+{
+    ResourceManager::LoadFont("vinque", "assets/fonts/vinque/vinque.otf");
+    ResourceManager::LoadFont("rexlia", "assets/fonts/rexlia/rexlia.otf");
+
+    ResourceManager::LoadShader("font", "assets/shaders/font.glsl");
+    ResourceManager::LoadShader("color", "assets/shaders/color.glsl");
+    ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
+
+    ResourceManager::LoadTexture("swordsman", "assets/textures/units/swordsman.png");
+    ResourceManager::LoadTexture("archer", "assets/textures/units/archer.png");
+    ResourceManager::LoadTexture("dwarf", "assets/textures/units/dwarf.png");
+    ResourceManager::LoadTexture("demon", "assets/textures/units/demon.png");
+    ResourceManager::LoadTexture("harpy", "assets/textures/units/harpy.png");
+
+    ResourceManager::LoadTexture("workshop", "assets/textures/buildings/workshop.png");
+    ResourceManager::LoadTexture("gold_mine", "assets/textures/buildings/gold_mine.png");
+    ResourceManager::LoadTexture("harpy_tower", "assets/textures/buildings/harpy_tower.png");
+    ResourceManager::LoadTexture("demon_castle", "assets/textures/buildings/demon_castle.png");
+    ResourceManager::LoadTexture("dragon_lair", "assets/textures/buildings/dragon_lair.png");
+
+}
+
+void Application::InitializeColors()
+{
+    ColorData::Get().TileColors.MiniMapColor = {0.2f, 0.2f, 0.2f, 1.0f};
+    ColorData::Get().TileColors.TileHoverBorderColor = {0.2f, 0.3f, 0.8f, 1.0f};
+    ColorData::Get().UITheme.ShopPanelBackgroundColor = {0.2f, 0.2f, 0.2f, 1.0f};
+    ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor = {0.5f, 0.5f, 0.5f, 1.0f};
 }

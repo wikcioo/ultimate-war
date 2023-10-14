@@ -25,6 +25,24 @@ glm::vec2 OrthographicCamera::ConvertRelativeSizeToPixel(const glm::vec2& size)
     return { pixelSizeX, pixelSizeY };
 }
 
+float OrthographicCamera::ConvertPixelSizeToRelative(float size, bool xAxis)
+{
+    auto result = ConvertPixelSizeToRelative({size, size});
+    return xAxis ? result.x : result.y;
+}
+
+glm::vec2 OrthographicCamera::ConvertPixelSizeToRelative(const glm::vec2& size)
+{
+    float relWidth = m_Zoom * m_AspectRatio;
+    float relHeight = m_Zoom;
+
+    static auto window = Application::Get().GetWindow();
+    float relSizeX = size.x * relWidth / window->GetWidth();
+    float relSizeY = size.y * relHeight / window->GetHeight();
+
+    return { relSizeX, relSizeY };
+}
+
 glm::vec2 OrthographicCamera::CalculateRelativeBottomLeftPosition()
 {
     float relWidth = m_Zoom * m_AspectRatio;
@@ -44,7 +62,11 @@ glm::vec2 OrthographicCamera::CalculateRelativeMousePosition()
     float relX = (mousePos.x * relWindowSize.x / pixelWidth) - m_Zoom * m_AspectRatio + m_Position.x;
     float relY = ((mousePos.y * relWindowSize.y / pixelHeight) - m_Zoom - m_Position.y) * -1;
 
-    return { relX, relY };
+    glm::vec2 offset = { relX - m_Position.x, relY - m_Position.y };
+    float r = glm::radians(m_Rotation);
+    float rotatedX = offset.x * glm::cos(r) - offset.y * glm::sin(r) + m_Position.x;
+    float rotatedY = offset.x * glm::sin(r) + offset.y * glm::cos(r) + m_Position.y;
+    return { rotatedX, rotatedY };
 }
 
 glm::vec2 OrthographicCamera::CalculateScreenRelativeMousePosition()

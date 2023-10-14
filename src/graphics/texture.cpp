@@ -12,10 +12,10 @@ static unsigned int TextureWrapToGL(TextureWrap wrap)
         case TextureWrap::CLAMP_TO_BORDER: return GL_CLAMP_TO_BORDER;
         case TextureWrap::MIRRORED_REPEAT: return GL_MIRRORED_REPEAT;
         case TextureWrap::REPEAT: return GL_REPEAT;
+        default:
+            LOG_ERROR("Unknown texture wrap option");
+            return GL_REPEAT;
     }
-
-    LOG_ERROR("Unknown texture wrap option");
-    return GL_REPEAT;
 }
 
 static unsigned int TextureFilterToGL(TextureFilter filter)
@@ -24,10 +24,10 @@ static unsigned int TextureFilterToGL(TextureFilter filter)
     {
         case TextureFilter::NEAREST: return GL_NEAREST;
         case TextureFilter::LINEAR: return GL_LINEAR;
+        default:
+            LOG_ERROR("Unknown texture filter option");
+            return GL_LINEAR;
     }
-
-    LOG_ERROR("Unknown texture filter option");
-    return GL_LINEAR;
 }
 
 Texture2D::Texture2D(const TextureData& data)
@@ -41,8 +41,12 @@ Texture2D::Texture2D(const TextureData& data)
     glTexParameteri(m_TextureTarget, GL_TEXTURE_MIN_FILTER, TextureFilterToGL(data.MinFilter));
     glTexParameteri(m_TextureTarget, GL_TEXTURE_MAG_FILTER, TextureFilterToGL(data.MagFilter));
 
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &data.BorderColor[0]);
+
     int format;
-    if (data.NrChannels == 3)
+    if (data.NrChannels == 1)
+        format = GL_RED;
+    else if (data.NrChannels == 3)
         format = GL_RGB;
     else if (data.NrChannels == 4)
         format = GL_RGBA;

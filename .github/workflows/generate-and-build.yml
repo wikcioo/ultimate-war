@@ -1,0 +1,68 @@
+name: Generate and Build
+
+on:
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  generate-and-build-linux:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+      - name: Initialize and Update Submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
+
+      - name: Install X11 dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl-dev
+
+      - name: Install premake
+        uses: abel0b/setup-premake@v2.3
+        with:
+          version: "5.0.0-beta2"
+
+      - name: Generate on Ubuntu
+        run: premake5 gmake
+
+      - name: Build Debug on Ubuntu
+        run: make -j config=debug
+
+      - name: Build Release on Ubuntu
+        run: make -j config=release
+
+  generate-and-build-windows:
+    runs-on: 'windows-latest'
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+      - name: Initialize and Update Submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
+
+      - name: Install premake
+        uses: abel0b/setup-premake@v2.3
+        with:
+          version: "5.0.0-beta2"
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Generate on Windows
+        run: premake5 vs2022
+
+      - name: Build Debug on Windows
+        run: msbuild .\\UltimateWar.sln /p:Configuration=Debug
+
+      - name: Build Release on Windows
+        run: msbuild .\\UltimateWar.sln /p:Configuration=Release

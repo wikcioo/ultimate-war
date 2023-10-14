@@ -1,6 +1,12 @@
 #pragma once
 
 #include <string>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
+#include <functional>
+
+#include <glm/glm.hpp>
 
 class Util
 {
@@ -22,5 +28,31 @@ public:
         size_t lastDot = file.find_last_of('.');
         size_t count = lastDot == std::string::npos ? file.length() : lastDot;
         return file.substr(0, count);
+    }
+
+    static std::string GenerateAnonymousName()
+    {
+        static int anonymousNameCount = 1;
+        std::stringstream ss;
+        ss << "Anonymous#" << std::setw(4) << std::setfill('0') << std::right << anonymousNameCount++;
+        return ss.str();
+    }
+
+    static bool IsPointInRectangle(const glm::vec2& rectCenter, const glm::vec2& rectSize, const glm::vec2& point)
+    {
+        return (rectCenter.x - rectSize.x / 2 <= point.x && rectCenter.x + rectSize.x / 2 >= point.x &&
+                rectCenter.y - rectSize.y / 2 <= point.y && rectCenter.y + rectSize.y / 2 >= point.y);
+    }
+
+    template <typename T>
+    static T Clamp(T v1, T lower, T upper)
+    {
+        return glm::max(glm::min(v1, upper), lower);
+    }
+
+    template <typename T, typename P>
+    static void RemoveElementsFromContainerWithCondition(T& container, std::function<bool(P)> func)
+    {
+        container.erase(std::remove_if(container.begin(), container.end(), func), container.end());
     }
 };

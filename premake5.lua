@@ -19,8 +19,9 @@ workspace "UltimateWar"
 project "UltimateWar"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"
 	architecture "x86_64"
+    warnings "Default"
 
     targetdir "bin/%{cfg.buildcfg}-%{cfg.system}"
     objdir "obj/%{cfg.buildcfg}-%{cfg.system}"
@@ -33,7 +34,8 @@ project "UltimateWar"
         "vendor/glad/include/",
         "vendor/glfw/include/",
         "vendor/imgui/backends",
-        "vendor/spdlog/include/"
+        "vendor/spdlog/include/",
+        "vendor/freetype/include/"
     }
 
     files {
@@ -41,9 +43,10 @@ project "UltimateWar"
         "src/**.cpp"
     }
 
-    links { "GLFW", "GLM", "GLAD", "ImGui", "stb" }
+    links { "GLFW", "GLM", "GLAD", "ImGui", "stb", "spdlog", "FreeType" }
 
     filter "system:linux"
+        toolset "clang"
         links { "dl", "pthread" }
         defines { "_X11" }
 
@@ -56,3 +59,5 @@ group "Dependencies"
     include "vendor/glm.lua"
     include "vendor/imgui.lua"
     include "vendor/stb.lua"
+    include "vendor/spdlog.lua"
+    include "vendor/freetype.lua"
