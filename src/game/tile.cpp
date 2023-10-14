@@ -210,6 +210,7 @@ void Tile::ChangeOwnership(std::shared_ptr<Player> player)
 {
     if(m_OwnedBy != nullptr)
         m_OwnedBy->RemoveOwnedTile(shared_from_this());
+
     player->AddOwnedTile(shared_from_this());
 }
 
@@ -221,7 +222,7 @@ void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
         return;
     }
 
-    if(CalculateAttackOutcome(destTile))
+    if(Battle::CalculateBattleOutcome(shared_from_this(), destTile) == BattleOutcome::ATTACKER_WON)
     {
         destTile->GetUnitGroups().clear();
         auto defender = destTile->GetOwnedBy();
@@ -230,23 +231,6 @@ void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
 
         GameLayer::Get().GetPlayerManager()->UpdatePlayerStatus(defender);
     }
-    else
-    {
-        EraseSelectedUnitGroups();
-    }
-}
-
-bool Tile::CalculateAttackOutcome(std::shared_ptr<Tile> destTile)
-{
-    int destUnitGroupCount = destTile->GetUnitGroups().size();
-    int attackerUnitGroupCount = 0;
-    for (auto unit : m_UnitGroups)
-    {
-        if (unit->IsSelected())
-            attackerUnitGroupCount++;
-    }
-
-    return attackerUnitGroupCount > destUnitGroupCount;
 }
 
 void Tile::TransferUnitGroupsToTile(std::shared_ptr<Tile> destTile)

@@ -69,7 +69,6 @@ public:
 private:
     void DrawUnitGroups();
     void DrawBuildings();
-    bool CalculateAttackOutcome(std::shared_ptr<Tile> destTile);
     void EraseSelectedUnitGroups();
     void TransferUnitGroupsToTile(std::shared_ptr<Tile> destTile);
     DrawData GetUnitGroupDrawData();
