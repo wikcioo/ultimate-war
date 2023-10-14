@@ -26,7 +26,7 @@ public:
     struct
     {
         glm::vec4 ShopPanelBackgroundColor;
-        glm::vec4 ShopPanelHighlighUnitColor;
+        glm::vec4 ShopPanelHighlighUnitGroupColor;
     } UITheme;
 
 private:

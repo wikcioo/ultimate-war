@@ -103,5 +103,5 @@ void Application::InitializeColors()
     ColorData::Get().TileColors.MiniMapColor = {0.2f, 0.2f, 0.2f, 1.0f};
     ColorData::Get().TileColors.TileHoverBorderColor = {0.2f, 0.3f, 0.8f, 1.0f};
     ColorData::Get().UITheme.ShopPanelBackgroundColor = {0.2f, 0.2f, 0.2f, 1.0f};
-    ColorData::Get().UITheme.ShopPanelHighlighUnitColor = {0.5f, 0.5f, 0.5f, 1.0f};
+    ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor = {0.5f, 0.5f, 0.5f, 1.0f};
 }

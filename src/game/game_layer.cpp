@@ -39,9 +39,9 @@ void GameLayer::OnAttach()
     for (auto player : m_PlayerManager->GetAllPlayers())
     {
         auto tile = m_GameMapManager->GetGameMap()->GetTile(i-1, i+1);
-        tile->CreateUnit(UnitType::SWORDSMAN);
-        tile->CreateUnit(UnitType::DWARF);
-        tile->CreateUnit(UnitType::DEMON);
+        tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
+        tile->CreateUnitGroup(UnitGroupType::DWARF);
+        tile->CreateUnitGroup(UnitGroupType::DEMON);
         tile->CreateBuilding(BuildingType::DRAGON_LAIR);
         player->AddOwnedTile(tile);
         i++;
@@ -127,7 +127,7 @@ void GameLayer::ResetArrow()
 {
     for(auto tile : m_PlayerManager->GetCurrentPlayer()->GetOwnedTiles())
     {
-        tile->DeselectAllUnits();
+        tile->DeselectAllUnitGroups();
     }
     m_Arrow->SetVisible(false);
 }
@@ -157,7 +157,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
                 {
                     if (tile->GetType() != 0)
                     {
-                        if (m_Arrow->GetStartTile()->HasSelectedUnits())
+                        if (m_Arrow->GetStartTile()->HasSelectedUnitGroups())
                         {
                             if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
                             {
@@ -165,27 +165,27 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
                             }
                             else
                             {
-                                m_Arrow->GetStartTile()->DeselectAllUnits();
+                                m_Arrow->GetStartTile()->DeselectAllUnitGroups();
                             }
                         }
                         else if (tile->GetOwnedBy() == currentPlayer)
                         {
                             m_Arrow->SetStartTile(tile);
-                            tile->HandleUnitMouseClick(relMousePos);
+                            tile->HandleUnitGroupMouseClick(relMousePos);
                         }
                     }
                     else
                     {
-                        m_Arrow->GetStartTile()->DeselectAllUnits();
+                        m_Arrow->GetStartTile()->DeselectAllUnitGroups();
                     }
                 }
                 else if (tile->GetOwnedBy() == currentPlayer)
                 {
-                    if (!tile->HandleUnitMouseClick(relMousePos))
+                    if (!tile->HandleUnitGroupMouseClick(relMousePos))
                     {
-                        if (!tile->IsMouseClickedInsideUnitsBox(relMousePos))
+                        if (!tile->IsMouseClickedInsideUnitGroupsBox(relMousePos))
                         {
-                            tile->DeselectAllUnits();
+                            tile->DeselectAllUnitGroups();
                         }
                     }
                 }
@@ -196,10 +196,10 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     }
 
     if (m_Arrow->GetStartTile())
-        m_Arrow->GetStartTile()->DeselectAllUnits();
+        m_Arrow->GetStartTile()->DeselectAllUnitGroups();
 
     tile_in_range:
-    m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnits());
+    m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
 
     return true;
 }

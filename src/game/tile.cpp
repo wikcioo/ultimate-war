@@ -9,12 +9,13 @@
 #include "game/player.h"
 #include "util/util.h"
 #include "game/game_layer.h"
+#include "game/battle.h"
 
 float Tile::s_BackgroundHeightRatio = 0.8f;
 
-int Tile::s_UnitRows = 2;
-int Tile::s_UnitsPerRow = 5;
-int Tile::s_UnitWidthToOffsetRatio = 10;
+int Tile::s_UnitGroupRows = 2;
+int Tile::s_UnitGroupsPerRow = 5;
+int Tile::s_UnitGroupWidthToOffsetRatio = 10;
 
 int Tile::s_BuildingRows = 1;
 int Tile::s_BuildingsPerRow = 5;
@@ -36,16 +37,16 @@ Tile::Tile(int type, const glm::ivec2& coords)
 
 Tile::~Tile()
 {
-    for (auto unit : m_Units)
+    for (auto unit : m_UnitGroups)
         delete unit;
 }
 
-void Tile::CreateUnit(UnitType type)
+void Tile::CreateUnitGroup(UnitGroupType type)
 {
     if (m_Type != 0)
-        m_Units.emplace_back(new Unit(type));
+        m_UnitGroups.emplace_back(new UnitGroup(type));
     else
-        LOG_WARN("Trying to add unit of type '{0}' to non-existent tile", UnitDataMap[type].TextureName);
+        LOG_WARN("Trying to add unit of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
 }
 
 void Tile::CreateBuilding(BuildingType type)
@@ -67,11 +68,11 @@ void Tile::Draw(const glm::vec4& color)
     }
 
 
-    DrawUnits();
+    DrawUnitGroups();
     DrawBuildings();
 }
 
-DrawData Tile::GetUnitDrawData()
+DrawData Tile::GetUnitGroupDrawData()
 {
     float L = TILE_WIDTH / 2 * s_BackgroundHeightRatio;
     float dx = glm::cos(glm::radians(60.0f)) * L;
@@ -80,10 +81,10 @@ DrawData Tile::GetUnitDrawData()
     glm::vec2 bgPos = {m_Position.x, m_Position.y + dy / 2};
     glm::vec2 bgSize = {TILE_WIDTH - 2 * dx, dy};
 
-    float unitOffsetWidth  = bgSize.x / ((s_UnitsPerRow * s_UnitWidthToOffsetRatio) + s_UnitsPerRow + 1);
-    float unitWidth        = s_UnitWidthToOffsetRatio * unitOffsetWidth;
+    float unitOffsetWidth  = bgSize.x / ((s_UnitGroupsPerRow * s_UnitGroupWidthToOffsetRatio) + s_UnitGroupsPerRow + 1);
+    float unitWidth        = s_UnitGroupWidthToOffsetRatio * unitOffsetWidth;
     float unitHeight       = glm::min(bgSize.y / 2, unitWidth);
-    float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * s_UnitRows)) / (s_UnitRows + 1));
+    float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * s_UnitGroupRows)) / (s_UnitGroupRows + 1));
 
     float currentX = bgPos.x - (bgSize.x - unitWidth) / 2 + unitOffsetWidth;
     float currentY = bgPos.y + (bgSize.y - unitHeight) / 2 - unitOffsetHeight;
@@ -125,18 +126,18 @@ DrawData Tile::GetBuildingDrawData()
     };
 }
 
-void Tile::DrawUnits()
+void Tile::DrawUnitGroups()
 {
-    if (m_Units.empty()) return;
+    if (m_UnitGroups.empty()) return;
 
-    auto unitData = GetUnitDrawData();
+    auto unitData = GetUnitGroupDrawData();
     float initialX = unitData.Position.x;
 
     Renderer2D::DrawQuad(unitData.BackgroundPosition, unitData.BackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
 
-    for (int i = 0; i < m_Units.size(); i++)
+    for (int i = 0; i < m_UnitGroups.size(); i++)
     {
-        if (m_Units[i]->IsSelected())
+        if (m_UnitGroups[i]->IsSelected())
         {
             Renderer2D::DrawQuad(
                 unitData.Position,
@@ -148,10 +149,10 @@ void Tile::DrawUnits()
         Renderer2D::DrawQuad(
             unitData.Position,
             unitData.Size,
-            ResourceManager::GetTexture(UnitDataMap[m_Units[i]->GetType()].TextureName)
+            ResourceManager::GetTexture(UnitGroupDataMap[m_UnitGroups[i]->GetType()].TextureName)
         );
 
-        if ((i + 1) % s_UnitsPerRow == 0)
+        if ((i + 1) % s_UnitGroupsPerRow == 0)
         {
             unitData.Position.x = initialX;
             unitData.Position.y -= (unitData.OffsetSize.y + unitData.Size.y);
@@ -209,6 +210,7 @@ void Tile::ChangeOwnership(std::shared_ptr<Player> player)
 {
     if(m_OwnedBy != nullptr)
         m_OwnedBy->RemoveOwnedTile(shared_from_this());
+
     player->AddOwnedTile(shared_from_this());
 }
 
@@ -216,77 +218,61 @@ void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
 {
     if(destTile->m_OwnedBy == m_OwnedBy)
     {
-        TransferUnitsToTile(destTile);
+        TransferUnitGroupsToTile(destTile);
         return;
     }
 
-    if(CalculateAttackOutcome(destTile))
+    if(Battle::CalculateBattleOutcome(shared_from_this(), destTile) == BattleOutcome::ATTACKER_WON)
     {
-        destTile->GetUnits().clear();
+        destTile->GetUnitGroups().clear();
         auto defender = destTile->GetOwnedBy();
         destTile->ChangeOwnership(this->m_OwnedBy);
-        TransferUnitsToTile(destTile);
+        TransferUnitGroupsToTile(destTile);
 
         GameLayer::Get().GetPlayerManager()->UpdatePlayerStatus(defender);
     }
-    else
-    {
-        EraseSelectedUnits();
-    }
 }
 
-bool Tile::CalculateAttackOutcome(std::shared_ptr<Tile> destTile)
-{
-    int destUnitCount = destTile->GetUnits().size();
-    int attackerUnitCount = 0;
-    for (auto unit : m_Units)
-    {
-        if (unit->IsSelected())
-            attackerUnitCount++;
-    }
-
-    return attackerUnitCount > destUnitCount;
-}
-
-void Tile::TransferUnitsToTile(std::shared_ptr<Tile> destTile)
+void Tile::TransferUnitGroupsToTile(std::shared_ptr<Tile> destTile)
 {
     if (destTile.get() == this) return;
 
-    for (auto unit : m_Units)
+    for (auto unit : m_UnitGroups)
     {
         if (!unit->IsSelected()) continue;
 
-        destTile->GetUnits().push_back(unit);
+        destTile->GetUnitGroups().push_back(unit);
     }
 
-    EraseSelectedUnits();
+    EraseSelectedUnitGroups();
 
-    destTile->DeselectAllUnits();
+    destTile->DeselectAllUnitGroups();
 }
 
-void Tile::EraseSelectedUnits()
+void Tile::EraseSelectedUnitGroups()
 {
-    m_Units.erase(std::remove_if(m_Units.begin(), m_Units.end(), [](Unit* unit) {
+    m_UnitGroups.erase(std::remove_if(m_UnitGroups.begin(), m_UnitGroups.end(), [](UnitGroup* unit) {
         return unit->IsSelected();
-    }), m_Units.end());
+    }), m_UnitGroups.end());
 }
-bool Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
+
+bool Tile::HandleUnitGroupMouseClick(const glm::vec2& relMousePos)
 {
-    auto unitData = GetUnitDrawData();
+    auto unitData = GetUnitGroupDrawData();
     float initialX = unitData.Position.x;
 
-    for (int i = 0; i < m_Units.size(); i++)
+    for (int i = 0; i < m_UnitGroups.size(); i++)
     {
         if (Util::IsPointInRectangle(
             unitData.Position,
             unitData.Size,
              relMousePos))
         {
-            m_Units[i]->ToggleSelected();
+            m_UnitGroups[i]->ToggleSelected();
             return true;
         }
 
-        if ((i + 1) % s_UnitsPerRow == 0)
+        if ((i + 1) % s_UnitGroupsPerRow == 0)
         {
             unitData.Position.x = initialX;
             unitData.Position.y -= (unitData.OffsetSize.y + unitData.Size.y);
@@ -300,15 +286,15 @@ bool Tile::HandleUnitMouseClick(const glm::vec2& relMousePos)
     return false;
 }
 
-bool Tile::IsMouseClickedInsideUnitsBox(const glm::vec2& relMousePos)
+bool Tile::IsMouseClickedInsideUnitGroupsBox(const glm::vec2& relMousePos)
 {
-    auto unitData = GetUnitDrawData();
+    auto unitData = GetUnitGroupDrawData();
     return Util::IsPointInRectangle(unitData.BackgroundPosition, unitData.BackgroundSize, relMousePos);
 }
 
-void Tile::DeselectAllUnits()
+void Tile::DeselectAllUnitGroups()
 {
-    for (auto unit : m_Units)
+    for (auto unit : m_UnitGroups)
         unit->SetSelected(false);
 }
 
@@ -346,9 +332,9 @@ bool Tile::InRange(const glm::vec2& cursorPos)
     return true;
 }
 
-bool Tile::HasSelectedUnits()
+bool Tile::HasSelectedUnitGroups()
 {
-    for (auto unit : m_Units)
+    for (auto unit : m_UnitGroups)
     {
         if (unit->IsSelected())
             return true;
