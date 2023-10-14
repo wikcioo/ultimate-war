@@ -203,6 +203,7 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
                 if (tile->GetOwnedBy() == currentPlayer)
                 {
                     if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE &&
+                        tile->CanRecruitUnitGroup(m_CursorAttachedAsset.UnitGroupType) &&
                         currentPlayer->SubtractGold(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].Cost))
                     {
                         tile->CreateUnitGroup(m_CursorAttachedAsset.UnitGroupType);
