@@ -3,6 +3,8 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
+#include <functional>
 
 #include <glm/glm.hpp>
 
@@ -46,5 +48,11 @@ public:
     static T Clamp(T v1, T lower, T upper)
     {
         return glm::max(glm::min(v1, upper), lower);
+    }
+
+    template <typename T, typename P>
+    static void RemoveElementsFromContainerWithCondition(T& container, std::function<bool(P)> func)
+    {
+        container.erase(std::remove_if(container.begin(), container.end(), func), container.end());
     }
 };
