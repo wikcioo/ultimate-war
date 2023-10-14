@@ -13,13 +13,13 @@ std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap = {
 UnitGroup::UnitGroup(UnitGroupType type)
     : m_Type(type), m_IsSelected(false)
 {
-    m_Stats.push_back(UnitGroupDataMap[type].Stats);
+    m_Stats.push_back(new UnitStats(UnitGroupDataMap[type].Stats));
 }
 
 void UnitGroup::IncrementQuantity(int quantity)
 {
     if (quantity > 0)
-        m_Stats.insert(m_Stats.end(), quantity, UnitGroupDataMap[m_Type].Stats);
+        m_Stats.insert(m_Stats.end(), quantity, new UnitStats(UnitGroupDataMap[m_Type].Stats));
     else
         LOG_WARN("Trying to increment unit quantity with incorrect value: {0}", quantity);
 }
