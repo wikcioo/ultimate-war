@@ -3,11 +3,11 @@
 #include "core/logger.h"
 
 std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap = {
-    {UnitGroupType::SWORDSMAN, {10, {6,   3,  5}, "swordsman"}},
-    {UnitGroupType::ARCHER,    {8,  {5,   5,  3},    "archer"}},
-    {UnitGroupType::DWARF,     {7,  {3,   3,  3},     "dwarf"}},
-    {UnitGroupType::DEMON,     {11, {2,  10,  4},     "demon"}},
-    {UnitGroupType::HARPY,     {9,  {10,  1,  2},     "harpy"}}
+    {UnitGroupType::SWORDSMAN, {5,  {3,  4,  6}, "swordsman"}},
+    {UnitGroupType::ARCHER,    {6,  {5,  2,  4},    "archer"}},
+    {UnitGroupType::DWARF,     {7,  {4,  6,  8},     "dwarf"}},
+    {UnitGroupType::DEMON,     {10, {8,  3,  7},     "demon"}},
+    {UnitGroupType::HARPY,     {9,  {6,  1,  5},     "harpy"}}
 };
 
 UnitGroup::UnitGroup(UnitGroupType type)
