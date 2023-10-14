@@ -4,6 +4,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "game/building.h"
+
 enum class UnitGroupType
 {
     SWORDSMAN,
@@ -27,6 +29,7 @@ struct UnitGroupData
     int Cost;
     UnitStats Stats;
     std::string TextureName;
+    BuildingType RequiredBuilding;
 };
 
 extern std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap;

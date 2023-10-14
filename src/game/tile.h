@@ -31,6 +31,7 @@ public:
 
     void MoveToTile(std::shared_ptr<Tile> destTile);
     void CreateUnitGroup(UnitGroupType type);
+    bool CanRecruitUnitGroup(UnitGroupType type);
     void CreateBuilding(BuildingType type);
     void DeselectAllUnitGroups();
     void Draw(const glm::vec4& color);

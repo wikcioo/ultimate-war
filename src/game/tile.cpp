@@ -1,6 +1,7 @@
 #include "tile.h"
 
 #include <vector>
+#include <algorithm>
 
 #include "core/logger.h"
 #include "core/resource_manager.h"
@@ -47,6 +48,27 @@ void Tile::CreateUnitGroup(UnitGroupType type)
         m_UnitGroups.emplace_back(new UnitGroup(type));
     else
         LOG_WARN("Trying to add unit of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
+}
+
+bool Tile::CanRecruitUnitGroup(UnitGroupType type)
+{
+    if (type == UnitGroupType::NONE || type == UnitGroupType::COUNT)
+        return false;
+
+    BuildingType requirement = UnitGroupDataMap[type].RequiredBuilding;
+    if (requirement == BuildingType::NONE)
+        return true;
+
+    auto it = std::find_if(
+        m_Buildings.begin(),
+        m_Buildings.end(),
+        [requirement](const Building* b)
+        {
+            return requirement == b->GetType();
+        }
+    );
+
+    return it != m_Buildings.end();
 }
 
 void Tile::CreateBuilding(BuildingType type)

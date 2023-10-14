@@ -94,6 +94,8 @@ void Application::LoadResources()
 
     ResourceManager::LoadTexture("workshop", "assets/textures/buildings/workshop.png");
     ResourceManager::LoadTexture("gold_mine", "assets/textures/buildings/gold_mine.png");
+    ResourceManager::LoadTexture("harpy_tower", "assets/textures/buildings/harpy_tower.png");
+    ResourceManager::LoadTexture("demon_castle", "assets/textures/buildings/demon_castle.png");
     ResourceManager::LoadTexture("dragon_lair", "assets/textures/buildings/dragon_lair.png");
 
 }
