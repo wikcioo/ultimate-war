@@ -24,6 +24,7 @@ public:
     virtual void Draw() override;
 
 private:
+    bool OnWindowResized(WindowResizedEvent& event);
     bool OnMouseScrolled(MouseScrolledEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
     bool OnMouseButtonPressedPanel(MouseButtonPressedEvent& event);
@@ -43,6 +44,7 @@ private:
     glm::vec2 m_AssetSize;
     float m_AssetPriceSize;
     std::string m_AssetPriceFontName;
+    glm::vec2 m_Offset;
 
     struct
     {
