@@ -14,7 +14,7 @@ ShopPanel::ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const 
                      const glm::vec2& assetSize, float assetOffset)
     : UIElement(UICamera, UICamera->CalculateRelativeBottomLeftPosition() + offset,
       glm::vec2(5 * (assetSize.x + assetOffset) + assetOffset, assetSize.y + assetOffset)),
-      m_AssetSize(assetSize), m_AssetOffset(assetOffset),
+      m_AssetSize(assetSize), m_AssetOffset(assetOffset), m_Offset(offset),
       m_UnitGroupCount((int)UnitGroupType::COUNT), m_BuildingCount((int)BuildingType::COUNT),
       m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.25f), m_AssetPriceFontName("rexlia")
 {
@@ -24,6 +24,7 @@ void ShopPanel::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(ShopPanel::OnKeyPressed));
+    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(ShopPanel::OnWindowResized));
 
     auto mousePos = m_UICamera->CalculateRelativeMousePosition();
     if (mousePos.x > m_Position.x && mousePos.x < m_Position.x + m_Size.x &&
@@ -131,6 +132,12 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
             m_AssetPriceFontName
         );
     }
+}
+
+bool ShopPanel::OnWindowResized(WindowResizedEvent& event)
+{
+    m_Position = m_UICamera->CalculateRelativeBottomLeftPosition() + m_Offset;
+    return false;
 }
 
 bool ShopPanel::OnMouseScrolled(MouseScrolledEvent& event)

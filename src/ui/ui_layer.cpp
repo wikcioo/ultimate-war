@@ -66,5 +66,6 @@ void UILayer::OnEvent(Event& event)
 bool UILayer::OnWindowResized(WindowResizedEvent& event)
 {
     m_UICamera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+    m_UICamera->SetScale(event.GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS);
     return false;
 }

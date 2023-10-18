@@ -19,15 +19,16 @@ void Info::Draw()
 
     float scale = 0.6f;
     auto currPlayer = m_PlayerManager->GetCurrentPlayer();
-    auto aspectRatio = m_UICamera->GetAspectRatio();
+    auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
+    auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
 
     std::string gold = "Gold: " + std::to_string(currPlayer->GetGold());
     std::string turn = "Turn: " + std::to_string(GameLayer::Get().GetIteration());
     std::string player = "Player: " + currPlayer->GetName();
 
-    Renderer2D::DrawTextStr(gold, { -aspectRatio + 0.1f, 0.9f }, scale, currPlayer->GetColor(), TextAlignment::LEFT);
-    Renderer2D::DrawTextStr(turn, { aspectRatio - 0.1f, 0.9f }, scale, currPlayer->GetColor(), TextAlignment::RIGHT);
-    Renderer2D::DrawTextStr(player, { 0.0f, 0.9f }, scale, currPlayer->GetColor(), TextAlignment::MIDDLE);
+    Renderer2D::DrawTextStr(gold, { -halfOfWidth + 0.1f, halfOfHeight - 0.1f }, scale, currPlayer->GetColor(), TextAlignment::LEFT);
+    Renderer2D::DrawTextStr(turn, { halfOfWidth - 0.1f, halfOfHeight - 0.1f }, scale, currPlayer->GetColor(), TextAlignment::RIGHT);
+    Renderer2D::DrawTextStr(player, { 0.0f, halfOfHeight - 0.1f }, scale, currPlayer->GetColor(), TextAlignment::MIDDLE);
 
     Renderer2D::EndScene();
 }

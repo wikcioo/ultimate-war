@@ -2,6 +2,9 @@
 
 #include <glm/glm.hpp>
 
+// Initial relative height is 2.0f
+#define INITIAL_RELATIVE_HEIGHT_IN_PIXELS 1080.0f
+
 class OrthographicCamera
 {
 public:
@@ -20,11 +23,15 @@ public:
     void SetAspectRatio(float ratio);
     void SetRotation(float rotation);
     void SetZoom(float zoom);
+    void SetScale(float scale);
 
     inline glm::vec3 GetPosition() const { return m_Position; }
     inline float GetAspectRatio() const { return m_AspectRatio; }
     inline float GetRotation() const { return m_Rotation; }
     inline float GetZoom() const { return m_Zoom; }
+
+    float GetHalfOfRelativeHeight();
+    float GetHalfOfRelativeWidth();
 
     inline glm::mat4 GetProjectionViewMatrix() const { return m_ProjectionView; }
 
@@ -42,4 +49,5 @@ private:
     float m_AspectRatio;
     float m_Rotation;
     float m_Zoom;
+    float m_Scale;
 };
