@@ -102,8 +102,12 @@ void Application::LoadResources()
 
 void Application::InitializeColors()
 {
-    ColorData::Get().TileColors.MiniMapColor = {0.2f, 0.2f, 0.2f, 1.0f};
-    ColorData::Get().TileColors.TileHoverBorderColor = {0.2f, 0.3f, 0.8f, 1.0f};
-    ColorData::Get().UITheme.ShopPanelBackgroundColor = {0.2f, 0.2f, 0.2f, 1.0f};
-    ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor = {0.5f, 0.5f, 0.5f, 1.0f};
+    ColorData::Get().TileColors.MiniMapColor = { 0.2f, 0.2f, 0.2f, 1.0f };
+    ColorData::Get().TileColors.TileHoverBorderColor = { 0.95f, 0.8f, 0.2f, 1.0f };
+    ColorData::Get().UITheme.ShopPanelBackgroundColor = { 0.4f, 0.4f, 0.4f, 1.0f };
+    ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor = { 0.5f, 0.5f, 0.5f, 1.0f };
+    ColorData::Get().Resources.Wood = { 0.545f, 0.270f, 0.075f };
+    ColorData::Get().Resources.Rock = { 0.5f, 0.5f, 0.5f };
+    ColorData::Get().Resources.Steel = { 0.7f, 0.7f, 0.7f };
+    ColorData::Get().Resources.Gold = { 0.984f, 0.792f, 0.188f };
 }

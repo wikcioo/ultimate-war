@@ -12,6 +12,8 @@
 #define TILE_HEIGHT (glm::sqrt(3))
 #define TILE_OFFSET  0.1f
 
+class Player;
+
 struct DrawData
 {
     glm::vec2 Size;
@@ -20,8 +22,6 @@ struct DrawData
     glm::vec2 BackgroundPosition;
     glm::vec2 BackgroundSize;
 };
-
-class Player;
 
 class Tile : public std::enable_shared_from_this<Tile>
 {
@@ -42,7 +42,7 @@ public:
     bool IsMouseClickedInsideUnitGroupsBox(const glm::vec2& relMousePos);
 
     inline const int GetType() const { return m_Type; }
-    inline const int GetValue() const { return m_Value; }
+    inline const Resources GetResources() const { return m_Resources; }
     inline const std::shared_ptr<Player> GetOwnedBy() const { return m_OwnedBy; }
     std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
@@ -77,7 +77,7 @@ private:
 
 private:
     int m_Type;
-    int m_Value;
+    Resources m_Resources;
     glm::ivec2 m_Coords;
     glm::vec2 m_Position;
     std::shared_ptr<Player> m_OwnedBy;

@@ -25,15 +25,8 @@ int Tile::s_BuildingWidthToOffsetRatio = 10;
 Tile::Tile(int type, const glm::ivec2& coords)
     : m_Type(type), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
 {
-    // TODO(Viktor): Refactor the value to be based on buildings, once implemented
-    switch (type)
-    {
-        case 0: m_Value = 0; break;
-        case 1: m_Value = 10; break;
-        case 2: m_Value = 20; break;
-        default:
-            m_Value = 0;
-    }
+    // TODO(Viktor): Get values based on tile environment
+    m_Resources = { 1, 1, 1, 1 };
 }
 
 Tile::~Tile()

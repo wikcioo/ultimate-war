@@ -2,21 +2,21 @@
 
 #include <algorithm>
 
-Player::Player(const std::string& name, const glm::vec3& color, int gold)
-    :  m_Name(name), m_Color(color), m_Gold(gold)
+Player::Player(const std::string& name, const glm::vec3& color, Resources resources)
+    :  m_Name(name), m_Color(color), m_Resources(resources)
 {
 }
 
-void Player::AddGold(int amount)
+void Player::AddResources(Resources& resources)
 {
-    m_Gold += amount;
+    m_Resources += resources;
 }
 
-bool Player::SubtractGold(int amount)
+bool Player::SubtractResources(Resources& resources)
 {
-    if (m_Gold >= amount)
+    if (m_Resources >= resources)
     {
-        m_Gold -= amount;
+        m_Resources -= resources;
         return true;
     }
 
@@ -36,8 +36,8 @@ void Player::RemoveOwnedTile(std::shared_ptr<Tile> tile)
         m_OwnedTiles.erase(it);
 }
 
-void Player::CollectGoldFromOwnedTiles()
+void Player::CollectResourcesFromOwnedTiles()
 {
     for (auto tile : m_OwnedTiles)
-        m_Gold += tile->GetValue();
+        m_Resources += tile->GetResources();
 }

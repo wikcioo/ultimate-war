@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "game/building.h"
+#include "game/resource.h"
 
 enum class UnitGroupType
 {
@@ -26,7 +27,7 @@ struct UnitStats
 
 struct UnitGroupData
 {
-    int Cost;
+    Resources Cost;
     UnitStats Stats;
     std::string TextureName;
     BuildingType RequiredBuilding;

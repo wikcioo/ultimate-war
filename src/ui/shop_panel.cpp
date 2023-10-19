@@ -84,7 +84,7 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
         }
 
         Renderer2D::DrawTextStr(
-            std::to_string(unitData.Cost),
+            std::to_string(unitData.Cost.Gold),
             {unitPos.x + m_AssetSize.x / 2, unitPos.y - m_AssetSize.y / 2},
             m_AssetPriceSize,
             glm::vec3(1.0f),
@@ -124,7 +124,7 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
         }
 
         Renderer2D::DrawTextStr(
-            std::to_string(buildingData.Cost),
+            std::to_string(buildingData.Cost.Gold),
             {buildingPos.x + m_AssetSize.x / 2, buildingPos.y - m_AssetSize.y / 2},
             m_AssetPriceSize,
             glm::vec3(1.0f),
@@ -211,13 +211,13 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
                 {
                     if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE &&
                         tile->CanRecruitUnitGroup(m_CursorAttachedAsset.UnitGroupType) &&
-                        currentPlayer->SubtractGold(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].Cost))
+                        currentPlayer->SubtractResources(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].Cost))
                     {
                         tile->CreateUnitGroup(m_CursorAttachedAsset.UnitGroupType);
                         return true;
                     }
                     else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE &&
-                             currentPlayer->SubtractGold(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
+                             currentPlayer->SubtractResources(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
                     {
                         tile->CreateBuilding(m_CursorAttachedAsset.BuildingType);
                         return true;

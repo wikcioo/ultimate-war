@@ -30,7 +30,7 @@ void PlayerManager::NextTurn()
         NextTurn();
 
     if (GameLayer::Get().GetIteration() != 0)
-        m_Players[m_CurrentPlayerIndex]->CollectGoldFromOwnedTiles();
+        m_Players[m_CurrentPlayerIndex]->CollectResourcesFromOwnedTiles();
 }
 
 bool PlayerManager::IsInactivePlayer(const std::shared_ptr<Player> player)
