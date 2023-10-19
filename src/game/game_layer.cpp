@@ -34,6 +34,12 @@ void GameLayer::OnAttach()
 {
     m_GameMapManager->Load("environments");
 
+    glm::vec2 mapMiddle = {
+        (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) / 2.0f) - TILE_HEIGHT / 2.0f,
+        (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) / 2.0f) - (TILE_HEIGHT + TILE_OFFSET) / 2.0f
+    };
+    m_CameraController->GetCamera()->SetPosition(glm::vec3(mapMiddle, 0.0f));
+
 #if defined(DEBUG)
     int i = 6;
     for (auto player : m_PlayerManager->GetAllPlayers())
