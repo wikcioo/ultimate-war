@@ -32,13 +32,13 @@ GameLayer::GameLayer()
 
 void GameLayer::OnAttach()
 {
-    m_GameMapManager->Load("simple");
+    m_GameMapManager->Load("environments");
 
 #if defined(DEBUG)
-    int i = 2;
+    int i = 6;
     for (auto player : m_PlayerManager->GetAllPlayers())
     {
-        auto tile = m_GameMapManager->GetGameMap()->GetTile(i-1, i+1);
+        auto tile = m_GameMapManager->GetGameMap()->GetTile(i, 5);
         tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
         tile->CreateUnitGroup(UnitGroupType::DWARF);
         tile->CreateUnitGroup(UnitGroupType::DEMON);
@@ -57,7 +57,7 @@ void GameLayer::OnUpdate(float dt)
 {
     m_CameraController->OnUpdate(dt);
 
-    Renderer2D::ClearColor({0.0f, 0.5f, 1.0f, 1.0f});
+    Renderer2D::ClearColor({0.2f, 0.2f, 0.2f, 1.0f});
 
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
@@ -69,27 +69,29 @@ void GameLayer::OnUpdate(float dt)
         {
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
-            glm::vec4 tileColor;
+            bool isInRange = false;
             if (!isCursorInRange && tile->InRange(relMousePos))
             {
                 auto startTile = m_Arrow->GetStartTile();
-                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()) && tile->GetType() != 0)
+                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()) && tile->GetEnvironment() != TileEnvironment::NONE)
                 {
                     isCursorInRange = true;
                     m_Arrow->SetEndPosition(tile->GetPosition());
                 }
 
-                tileColor = ColorData::Get().TileColors.TileHoverBorderColor;
-            }
-            else
-            {
-                if (tile->GetType() == 0)
-                    tileColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
-                else
-                    tileColor = glm::vec4(1.0f);
+                isInRange = true;
             }
 
-            tile->Draw(tileColor);
+            tile->Draw();
+            if (isInRange)
+            {
+                Renderer2D::DrawHexagon(
+                    tile->GetPosition(),
+                    glm::vec2(1.0f),
+                    ColorData::Get().TileColors.TileHoverBorderColor,
+                    3.0f
+                );
+            }
         }
     }
 
@@ -155,7 +157,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 
                 if (m_Arrow->GetStartTile() != tile)
                 {
-                    if (tile->GetType() != 0)
+                    if (tile->GetEnvironment() != TileEnvironment::NONE)
                     {
                         if (m_Arrow->GetStartTile()->HasSelectedUnitGroups())
                         {
