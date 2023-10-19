@@ -17,7 +17,7 @@ void Info::Draw()
 {
     Renderer2D::BeginScene(m_UICamera);
 
-    float scale = 0.6f;
+    float scale = 0.3f;
     auto currPlayer = m_PlayerManager->GetCurrentPlayer();
     auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
     auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();

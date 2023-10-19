@@ -16,7 +16,7 @@ ShopPanel::ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const 
       glm::vec2(5 * (assetSize.x + assetOffset) + assetOffset, assetSize.y + assetOffset)),
       m_AssetSize(assetSize), m_AssetOffset(assetOffset), m_Offset(offset),
       m_UnitGroupCount((int)UnitGroupType::COUNT), m_BuildingCount((int)BuildingType::COUNT),
-      m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.25f), m_AssetPriceFontName("rexlia")
+      m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.125f), m_AssetPriceFontName("rexlia")
 {
 }
 
@@ -86,7 +86,7 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
             {
                 Renderer2D::DrawTextStr(
                     GetCostText(unitData.Cost),
-                    { cursorPos.x - m_AssetPriceSize / 2, cursorPos.y + m_AssetPriceSize / 3 },
+                    { cursorPos.x - m_AssetPriceSize, cursorPos.y + m_AssetPriceSize / 1.5f },
                     m_AssetPriceSize,
                     glm::vec3(1.0f),
                     TextAlignment::LEFT,
@@ -129,7 +129,7 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
             {
                 Renderer2D::DrawTextStr(
                     GetCostText(buildingData.Cost),
-                    { cursorPos.x - m_AssetPriceSize / 2, cursorPos.y + m_AssetPriceSize / 3 },
+                    { cursorPos.x - m_AssetPriceSize, cursorPos.y + m_AssetPriceSize / 1.5f },
                     m_AssetPriceSize,
                     glm::vec3(1.0f),
                     TextAlignment::LEFT,

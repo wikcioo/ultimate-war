@@ -32,8 +32,8 @@ float OrthographicCamera::ConvertPixelSizeToRelative(float size, bool xAxis)
 glm::vec2 OrthographicCamera::ConvertPixelSizeToRelative(const glm::vec2& size)
 {
     static auto window = Application::Get().GetWindow();
-    float relSizeX = size.x * GetHalfOfRelativeWidth() / window->GetWidth();
-    float relSizeY = size.y * GetHalfOfRelativeHeight() / window->GetHeight();
+    float relSizeX = size.x * (GetHalfOfRelativeWidth() * 2) / window->GetWidth();
+    float relSizeY = size.y * (GetHalfOfRelativeHeight() * 2) / window->GetHeight();
 
     return { relSizeX, relSizeY };
 }
