@@ -45,8 +45,8 @@ void ShopPanel::Draw()
 
     auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
 
-    DrawUnitGroups(cursorPos);
     DrawBuildings(cursorPos);
+    DrawUnitGroups(cursorPos);
 
     if (IsAssetAttachedToCursor())
         Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
@@ -81,16 +81,19 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
                 ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor,
                 m_AssetBorderThickness
             );
-        }
 
-        Renderer2D::DrawTextStr(
-            std::to_string(unitData.Cost.Gold),
-            {unitPos.x + m_AssetSize.x / 2, unitPos.y - m_AssetSize.y / 2},
-            m_AssetPriceSize,
-            glm::vec3(1.0f),
-            TextAlignment::RIGHT,
-            m_AssetPriceFontName
-        );
+            if (!m_CursorAttachedAsset.Texture)
+            {
+                Renderer2D::DrawTextStr(
+                    GetCostText(unitData.Cost),
+                    { cursorPos.x - m_AssetPriceSize / 2, cursorPos.y + m_AssetPriceSize / 3 },
+                    m_AssetPriceSize,
+                    glm::vec3(1.0f),
+                    TextAlignment::LEFT,
+                    m_AssetPriceFontName
+                );
+            }
+        }
     }
 }
 
@@ -121,17 +124,27 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
                 ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor,
                 m_AssetBorderThickness
             );
-        }
 
-        Renderer2D::DrawTextStr(
-            std::to_string(buildingData.Cost.Gold),
-            {buildingPos.x + m_AssetSize.x / 2, buildingPos.y - m_AssetSize.y / 2},
-            m_AssetPriceSize,
-            glm::vec3(1.0f),
-            TextAlignment::RIGHT,
-            m_AssetPriceFontName
-        );
+            if (!m_CursorAttachedAsset.Texture)
+            {
+                Renderer2D::DrawTextStr(
+                    GetCostText(buildingData.Cost),
+                    { cursorPos.x - m_AssetPriceSize / 2, cursorPos.y + m_AssetPriceSize / 3 },
+                    m_AssetPriceSize,
+                    glm::vec3(1.0f),
+                    TextAlignment::LEFT,
+                    m_AssetPriceFontName
+                );
+            }
+        }
     }
+}
+
+std::string ShopPanel::GetCostText(Resources& cost)
+{
+    std::ostringstream oss;
+    oss << cost.Wood << " Wood\n" << cost.Rock << " Rock\n" << cost.Steel << " Steel\n" << cost.Gold << " Gold";
+    return oss.str();
 }
 
 bool ShopPanel::OnWindowResized(WindowResizedEvent& event)
