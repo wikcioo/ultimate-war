@@ -11,6 +11,7 @@
 #include "util/util.h"
 
 Shader::Shader(const std::string& filepath)
+    : m_FilePath(filepath)
 {
     m_Name = Util::ExtractFileNameFromPath(filepath);
 
@@ -32,6 +33,13 @@ void Shader::Bind() const
 void Shader::Unbind() const
 {
     glUseProgram(0);
+}
+
+void Shader::Reload(const std::string& filepath)
+{
+    std::string source = FileSystem::ReadFile(filepath.empty() ? m_FilePath : filepath);
+    ShaderSourceMap shaderSources = Parse(source);
+    m_ProgramID = Compile(shaderSources);
 }
 
 std::string Shader::ShaderTypeToStr(unsigned int type)
