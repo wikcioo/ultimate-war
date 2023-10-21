@@ -48,6 +48,7 @@ public:
     bool InRange(const glm::vec2& cursorPos);
     bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);
     bool IsMouseClickedInsideUnitGroupsBox(const glm::vec2& relMousePos);
+    bool AssetsCanExist() { return m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN; }
 
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
     inline const Resources GetResources() const { return m_Resources; }

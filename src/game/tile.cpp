@@ -44,7 +44,7 @@ Tile::~Tile()
 
 void Tile::CreateUnitGroup(UnitGroupType type)
 {
-    if (m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN)
+    if (AssetsCanExist())
         m_UnitGroups.emplace_back(new UnitGroup(type));
     else
         LOG_WARN("Trying to add unit of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
@@ -73,7 +73,7 @@ bool Tile::CanRecruitUnitGroup(UnitGroupType type)
 
 void Tile::CreateBuilding(BuildingType type)
 {
-    if (m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN)
+    if (AssetsCanExist())
         m_Buildings.emplace_back(new Building(type));
     else
         LOG_WARN("Trying to add building of type '{0}' to non-existent tile", BuildingDataMap[type].TextureName);

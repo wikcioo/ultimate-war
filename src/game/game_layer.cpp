@@ -163,7 +163,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 
                 if (m_Arrow->GetStartTile() != tile)
                 {
-                    if (tile->GetEnvironment() != TileEnvironment::NONE)
+                    if (tile->AssetsCanExist())
                     {
                         if (m_Arrow->GetStartTile()->HasSelectedUnitGroups())
                         {
