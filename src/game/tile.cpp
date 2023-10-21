@@ -14,8 +14,8 @@
 
 float Tile::s_BackgroundHeightRatio = 0.8f;
 
-int Tile::s_UnitGroupRows = 2;
-int Tile::s_UnitGroupsPerRow = 5;
+int Tile::s_UnitGroupRows = 3;
+int Tile::s_UnitGroupsPerRow = 6;
 int Tile::s_UnitGroupWidthToOffsetRatio = 10;
 
 int Tile::s_BuildingRows = 1;
@@ -44,10 +44,16 @@ Tile::~Tile()
 
 void Tile::CreateUnitGroup(UnitGroupType type)
 {
+    if (!HasSpaceForUnitGroups(1))
+    {
+        LOG_WARN("Not enough space to add unit group of type '{0}' to tile", UnitGroupDataMap[type].TextureName);
+        return;
+    }
+
     if (AssetsCanExist())
         m_UnitGroups.emplace_back(new UnitGroup(type));
     else
-        LOG_WARN("Trying to add unit of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
+        LOG_WARN("Trying to add unit group of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
 }
 
 bool Tile::CanRecruitUnitGroup(UnitGroupType type)
@@ -71,8 +77,24 @@ bool Tile::CanRecruitUnitGroup(UnitGroupType type)
     return it != m_Buildings.end();
 }
 
+bool Tile::HasSpaceForUnitGroups(int num)
+{
+    return m_UnitGroups.size() + num <= s_UnitGroupRows * s_UnitGroupsPerRow;
+}
+
+bool Tile::HasSpaceForBuildings(int num)
+{
+    return m_Buildings.size() + num <= s_BuildingRows * s_BuildingsPerRow;
+}
+
 void Tile::CreateBuilding(BuildingType type)
 {
+    if (!HasSpaceForBuildings(1))
+    {
+        LOG_WARN("Not enough space to add building of type '{0}' to tile", BuildingDataMap[type].TextureName);
+        return;
+    }
+
     if (AssetsCanExist())
         m_Buildings.emplace_back(new Building(type));
     else

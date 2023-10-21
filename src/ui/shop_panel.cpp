@@ -224,12 +224,14 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
                 {
                     if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE &&
                         tile->CanRecruitUnitGroup(m_CursorAttachedAsset.UnitGroupType) &&
+                        tile->HasSpaceForUnitGroups(1) &&
                         currentPlayer->SubtractResources(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].Cost))
                     {
                         tile->CreateUnitGroup(m_CursorAttachedAsset.UnitGroupType);
                         return true;
                     }
                     else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE &&
+                             tile->HasSpaceForBuildings(1) &&
                              currentPlayer->SubtractResources(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
                     {
                         tile->CreateBuilding(m_CursorAttachedAsset.BuildingType);

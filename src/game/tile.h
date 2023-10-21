@@ -41,6 +41,8 @@ public:
     void MoveToTile(std::shared_ptr<Tile> destTile);
     void CreateUnitGroup(UnitGroupType type);
     bool CanRecruitUnitGroup(UnitGroupType type);
+    bool HasSpaceForUnitGroups(int num);
+    bool HasSpaceForBuildings(int num);
     void CreateBuilding(BuildingType type);
     void DeselectAllUnitGroups();
     void Draw();
