@@ -1,6 +1,7 @@
 #include "tile.h"
 
 #include <vector>
+#include <numeric>
 #include <algorithm>
 
 #include "core/logger.h"
@@ -274,6 +275,15 @@ void Tile::DrawEnvironment()
             }
         }
     }
+}
+
+int Tile::GetNumSelectedUnitGroups()
+{
+    return std::accumulate(m_UnitGroups.begin(), m_UnitGroups.end(), 0, [](int sum, UnitGroup* ug) {
+        if (ug->IsSelected())
+            return sum + 1;
+        return sum;
+    });
 }
 
 void Tile::SetOwnership(std::shared_ptr<Player> player)
