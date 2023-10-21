@@ -67,8 +67,16 @@ void GameLayer::OnUpdate(float dt)
 
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
+    auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
     bool isCursorOnAdjacentTile = false;
+
+    struct
+    {
+        bool NotEnoughSpace = false;
+        glm::vec2 Position;
+    } notEnoughSpaceInfo;
+
     for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
@@ -83,6 +91,22 @@ void GameLayer::OnUpdate(float dt)
                 {
                     isCursorOnAdjacentTile = true;
                     m_Arrow->SetEndPosition(tile->GetPosition());
+
+                    if (tile->GetOwnedBy() == currentPlayer &&
+                       !tile->HasSpaceForUnitGroups(m_Arrow->GetStartTile()->GetNumSelectedUnitGroups()))
+                    {
+                        m_Arrow->SetColor({1.0f, 0.0f, 0.0f, 1.0f});
+
+                        notEnoughSpaceInfo.NotEnoughSpace = true;
+                        notEnoughSpaceInfo.Position = {
+                            m_Arrow->GetStartTile()->GetPosition().x + (tile->GetPosition().x - m_Arrow->GetStartTile()->GetPosition().x) / 2.0f,
+                            m_Arrow->GetStartTile()->GetPosition().y + (tile->GetPosition().y - m_Arrow->GetStartTile()->GetPosition().y) / 2.0f
+                        };
+                    }
+                    else
+                    {
+                        m_Arrow->SetColor({0.0f, 1.0f, 1.0f, 1.0f});
+                    }
                 }
 
                 isCursorOnTile = true;
@@ -105,6 +129,17 @@ void GameLayer::OnUpdate(float dt)
         m_Arrow->SetEndPosition(m_Arrow->GetStartTile()->GetPosition());
 
     m_Arrow->Draw();
+
+    if (notEnoughSpaceInfo.NotEnoughSpace)
+    {
+        Renderer2D::DrawTextStr(
+            "Not enough space",
+            notEnoughSpaceInfo.Position,
+            1.0f / m_CameraController->GetCamera()->GetZoom(),
+            glm::vec3(1.0f),
+            TextAlignment::MIDDLE
+        );
+    }
 
     Renderer2D::EndScene();
 }
@@ -169,7 +204,11 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
                         {
                             if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
                             {
-                                m_Arrow->GetStartTile()->MoveToTile(tile);
+                                if (tile->GetOwnedBy() != currentPlayer ||
+                                    tile->HasSpaceForUnitGroups(m_Arrow->GetStartTile()->GetNumSelectedUnitGroups()))
+                                {
+                                    m_Arrow->GetStartTile()->MoveToTile(tile);
+                                }
                             }
                             else
                             {

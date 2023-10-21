@@ -1,6 +1,7 @@
 #include "tile.h"
 
 #include <vector>
+#include <numeric>
 #include <algorithm>
 
 #include "core/logger.h"
@@ -14,8 +15,8 @@
 
 float Tile::s_BackgroundHeightRatio = 0.8f;
 
-int Tile::s_UnitGroupRows = 2;
-int Tile::s_UnitGroupsPerRow = 5;
+int Tile::s_UnitGroupRows = 3;
+int Tile::s_UnitGroupsPerRow = 6;
 int Tile::s_UnitGroupWidthToOffsetRatio = 10;
 
 int Tile::s_BuildingRows = 1;
@@ -44,10 +45,16 @@ Tile::~Tile()
 
 void Tile::CreateUnitGroup(UnitGroupType type)
 {
+    if (!HasSpaceForUnitGroups(1))
+    {
+        LOG_WARN("Not enough space to add unit group of type '{0}' to tile", UnitGroupDataMap[type].TextureName);
+        return;
+    }
+
     if (AssetsCanExist())
         m_UnitGroups.emplace_back(new UnitGroup(type));
     else
-        LOG_WARN("Trying to add unit of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
+        LOG_WARN("Trying to add unit group of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
 }
 
 bool Tile::CanRecruitUnitGroup(UnitGroupType type)
@@ -71,8 +78,24 @@ bool Tile::CanRecruitUnitGroup(UnitGroupType type)
     return it != m_Buildings.end();
 }
 
+bool Tile::HasSpaceForUnitGroups(int num)
+{
+    return m_UnitGroups.size() + num <= s_UnitGroupRows * s_UnitGroupsPerRow;
+}
+
+bool Tile::HasSpaceForBuildings(int num)
+{
+    return m_Buildings.size() + num <= s_BuildingRows * s_BuildingsPerRow;
+}
+
 void Tile::CreateBuilding(BuildingType type)
 {
+    if (!HasSpaceForBuildings(1))
+    {
+        LOG_WARN("Not enough space to add building of type '{0}' to tile", BuildingDataMap[type].TextureName);
+        return;
+    }
+
     if (AssetsCanExist())
         m_Buildings.emplace_back(new Building(type));
     else
@@ -104,7 +127,7 @@ DrawData Tile::GetUnitGroupDrawData()
 
     float unitOffsetWidth  = bgSize.x / ((s_UnitGroupsPerRow * s_UnitGroupWidthToOffsetRatio) + s_UnitGroupsPerRow + 1);
     float unitWidth        = s_UnitGroupWidthToOffsetRatio * unitOffsetWidth;
-    float unitHeight       = glm::min(bgSize.y / 2, unitWidth);
+    float unitHeight       = glm::min(bgSize.y / s_UnitGroupRows, unitWidth);
     float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * s_UnitGroupRows)) / (s_UnitGroupRows + 1));
 
     float currentX = bgPos.x - (bgSize.x - unitWidth) / 2 + unitOffsetWidth;
@@ -131,7 +154,7 @@ DrawData Tile::GetBuildingDrawData()
 
     float buildingOffsetWidth  = bgSize.x / ((s_BuildingsPerRow * s_BuildingWidthToOffsetRatio) + s_BuildingsPerRow + 1);
     float buildingWidth        = s_BuildingWidthToOffsetRatio * buildingOffsetWidth;
-    float buildingHeight       = glm::min(bgSize.y / 2, buildingWidth);
+    float buildingHeight       = glm::min(bgSize.y / s_BuildingRows, buildingWidth);
     float buildingOffsetHeight = glm::max(0.0f, (bgSize.y - (buildingHeight * s_BuildingRows)) / (s_BuildingRows + 1));
 
     float currentX = bgPos.x - (bgSize.x - buildingWidth) / 2 + buildingOffsetWidth;
@@ -252,6 +275,15 @@ void Tile::DrawEnvironment()
             }
         }
     }
+}
+
+int Tile::GetNumSelectedUnitGroups()
+{
+    return std::accumulate(m_UnitGroups.begin(), m_UnitGroups.end(), 0, [](int sum, UnitGroup* ug) {
+        if (ug->IsSelected())
+            return sum + 1;
+        return sum;
+    });
 }
 
 void Tile::SetOwnership(std::shared_ptr<Player> player)

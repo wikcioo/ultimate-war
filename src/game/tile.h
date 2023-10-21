@@ -41,6 +41,8 @@ public:
     void MoveToTile(std::shared_ptr<Tile> destTile);
     void CreateUnitGroup(UnitGroupType type);
     bool CanRecruitUnitGroup(UnitGroupType type);
+    bool HasSpaceForUnitGroups(int num);
+    bool HasSpaceForBuildings(int num);
     void CreateBuilding(BuildingType type);
     void DeselectAllUnitGroups();
     void Draw();
@@ -57,6 +59,7 @@ public:
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
+    int GetNumSelectedUnitGroups();
 
     void SetOwnership(std::shared_ptr<Player> player);
     void ChangeOwnership(std::shared_ptr<Player> player);
