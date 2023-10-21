@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "util/util.h"
+#include "game/tile.h"
 #include "core/logger.h"
 #include "core/resource_manager.h"
 
@@ -140,6 +141,29 @@ void Renderer2D::DrawHexagon(const glm::vec2& position, const glm::vec2& size, c
 void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
 {
     DrawGeometry(s_Data->HexagonVertexArray, position, size, color, borderThickness);
+}
+
+void Renderer2D::DrawHexagon(const glm::vec2& position, const glm::vec2& size, std::shared_ptr<Shader> shader)
+{
+    DrawHexagon(glm::vec3(position, 0.0f), size, shader);
+}
+
+void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, std::shared_ptr<Shader> shader)
+{
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(size.x, size.y, 1.0f));
+    auto relBtmLeft = glm::vec2(position.x - TILE_WIDTH / 4.0f, position.y - TILE_HEIGHT / 4.0f) - s_Data->Camera->CalculateRelativeBottomLeftPosition();
+    auto pxBtmLeft = s_Data->Camera->ConvertRelativeSizeToPixel(relBtmLeft);
+
+    s_Data->HexagonVertexArray->Bind();
+
+    shader->Bind();
+    shader->SetMat4("u_ProjectionView", s_Data->Camera->GetProjectionViewMatrix());
+    shader->SetMat4("u_Model", model);
+    shader->SetFloat("u_Time", (float)glfwGetTime());
+    shader->SetFloat2("u_BottomLeftPx", pxBtmLeft);
+    shader->SetFloat2("u_SizePx", s_Data->Camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT}));
+
+    glDrawElements(GL_TRIANGLES, s_Data->HexagonVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
 }
 
 void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
