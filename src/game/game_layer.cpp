@@ -68,28 +68,28 @@ void GameLayer::OnUpdate(float dt)
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
-    bool isCursorInRange = false;
+    bool isCursorOnAdjacentTile = false;
     for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
-            bool isInRange = false;
-            if (!isCursorInRange && tile->InRange(relMousePos))
+            bool isCursorOnTile = false;
+            if (!isCursorOnAdjacentTile && tile->InRange(relMousePos))
             {
                 auto startTile = m_Arrow->GetStartTile();
                 if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()) && tile->GetEnvironment() != TileEnvironment::NONE)
                 {
-                    isCursorInRange = true;
+                    isCursorOnAdjacentTile = true;
                     m_Arrow->SetEndPosition(tile->GetPosition());
                 }
 
-                isInRange = true;
+                isCursorOnTile = true;
             }
 
             tile->Draw();
-            if (isInRange)
+            if (isCursorOnTile)
             {
                 Renderer2D::DrawHexagon(
                     tile->GetPosition(),
@@ -101,7 +101,7 @@ void GameLayer::OnUpdate(float dt)
         }
     }
 
-    if (m_Arrow->IsVisible() && !isCursorInRange)
+    if (m_Arrow->IsVisible() && !isCursorOnAdjacentTile)
         m_Arrow->SetEndPosition(m_Arrow->GetStartTile()->GetPosition());
 
     m_Arrow->Draw();
