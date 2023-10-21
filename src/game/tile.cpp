@@ -104,7 +104,7 @@ DrawData Tile::GetUnitGroupDrawData()
 
     float unitOffsetWidth  = bgSize.x / ((s_UnitGroupsPerRow * s_UnitGroupWidthToOffsetRatio) + s_UnitGroupsPerRow + 1);
     float unitWidth        = s_UnitGroupWidthToOffsetRatio * unitOffsetWidth;
-    float unitHeight       = glm::min(bgSize.y / 2, unitWidth);
+    float unitHeight       = glm::min(bgSize.y / s_UnitGroupRows, unitWidth);
     float unitOffsetHeight = glm::max(0.0f, (bgSize.y - (unitHeight * s_UnitGroupRows)) / (s_UnitGroupRows + 1));
 
     float currentX = bgPos.x - (bgSize.x - unitWidth) / 2 + unitOffsetWidth;
@@ -131,7 +131,7 @@ DrawData Tile::GetBuildingDrawData()
 
     float buildingOffsetWidth  = bgSize.x / ((s_BuildingsPerRow * s_BuildingWidthToOffsetRatio) + s_BuildingsPerRow + 1);
     float buildingWidth        = s_BuildingWidthToOffsetRatio * buildingOffsetWidth;
-    float buildingHeight       = glm::min(bgSize.y / 2, buildingWidth);
+    float buildingHeight       = glm::min(bgSize.y / s_BuildingRows, buildingWidth);
     float buildingOffsetHeight = glm::max(0.0f, (bgSize.y - (buildingHeight * s_BuildingRows)) / (s_BuildingRows + 1));
 
     float currentX = bgPos.x - (bgSize.x - buildingWidth) / 2 + buildingOffsetWidth;
