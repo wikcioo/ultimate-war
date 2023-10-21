@@ -219,16 +219,38 @@ void Tile::DrawEnvironment()
     if (m_Environment != TileEnvironment::NONE)
     {
         glm::vec3 color;
+        float yOffset = TILE_HEIGHT / 2.0f - 0.25f;
         switch (m_Environment)
         {
-            case TileEnvironment::OCEAN:     color = {   0.0f, 0.433f, 0.945f }; break;
-            case TileEnvironment::FOREST:    color = { 0.133f, 0.545f, 0.133f }; break;
-            case TileEnvironment::DESERT:    color = { 0.898f, 0.788f, 0.643f }; break;
-            case TileEnvironment::MOUNTAINS: color = {   0.5f,   0.5f,   0.5f }; break;
-            default: color = { 1.0f, 0.0f, 1.0f };
+            case TileEnvironment::OCEAN:
+            {
+                static auto waterShader = ResourceManager::GetShader("water");
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), waterShader);
+                return;
+            }
+            case TileEnvironment::FOREST:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.133f, 0.545f, 0.133f, 1.0f });
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("tree"));
+                break;
+            }
+            case TileEnvironment::DESERT:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.898f, 0.788f, 0.643f, 1.0f });
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("sand"));
+                break;
+            }
+            case TileEnvironment::MOUNTAINS:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.5f, 0.5f, 0.5f, 1.0f });
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("stone"));
+                break;
+            }
+            default:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 1.0f, 0.0f, 1.0f, 1.0f });
+            }
         }
-
-        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(color, 1.0f));
     }
 }
 
