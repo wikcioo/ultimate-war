@@ -82,7 +82,7 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
                 m_AssetBorderThickness
             );
 
-            if (!m_CursorAttachedAsset.Texture)
+            if (!IsAssetAttachedToCursor())
             {
                 Renderer2D::DrawTextStr(
                     GetCostText(unitData.Cost),
@@ -125,7 +125,7 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
                 m_AssetBorderThickness
             );
 
-            if (!m_CursorAttachedAsset.Texture)
+            if (!IsAssetAttachedToCursor())
             {
                 Renderer2D::DrawTextStr(
                     GetCostText(buildingData.Cost),
