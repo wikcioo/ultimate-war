@@ -42,7 +42,7 @@ void GameMapManager::Load(const std::string& mapName, bool flip_vertically)
         std::vector<std::shared_ptr<Tile>> row;
         while (sstream >> tileCode)
         {
-            auto t = std::make_shared<Tile>(tileCode, glm::ivec2(x, y));
+            auto t = std::make_shared<Tile>((TileEnvironment)tileCode, glm::ivec2(x, y));
             row.emplace_back(t);
             x++;
         }

@@ -16,7 +16,7 @@ ShopPanel::ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const 
       glm::vec2(5 * (assetSize.x + assetOffset) + assetOffset, assetSize.y + assetOffset)),
       m_AssetSize(assetSize), m_AssetOffset(assetOffset), m_Offset(offset),
       m_UnitGroupCount((int)UnitGroupType::COUNT), m_BuildingCount((int)BuildingType::COUNT),
-      m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.25f), m_AssetPriceFontName("rexlia")
+      m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.125f), m_AssetPriceFontName("rexlia")
 {
 }
 
@@ -45,8 +45,8 @@ void ShopPanel::Draw()
 
     auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
 
-    DrawUnitGroups(cursorPos);
     DrawBuildings(cursorPos);
+    DrawUnitGroups(cursorPos);
 
     if (IsAssetAttachedToCursor())
         Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
@@ -81,16 +81,19 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
                 ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor,
                 m_AssetBorderThickness
             );
-        }
 
-        Renderer2D::DrawTextStr(
-            std::to_string(unitData.Cost),
-            {unitPos.x + m_AssetSize.x / 2, unitPos.y - m_AssetSize.y / 2},
-            m_AssetPriceSize,
-            glm::vec3(1.0f),
-            TextAlignment::RIGHT,
-            m_AssetPriceFontName
-        );
+            if (!IsAssetAttachedToCursor())
+            {
+                Renderer2D::DrawTextStr(
+                    GetCostText(unitData.Cost),
+                    { cursorPos.x - m_AssetPriceSize, cursorPos.y + m_AssetPriceSize / 1.5f },
+                    m_AssetPriceSize,
+                    glm::vec3(1.0f),
+                    TextAlignment::LEFT,
+                    m_AssetPriceFontName
+                );
+            }
+        }
     }
 }
 
@@ -121,17 +124,27 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
                 ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor,
                 m_AssetBorderThickness
             );
-        }
 
-        Renderer2D::DrawTextStr(
-            std::to_string(buildingData.Cost),
-            {buildingPos.x + m_AssetSize.x / 2, buildingPos.y - m_AssetSize.y / 2},
-            m_AssetPriceSize,
-            glm::vec3(1.0f),
-            TextAlignment::RIGHT,
-            m_AssetPriceFontName
-        );
+            if (!IsAssetAttachedToCursor())
+            {
+                Renderer2D::DrawTextStr(
+                    GetCostText(buildingData.Cost),
+                    { cursorPos.x - m_AssetPriceSize, cursorPos.y + m_AssetPriceSize / 1.5f },
+                    m_AssetPriceSize,
+                    glm::vec3(1.0f),
+                    TextAlignment::LEFT,
+                    m_AssetPriceFontName
+                );
+            }
+        }
     }
+}
+
+std::string ShopPanel::GetCostText(Resources& cost)
+{
+    std::ostringstream oss;
+    oss << cost.Wood << " Wood\n" << cost.Rock << " Rock\n" << cost.Steel << " Steel\n" << cost.Gold << " Gold";
+    return oss.str();
 }
 
 bool ShopPanel::OnWindowResized(WindowResizedEvent& event)
@@ -211,13 +224,13 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
                 {
                     if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE &&
                         tile->CanRecruitUnitGroup(m_CursorAttachedAsset.UnitGroupType) &&
-                        currentPlayer->SubtractGold(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].Cost))
+                        currentPlayer->SubtractResources(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].Cost))
                     {
                         tile->CreateUnitGroup(m_CursorAttachedAsset.UnitGroupType);
                         return true;
                     }
                     else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE &&
-                             currentPlayer->SubtractGold(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
+                             currentPlayer->SubtractResources(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
                     {
                         tile->CreateBuilding(m_CursorAttachedAsset.BuildingType);
                         return true;

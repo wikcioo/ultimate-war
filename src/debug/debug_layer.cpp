@@ -238,7 +238,6 @@ void DebugLayer::DisplayPlayerWindow()
             ImGui::SetNextItemOpen(true, ImGuiCond_Once);
             if (ImGui::TreeNode(player->GetName().c_str()))
             {
-                ImGui::Text("gold: (%d)", player->GetGold());
                 ImGui::Text("owned tiles: (%zu)", player->GetOwnedTiles().size());
                 auto clr = player->GetColor();
                 ImGui::Text("color: "); ImGui::SameLine();

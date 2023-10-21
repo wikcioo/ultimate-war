@@ -22,18 +22,18 @@ int Tile::s_BuildingRows = 1;
 int Tile::s_BuildingsPerRow = 5;
 int Tile::s_BuildingWidthToOffsetRatio = 10;
 
-Tile::Tile(int type, const glm::ivec2& coords)
-    : m_Type(type), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
+std::unordered_map<TileEnvironment, Resources> EnvironmentResourcesMap = {
+    { TileEnvironment::NONE,      {  0,  0,  0,  0 } },
+    { TileEnvironment::OCEAN,     { 10,  5,  2,  1 } },
+    { TileEnvironment::FOREST,    { 45, 15,  5,  3 } },
+    { TileEnvironment::DESERT,    {  2, 30, 20, 10 } },
+    { TileEnvironment::MOUNTAINS, {  5, 45, 40, 25 } }
+};
+
+Tile::Tile(TileEnvironment environment, const glm::ivec2& coords)
+    : m_Environment(environment), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
 {
-    // TODO(Viktor): Refactor the value to be based on buildings, once implemented
-    switch (type)
-    {
-        case 0: m_Value = 0; break;
-        case 1: m_Value = 10; break;
-        case 2: m_Value = 20; break;
-        default:
-            m_Value = 0;
-    }
+    m_Resources = EnvironmentResourcesMap[m_Environment];
 }
 
 Tile::~Tile()
@@ -44,7 +44,7 @@ Tile::~Tile()
 
 void Tile::CreateUnitGroup(UnitGroupType type)
 {
-    if (m_Type != 0)
+    if (AssetsCanExist())
         m_UnitGroups.emplace_back(new UnitGroup(type));
     else
         LOG_WARN("Trying to add unit of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
@@ -73,22 +73,21 @@ bool Tile::CanRecruitUnitGroup(UnitGroupType type)
 
 void Tile::CreateBuilding(BuildingType type)
 {
-    if (m_Type != 0)
+    if (AssetsCanExist())
         m_Buildings.emplace_back(new Building(type));
     else
         LOG_WARN("Trying to add building of type '{0}' to non-existent tile", BuildingDataMap[type].TextureName);
 }
 
-void Tile::Draw(const glm::vec4& color)
+void Tile::Draw()
 {
-    if (!m_OwnedBy)
-        DrawBase(color);
-    else
-    {
-        auto c = m_OwnedBy->GetColor();
-        DrawBase({c.r, c.g, c.b, 1.0f});
-    }
+    DrawEnvironment();
 
+    if (m_OwnedBy)
+    {
+        // If tile owned by player, draw border around the tile with player's color
+        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(m_OwnedBy->GetColor(), 1.0f), 3.0f);
+    }
 
     DrawUnitGroups();
     DrawBuildings();
@@ -215,12 +214,44 @@ void Tile::DrawBuildings()
     }
 }
 
-void Tile::DrawBase(const glm::vec4& color)
+void Tile::DrawEnvironment()
 {
-    if (m_Type != 0)
-        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color);
-    else
-        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), color, 10.0f);
+    if (m_Environment != TileEnvironment::NONE)
+    {
+        glm::vec3 color;
+        float yOffset = TILE_HEIGHT / 2.0f - 0.25f;
+        switch (m_Environment)
+        {
+            case TileEnvironment::OCEAN:
+            {
+                static auto waterShader = ResourceManager::GetShader("water");
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), waterShader);
+                return;
+            }
+            case TileEnvironment::FOREST:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.133f, 0.545f, 0.133f, 1.0f });
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("tree"));
+                break;
+            }
+            case TileEnvironment::DESERT:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.898f, 0.788f, 0.643f, 1.0f });
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("sand"));
+                break;
+            }
+            case TileEnvironment::MOUNTAINS:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.5f, 0.5f, 0.5f, 1.0f });
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("stone"));
+                break;
+            }
+            default:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 1.0f, 0.0f, 1.0f, 1.0f });
+            }
+        }
+    }
 }
 
 void Tile::SetOwnership(std::shared_ptr<Player> player)

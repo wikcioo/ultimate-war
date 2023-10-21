@@ -12,6 +12,8 @@
 #define TILE_HEIGHT (glm::sqrt(3))
 #define TILE_OFFSET  0.1f
 
+class Player;
+
 struct DrawData
 {
     glm::vec2 Size;
@@ -21,12 +23,19 @@ struct DrawData
     glm::vec2 BackgroundSize;
 };
 
-class Player;
+enum class TileEnvironment
+{
+    NONE,
+    OCEAN,
+    FOREST,
+    DESERT,
+    MOUNTAINS
+};
 
 class Tile : public std::enable_shared_from_this<Tile>
 {
 public:
-    Tile(int type, const glm::ivec2& coords);
+    Tile(TileEnvironment environment, const glm::ivec2& coords);
     ~Tile();
 
     void MoveToTile(std::shared_ptr<Tile> destTile);
@@ -34,15 +43,15 @@ public:
     bool CanRecruitUnitGroup(UnitGroupType type);
     void CreateBuilding(BuildingType type);
     void DeselectAllUnitGroups();
-    void Draw(const glm::vec4& color);
-    void DrawBase(const glm::vec4& color);
+    void Draw();
     bool HasSelectedUnitGroups();
     bool InRange(const glm::vec2& cursorPos);
     bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);
     bool IsMouseClickedInsideUnitGroupsBox(const glm::vec2& relMousePos);
+    bool AssetsCanExist() { return m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN; }
 
-    inline const int GetType() const { return m_Type; }
-    inline const int GetValue() const { return m_Value; }
+    inline const TileEnvironment GetEnvironment() const { return m_Environment; }
+    inline const Resources GetResources() const { return m_Resources; }
     inline const std::shared_ptr<Player> GetOwnedBy() const { return m_OwnedBy; }
     std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
@@ -68,6 +77,7 @@ public:
     static int s_BuildingWidthToOffsetRatio;
 
 private:
+    void DrawEnvironment();
     void DrawUnitGroups();
     void DrawBuildings();
     void EraseSelectedUnitGroups();
@@ -76,8 +86,8 @@ private:
     DrawData GetBuildingDrawData();
 
 private:
-    int m_Type;
-    int m_Value;
+    TileEnvironment m_Environment;
+    Resources m_Resources;
     glm::ivec2 m_Coords;
     glm::vec2 m_Position;
     std::shared_ptr<Player> m_OwnedBy;

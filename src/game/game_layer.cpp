@@ -32,13 +32,19 @@ GameLayer::GameLayer()
 
 void GameLayer::OnAttach()
 {
-    m_GameMapManager->Load("simple");
+    m_GameMapManager->Load("environments");
+
+    glm::vec2 mapMiddle = {
+        (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) / 2.0f) - TILE_HEIGHT / 2.0f,
+        (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) / 2.0f) - (TILE_HEIGHT + TILE_OFFSET) / 2.0f
+    };
+    m_CameraController->GetCamera()->SetPosition(glm::vec3(mapMiddle, 0.0f));
 
 #if defined(DEBUG)
-    int i = 2;
+    int i = 6;
     for (auto player : m_PlayerManager->GetAllPlayers())
     {
-        auto tile = m_GameMapManager->GetGameMap()->GetTile(i-1, i+1);
+        auto tile = m_GameMapManager->GetGameMap()->GetTile(i, 5);
         tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
         tile->CreateUnitGroup(UnitGroupType::DWARF);
         tile->CreateUnitGroup(UnitGroupType::DEMON);
@@ -57,43 +63,45 @@ void GameLayer::OnUpdate(float dt)
 {
     m_CameraController->OnUpdate(dt);
 
-    Renderer2D::ClearColor({0.0f, 0.5f, 1.0f, 1.0f});
+    Renderer2D::ClearColor({0.2f, 0.2f, 0.2f, 1.0f});
 
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
-    bool isCursorInRange = false;
+    bool isCursorOnAdjacentTile = false;
     for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
-            glm::vec4 tileColor;
-            if (!isCursorInRange && tile->InRange(relMousePos))
+            bool isCursorOnTile = false;
+            if (!isCursorOnAdjacentTile && tile->InRange(relMousePos))
             {
                 auto startTile = m_Arrow->GetStartTile();
-                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()) && tile->GetType() != 0)
+                if (startTile && Tile::IsAdjacent({x, y}, startTile->GetCoords()) && tile->GetEnvironment() != TileEnvironment::NONE)
                 {
-                    isCursorInRange = true;
+                    isCursorOnAdjacentTile = true;
                     m_Arrow->SetEndPosition(tile->GetPosition());
                 }
 
-                tileColor = ColorData::Get().TileColors.TileHoverBorderColor;
-            }
-            else
-            {
-                if (tile->GetType() == 0)
-                    tileColor = glm::vec4(1.0f, 1.0f, 1.0f, 0.1f);
-                else
-                    tileColor = glm::vec4(1.0f);
+                isCursorOnTile = true;
             }
 
-            tile->Draw(tileColor);
+            tile->Draw();
+            if (isCursorOnTile)
+            {
+                Renderer2D::DrawHexagon(
+                    tile->GetPosition(),
+                    glm::vec2(1.0f),
+                    ColorData::Get().TileColors.TileHoverBorderColor,
+                    3.0f
+                );
+            }
         }
     }
 
-    if (m_Arrow->IsVisible() && !isCursorInRange)
+    if (m_Arrow->IsVisible() && !isCursorOnAdjacentTile)
         m_Arrow->SetEndPosition(m_Arrow->GetStartTile()->GetPosition());
 
     m_Arrow->Draw();
@@ -155,7 +163,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 
                 if (m_Arrow->GetStartTile() != tile)
                 {
-                    if (tile->GetType() != 0)
+                    if (tile->AssetsCanExist())
                     {
                         if (m_Arrow->GetStartTile()->HasSelectedUnitGroups())
                         {

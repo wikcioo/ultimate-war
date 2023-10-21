@@ -15,6 +15,8 @@ public:
     void Bind() const;
     void Unbind() const;
 
+    void Reload(const std::string& filepath = "");
+
     void SetBool(const std::string& name, bool value);
     void SetInt(const std::string& name, int value);
     void SetFloat(const std::string& name, float value);
@@ -30,5 +32,6 @@ private:
 
 private:
     std::string m_Name;
+    std::string m_FilePath;
     unsigned int m_ProgramID;
 };

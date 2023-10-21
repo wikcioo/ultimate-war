@@ -3,6 +3,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "game/resource.h"
+
 enum class BuildingType
 {
     WORKSHOP,
@@ -16,7 +18,7 @@ enum class BuildingType
 
 struct BuildingData
 {
-    int Cost;
+    Resources Cost;
     std::string TextureName;
 };
 

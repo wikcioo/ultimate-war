@@ -35,6 +35,8 @@ private:
     void DrawUnitGroups(const glm::vec2& cursorPos);
     void DrawBuildings(const glm::vec2& cursorPos);
 
+    std::string GetCostText(Resources& cost);
+
 private:
     int m_UnitGroupCount;
     int m_BuildingCount;
