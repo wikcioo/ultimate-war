@@ -25,8 +25,8 @@ struct TextureData
     unsigned int NrChannels = 3;
     TextureWrap WrapHorizontal = TextureWrap::CLAMP_TO_BORDER;
     TextureWrap WrapVertical = TextureWrap::CLAMP_TO_BORDER;
-    TextureFilter MinFilter = TextureFilter::NEAREST;
-    TextureFilter MagFilter = TextureFilter::NEAREST;
+    TextureFilter MinFilter = TextureFilter::LINEAR;
+    TextureFilter MagFilter = TextureFilter::LINEAR;
     bool IsMultisample = false;
     glm::vec4 BorderColor = { 1.0f, 0.0f, 1.0f, 0.0f };
 };
