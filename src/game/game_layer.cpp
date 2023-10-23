@@ -121,6 +121,8 @@ void GameLayer::OnUpdate(float dt)
                     ColorData::Get().TileColors.TileHoverBorderColor,
                     3.0f
                 );
+
+                tile->CheckUnitGroupHover(relMousePos);
             }
         }
     }

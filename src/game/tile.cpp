@@ -208,6 +208,71 @@ void Tile::DrawUnitGroups()
     }
 }
 
+void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
+{
+    const int statCount = 3;
+    static const char* textures[statCount] = { "swords", "heart", "shield" };
+    auto unitType = unitGroup->GetType();
+    int stats[statCount] = {
+        UnitGroupDataMap[unitType].Stats.Attack,
+        UnitGroupDataMap[unitType].Stats.Health,
+        UnitGroupDataMap[unitType].Stats.Defense
+    };
+
+    static float hOffset = 0.03f;
+    static float statSize = 0.05f;
+    static float textScale = 0.25f;
+
+    Renderer2D::DrawQuad(
+        unitData.Position,
+        unitData.Size,
+        {0.0f, 0.0f, 0.0f, 0.6f}
+    );
+
+    for (int i = 0; i < statCount; i++)
+    {
+        Renderer2D::DrawQuad(
+            glm::vec2(unitData.Position.x - hOffset, unitData.Position.y + statSize),
+            glm::vec2(statSize),
+            ResourceManager::GetTexture(textures[i])
+        );
+        Renderer2D::DrawTextStr(
+            std::to_string(stats[i]),
+            { unitData.Position.x + hOffset, unitData.Position.y + statSize },
+            textScale / GameLayer::Get().GetCameraController()->GetCamera()->GetZoom(),
+            glm::vec3(1.0f), HTextAlign::MIDDLE, VTextAlign::MIDDLE, "rexlia"
+        );
+
+        unitData.Position.y -= statSize;
+    }
+
+}
+
+void Tile::CheckUnitGroupHover(const glm::vec2& relMousePos)
+{
+    auto unitData = GetUnitGroupDrawData();
+    float initialX = unitData.Position.x;
+
+    for (int i = 0; i < m_UnitGroups.size(); i++)
+    {
+        if (Util::IsPointInRectangle(unitData.Position, unitData.Size, relMousePos))
+        {
+            DrawUnitGroupStats(unitData, m_UnitGroups[i]);
+            return;
+        }
+
+        if ((i + 1) % s_UnitGroupsPerRow == 0)
+        {
+            unitData.Position.x = initialX;
+            unitData.Position.y -= (unitData.OffsetSize.y + unitData.Size.y);
+        }
+        else
+        {
+            unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
+        }
+    }
+}
+
 void Tile::DrawBuildings()
 {
     if (m_Buildings.empty()) return;
