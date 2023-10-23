@@ -49,9 +49,45 @@ void ShopPanel::Draw()
     DrawUnitGroups(cursorPos);
 
     if (IsAssetAttachedToCursor())
+    {
         Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
+        ProcessInvalidAssetPlacement(cursorPos);
+    }
 
     Renderer2D::EndScene();
+}
+
+void ShopPanel::ProcessInvalidAssetPlacement(const glm::vec2& cursorPos)
+{
+    static auto crossTexture = ResourceManager::GetTexture("cross");
+
+    auto relMousePos = GameLayer::Get().GetCameraController()->GetCamera()->CalculateRelativeMousePosition();
+    auto currentPlayer = GameLayer::Get().GetPlayerManager()->GetCurrentPlayer();
+    auto gameMap = GameLayer::Get().GetGameMapManager()->GetGameMap();
+
+    for (int y = 0; y < gameMap->GetTileCountY(); y++)
+    {
+        for (int x = 0; x < gameMap->GetTileCountX(); x++)
+        {
+            auto tile = gameMap->GetTile(x, y);
+            if (tile->InRange(relMousePos))
+            {
+                if (tile->GetOwnedBy() == currentPlayer)
+                {
+                    if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE && !tile->HasSpaceForUnitGroups(1) ||
+                        m_CursorAttachedAsset.BuildingType != BuildingType::NONE && !tile->HasSpaceForBuildings(1) ||
+                        !tile->AssetsCanExist())
+                    {
+                        Renderer2D::DrawQuad(cursorPos, glm::vec2(m_AssetPriceSize * 0.5f), crossTexture);
+                    }
+                }
+                else
+                {
+                    Renderer2D::DrawQuad(cursorPos, glm::vec2(m_AssetPriceSize * 0.5f), crossTexture);
+                }
+            }
+        }
+    }
 }
 
 void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)

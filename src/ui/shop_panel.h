@@ -31,6 +31,7 @@ private:
     bool OnMouseButtonPressedGame(MouseButtonPressedEvent& event);
     void SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType> type);
     bool IsAssetAttachedToCursor() { return m_CursorAttachedAsset.Texture.get(); }
+    void ProcessInvalidAssetPlacement(const glm::vec2& cursorPos);
 
     void DrawUnitGroups(const glm::vec2& cursorPos);
     void DrawBuildings(const glm::vec2& cursorPos);
