@@ -231,17 +231,19 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
     while (std::getline(iss, line, '\n'))
         lines.push_back(line);
 
-    float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y);
+    float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y) * scale;
+    float relSpacing = relCharHeight * 0.3f;
 
     switch (vAlign)
     {
         case VTextAlign::BOTTOM:
+            pos_cpy.y += (relCharHeight + relSpacing) * (lines.size() - 1);
             break;
         case VTextAlign::MIDDLE:
-            pos_cpy.y -= relCharHeight / 2 * scale;
+            pos_cpy.y += ((relCharHeight / 2.0f) * (lines.size() - 2.0f)) + (relSpacing * ((lines.size() - 1.0f) / 2.0f));
             break;
         case VTextAlign::TOP:
-            pos_cpy.y -= relCharHeight * scale;
+            pos_cpy.y -= relCharHeight;
             break;
     }
 
@@ -296,7 +298,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
         }
 
         pos_cpy.x = position.x;
-        pos_cpy.y -= relCharHeight * scale * 1.3;
+        pos_cpy.y -= relCharHeight + relSpacing;
     }
 }
 
