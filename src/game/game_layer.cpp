@@ -137,7 +137,7 @@ void GameLayer::OnUpdate(float dt)
             notEnoughSpaceInfo.Position,
             1.0f / m_CameraController->GetCamera()->GetZoom(),
             glm::vec3(1.0f),
-            TextAlignment::MIDDLE
+            HTextAlign::MIDDLE
         );
     }
 

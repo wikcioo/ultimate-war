@@ -215,7 +215,7 @@ void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, co
 }
 
 void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color,
-                          TextAlignment alignment, const std::string& fontName)
+                          HTextAlign alignment, VTextAlign verticalAlignment, const std::string& fontName)
 {
     glm::vec2 pos_cpy = { position.x, position.y };
 
@@ -232,6 +232,19 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
         lines.push_back(line);
 
     float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y);
+
+    switch (verticalAlignment)
+    {
+        case VTextAlign::BOTTOM:
+            break;
+        case VTextAlign::MIDDLE:
+            pos_cpy.y -= relCharHeight / 2 * scale;
+            break;
+        case VTextAlign::TOP:
+            pos_cpy.y -= relCharHeight * scale;
+            break;
+    }
+
     for (const auto& line : lines)
     {
         // Determine horizontal length of a line
@@ -244,12 +257,12 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
 
         switch (alignment)
         {
-            case TextAlignment::LEFT:
+            case HTextAlign::LEFT:
                 break;
-            case TextAlignment::MIDDLE:
+            case HTextAlign::MIDDLE:
                 pos_cpy.x -= lineLength / 2;
                 break;
-            case TextAlignment::RIGHT:
+            case HTextAlign::RIGHT:
                 pos_cpy.x -= lineLength;
                 break;
         }

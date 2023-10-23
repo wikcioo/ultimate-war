@@ -125,7 +125,8 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
                     { cursorPos.x - m_AssetPriceSize, cursorPos.y + m_AssetPriceSize / 1.5f },
                     m_AssetPriceSize,
                     glm::vec3(1.0f),
-                    TextAlignment::LEFT,
+                    HTextAlign::LEFT,
+                    VTextAlign::BOTTOM,
                     m_AssetPriceFontName
                 );
             }
@@ -168,7 +169,8 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
                     { cursorPos.x - m_AssetPriceSize, cursorPos.y + m_AssetPriceSize / 1.5f },
                     m_AssetPriceSize,
                     glm::vec3(1.0f),
-                    TextAlignment::LEFT,
+                    HTextAlign::LEFT,
+                    VTextAlign::BOTTOM,
                     m_AssetPriceFontName
                 );
             }
