@@ -52,8 +52,7 @@ public:
                              const glm::vec4& color, std::optional<float> borderThickness = std::nullopt);
 
     static void DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color = glm::vec3(1.0f),
-                            HTextAlign alignment = HTextAlign::LEFT,
-                            VTextAlign verticalAlignment = VTextAlign::BOTTOM,
+                            HTextAlign hAlign = HTextAlign::LEFT, VTextAlign vAlign = VTextAlign::BOTTOM,
                             const std::string& fontName = "vinque");
 
     static void ClearColor(const glm::vec4& color);

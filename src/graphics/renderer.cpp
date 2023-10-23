@@ -215,7 +215,7 @@ void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, co
 }
 
 void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color,
-                          HTextAlign alignment, VTextAlign verticalAlignment, const std::string& fontName)
+                             HTextAlign hAlign, VTextAlign vAlign, const std::string& fontName)
 {
     glm::vec2 pos_cpy = { position.x, position.y };
 
@@ -233,7 +233,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
 
     float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y);
 
-    switch (verticalAlignment)
+    switch (vAlign)
     {
         case VTextAlign::BOTTOM:
             break;
@@ -255,7 +255,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
             lineLength += s_Data->Camera->ConvertPixelSizeToRelative((c.Size.x + c.Advance) >> 6) * scale;
         }
 
-        switch (alignment)
+        switch (hAlign)
         {
             case HTextAlign::LEFT:
                 break;
