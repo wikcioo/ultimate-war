@@ -80,8 +80,12 @@ public:
     static int s_BuildingsPerRow;
     static int s_BuildingWidthToOffsetRatio;
 
+    static const int s_StatCount;
+    static const char* s_StatTextures[];
+
 private:
     void DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup);
+    void DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[]);
     void DrawEnvironment();
     void DrawUnitGroups();
     void DrawBuildings();

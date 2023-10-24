@@ -23,6 +23,9 @@ int Tile::s_BuildingRows = 1;
 int Tile::s_BuildingsPerRow = 5;
 int Tile::s_BuildingWidthToOffsetRatio = 10;
 
+const int Tile::s_StatCount = 3;
+const char* Tile::s_StatTextures[s_StatCount] = { "swords", "heart", "shield" };
+
 std::unordered_map<TileEnvironment, Resources> EnvironmentResourcesMap = {
     { TileEnvironment::NONE,      {  0,  0,  0,  0 } },
     { TileEnvironment::OCEAN,     { 10,  5,  2,  1 } },
@@ -177,10 +180,15 @@ void Tile::DrawUnitGroups()
     auto unitData = GetUnitGroupDrawData();
     float initialX = unitData.Position.x;
 
+    int totalStats[s_StatCount] = { 0, 0, 0 };
+    int selectedStats[s_StatCount] = { 0, 0, 0 };
+
     Renderer2D::DrawQuad(unitData.BackgroundPosition, unitData.BackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
 
     for (int i = 0; i < m_UnitGroups.size(); i++)
     {
+        auto unitStatsVector = m_UnitGroups[i]->GetUnitStats();
+
         if (m_UnitGroups[i]->IsSelected())
         {
             Renderer2D::DrawQuad(
@@ -188,6 +196,26 @@ void Tile::DrawUnitGroups()
                 unitData.Size,
                 {0.8f, 0.1f, 0.1f, 0.6f}
             );
+
+            for (auto unitStats : unitStatsVector)
+            {
+                selectedStats[0] += unitStats->Attack;
+                selectedStats[1] += unitStats->Health;
+                selectedStats[2] += unitStats->Defense;
+
+                totalStats[0] += unitStats->Attack;
+                totalStats[1] += unitStats->Health;
+                totalStats[2] += unitStats->Defense;
+            }
+        }
+        else
+        {
+            for (auto unitStats : unitStatsVector)
+            {
+                totalStats[0] += unitStats->Attack;
+                totalStats[1] += unitStats->Health;
+                totalStats[2] += unitStats->Defense;
+            }
         }
 
         Renderer2D::DrawQuad(
@@ -206,18 +234,22 @@ void Tile::DrawUnitGroups()
             unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
         }
     }
+
+    DrawCountedStats(unitData, totalStats, selectedStats);
 }
 
 void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
 {
-    const int statCount = 3;
-    static const char* textures[statCount] = { "swords", "heart", "shield" };
+
     auto unitType = unitGroup->GetType();
-    int stats[statCount] = {
-        UnitGroupDataMap[unitType].Stats.Attack,
-        UnitGroupDataMap[unitType].Stats.Health,
-        UnitGroupDataMap[unitType].Stats.Defense
-    };
+    int stats[s_StatCount] = { 0, 0, 0 };
+    auto unitStatsVector = unitGroup->GetUnitStats();
+    for (auto unitStats : unitStatsVector)
+    {
+        stats[0] += unitStats->Attack;
+        stats[1] += unitStats->Health;
+        stats[2] += unitStats->Defense;
+    }
 
     static float hOffset = 0.03f;
     static float statSize = 0.05f;
@@ -229,12 +261,12 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
         {0.0f, 0.0f, 0.0f, 0.6f}
     );
 
-    for (int i = 0; i < statCount; i++)
+    for (int i = 0; i < s_StatCount; i++)
     {
         Renderer2D::DrawQuad(
             glm::vec2(unitData.Position.x - hOffset, unitData.Position.y + statSize),
             glm::vec2(statSize),
-            ResourceManager::GetTexture(textures[i])
+            ResourceManager::GetTexture(s_StatTextures[i])
         );
         Renderer2D::DrawTextStr(
             std::to_string(stats[i]),
@@ -246,6 +278,31 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
         unitData.Position.y -= statSize;
     }
 
+}
+
+void Tile::DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[])
+{
+    static float yOffset = TILE_HEIGHT / 2.0f - 0.45f;
+    static float statSize = 0.10f;
+    static float textScale = 0.30f;
+
+    glm::vec2 statPos = {m_Position.x - 0.45f, m_Position.y - yOffset};
+    for (int i = 0; i < s_StatCount; i++)
+    {
+        std::string statText = std::to_string(selectedStats[i]) + " / " + std::to_string(totalStats[i]);
+        Renderer2D::DrawQuad(
+            glm::vec2(statPos.x, statPos.y - statSize),
+            glm::vec2(statSize),
+            ResourceManager::GetTexture(s_StatTextures[i])
+        );
+        Renderer2D::DrawTextStr(
+            statText,
+            { statPos.x, statPos.y },
+            textScale / GameLayer::Get().GetCameraController()->GetCamera()->GetZoom(),
+            glm::vec3(1.0f), HTextAlign::MIDDLE, VTextAlign::MIDDLE, "rexlia"
+        );
+        statPos.x += 0.45;
+    }
 }
 
 void Tile::CheckUnitGroupHover(const glm::vec2& relMousePos)
@@ -307,7 +364,7 @@ void Tile::DrawEnvironment()
     if (m_Environment != TileEnvironment::NONE)
     {
         glm::vec3 color;
-        float yOffset = TILE_HEIGHT / 2.0f - 0.25f;
+        float yOffset = TILE_HEIGHT / 2.0f - 0.15f;
         switch (m_Environment)
         {
             case TileEnvironment::OCEAN:
@@ -319,19 +376,19 @@ void Tile::DrawEnvironment()
             case TileEnvironment::FOREST:
             {
                 Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.133f, 0.545f, 0.133f, 1.0f });
-                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("tree"));
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("tree"));
                 break;
             }
             case TileEnvironment::DESERT:
             {
                 Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.898f, 0.788f, 0.643f, 1.0f });
-                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("sand"));
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("sand"));
                 break;
             }
             case TileEnvironment::MOUNTAINS:
             {
                 Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.5f, 0.5f, 0.5f, 1.0f });
-                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.3f), ResourceManager::GetTexture("stone"));
+                Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("stone"));
                 break;
             }
             default:
