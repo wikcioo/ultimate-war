@@ -60,15 +60,15 @@ void Info::Draw()
             },
             m_TextScale,
             resourceNumberColors[i],
-            TextAlignment::LEFT
+            HTextAlign::LEFT
         );
     }
 
     std::string turn   = "Turn: "   + std::to_string(GameLayer::Get().GetIteration());
     std::string player = "Player: " + currPlayer->GetName();
 
-    Renderer2D::DrawTextStr(turn, {  halfOfWidth - 0.05f, halfOfHeight - 0.1f }, m_TextScale, glm::vec3(0.9f), TextAlignment::RIGHT);
-    Renderer2D::DrawTextStr(player, { 0.0f, halfOfHeight - 0.1f }, m_TextScale, currPlayer->GetColor(), TextAlignment::MIDDLE);
+    Renderer2D::DrawTextStr(turn, {  halfOfWidth - 0.05f, halfOfHeight - 0.1f }, m_TextScale, glm::vec3(0.9f), HTextAlign::RIGHT);
+    Renderer2D::DrawTextStr(player, { 0.0f, halfOfHeight - 0.1f }, m_TextScale, currPlayer->GetColor(), HTextAlign::MIDDLE);
 
     Renderer2D::EndScene();
 }

@@ -212,11 +212,11 @@ void DebugLayer::DisplayFontSettingsWindow()
     ImGui::SameLine();
     ImGui::RadioButton("RIGHT", &font_alignment, 2);
     if (font_alignment == 0)
-        DebugData::Get()->Font.Alignment = TextAlignment::LEFT;
+        DebugData::Get()->Font.Alignment = HTextAlign::LEFT;
     else if (font_alignment == 1)
-        DebugData::Get()->Font.Alignment = TextAlignment::MIDDLE;
+        DebugData::Get()->Font.Alignment = HTextAlign::MIDDLE;
     else if (font_alignment == 2)
-        DebugData::Get()->Font.Alignment = TextAlignment::RIGHT;
+        DebugData::Get()->Font.Alignment = HTextAlign::RIGHT;
 
     ImGui::End();
 }

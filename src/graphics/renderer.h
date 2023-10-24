@@ -10,11 +10,18 @@
 #include "graphics/texture.h"
 #include "graphics/vertex_array.h"
 
-enum class TextAlignment
+enum class HTextAlign
 {
     LEFT   = 0,
     MIDDLE = 1,
     RIGHT  = 2
+};
+
+enum class VTextAlign
+{
+    TOP    = 0,
+    MIDDLE = 1,
+    BOTTOM = 2
 };
 
 class Renderer2D
@@ -45,7 +52,8 @@ public:
                              const glm::vec4& color, std::optional<float> borderThickness = std::nullopt);
 
     static void DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color = glm::vec3(1.0f),
-                            TextAlignment alignment = TextAlignment::LEFT, const std::string& fontName = "vinque");
+                            HTextAlign hAlign = HTextAlign::LEFT, VTextAlign vAlign = VTextAlign::BOTTOM,
+                            const std::string& fontName = "vinque");
 
     static void ClearColor(const glm::vec4& color);
 

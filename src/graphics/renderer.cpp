@@ -215,7 +215,7 @@ void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, co
 }
 
 void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color,
-                          TextAlignment alignment, const std::string& fontName)
+                             HTextAlign hAlign, VTextAlign vAlign, const std::string& fontName)
 {
     glm::vec2 pos_cpy = { position.x, position.y };
 
@@ -231,7 +231,22 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
     while (std::getline(iss, line, '\n'))
         lines.push_back(line);
 
-    float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y);
+    float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y) * scale;
+    float relSpacing = relCharHeight * 0.3f;
+
+    switch (vAlign)
+    {
+        case VTextAlign::BOTTOM:
+            pos_cpy.y += (relCharHeight + relSpacing) * (lines.size() - 1);
+            break;
+        case VTextAlign::MIDDLE:
+            pos_cpy.y += ((relCharHeight / 2.0f) * (lines.size() - 2.0f)) + (relSpacing * ((lines.size() - 1.0f) / 2.0f));
+            break;
+        case VTextAlign::TOP:
+            pos_cpy.y -= relCharHeight;
+            break;
+    }
+
     for (const auto& line : lines)
     {
         // Determine horizontal length of a line
@@ -242,14 +257,14 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
             lineLength += s_Data->Camera->ConvertPixelSizeToRelative((c.Size.x + c.Advance) >> 6) * scale;
         }
 
-        switch (alignment)
+        switch (hAlign)
         {
-            case TextAlignment::LEFT:
+            case HTextAlign::LEFT:
                 break;
-            case TextAlignment::MIDDLE:
+            case HTextAlign::MIDDLE:
                 pos_cpy.x -= lineLength / 2;
                 break;
-            case TextAlignment::RIGHT:
+            case HTextAlign::RIGHT:
                 pos_cpy.x -= lineLength;
                 break;
         }
@@ -283,7 +298,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
         }
 
         pos_cpy.x = position.x;
-        pos_cpy.y -= relCharHeight * scale * 1.3;
+        pos_cpy.y -= relCharHeight + relSpacing;
     }
 }
 

@@ -51,6 +51,7 @@ public:
     bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);
     bool IsMouseClickedInsideUnitGroupsBox(const glm::vec2& relMousePos);
     bool AssetsCanExist() { return m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN; }
+    void CheckUnitGroupHover(const glm::vec2& relMousePos);
 
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
     inline const Resources GetResources() const { return m_Resources; }
@@ -79,7 +80,12 @@ public:
     static int s_BuildingsPerRow;
     static int s_BuildingWidthToOffsetRatio;
 
+    static const int s_StatCount;
+    static const char* s_StatTextures[];
+
 private:
+    void DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup);
+    void DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[]);
     void DrawEnvironment();
     void DrawUnitGroups();
     void DrawBuildings();

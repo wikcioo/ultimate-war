@@ -7,11 +7,11 @@
 
 enum class BuildingType
 {
-    WORKSHOP,
+    TARGET,
+    BLACKSMITH,
     GOLD_MINE,
     HARPY_TOWER,
     DEMON_CASTLE,
-    DRAGON_LAIR,
     COUNT,
     NONE
 };

@@ -48,7 +48,7 @@ void GameLayer::OnAttach()
         tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
         tile->CreateUnitGroup(UnitGroupType::DWARF);
         tile->CreateUnitGroup(UnitGroupType::DEMON);
-        tile->CreateBuilding(BuildingType::DRAGON_LAIR);
+        tile->CreateBuilding(BuildingType::GOLD_MINE);
         player->AddOwnedTile(tile);
         i++;
     }
@@ -121,6 +121,8 @@ void GameLayer::OnUpdate(float dt)
                     ColorData::Get().TileColors.TileHoverBorderColor,
                     3.0f
                 );
+
+                tile->CheckUnitGroupHover(relMousePos);
             }
         }
     }
@@ -137,7 +139,7 @@ void GameLayer::OnUpdate(float dt)
             notEnoughSpaceInfo.Position,
             1.0f / m_CameraController->GetCamera()->GetZoom(),
             glm::vec3(1.0f),
-            TextAlignment::MIDDLE
+            HTextAlign::MIDDLE
         );
     }
 

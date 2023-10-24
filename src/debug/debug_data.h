@@ -27,7 +27,7 @@ public:
     {
         std::string FontName = "vinque";
         char Text[100] = "Welcome back traveller!";
-        TextAlignment Alignment = TextAlignment::MIDDLE;
+        HTextAlign Alignment = HTextAlign::MIDDLE;
         glm::vec2 Pos = { 0.0f, 0.848f };
         glm::vec3 Color = { 0.95f, 0.7f, 0.05f };
         float Scale = 1.0f;
