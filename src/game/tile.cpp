@@ -240,7 +240,6 @@ void Tile::DrawUnitGroups()
 
 void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
 {
-
     auto unitType = unitGroup->GetType();
     int stats[s_StatCount] = { 0, 0, 0 };
     auto unitStatsVector = unitGroup->GetUnitStats();
@@ -251,9 +250,9 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
         stats[2] += unitStats->Defense;
     }
 
-    static float hOffset = 0.03f;
+    static float hOffset = 0.035f;
     static float statSize = 0.05f;
-    static float textScale = 0.25f;
+    static float textScale = 0.2f;
 
     Renderer2D::DrawQuad(
         unitData.Position,
@@ -264,20 +263,20 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
     for (int i = 0; i < s_StatCount; i++)
     {
         Renderer2D::DrawQuad(
-            glm::vec2(unitData.Position.x - hOffset, unitData.Position.y + statSize),
+            glm::vec2(unitData.Position.x - statSize, unitData.Position.y + statSize),
             glm::vec2(statSize),
             ResourceManager::GetTexture(s_StatTextures[i])
         );
+
         Renderer2D::DrawTextStr(
             std::to_string(stats[i]),
-            { unitData.Position.x + hOffset, unitData.Position.y + statSize },
+            { unitData.Position.x - statSize + hOffset, unitData.Position.y + statSize },
             textScale / GameLayer::Get().GetCameraController()->GetCamera()->GetZoom(),
-            glm::vec3(1.0f), HTextAlign::MIDDLE, VTextAlign::MIDDLE, "rexlia"
+            glm::vec3(1.0f), HTextAlign::LEFT, VTextAlign::MIDDLE, "rexlia"
         );
 
         unitData.Position.y -= statSize;
     }
-
 }
 
 void Tile::DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[])
