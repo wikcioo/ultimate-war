@@ -285,10 +285,16 @@ void Tile::DrawCountedStats(DrawData& unitData, int totalStats[], int selectedSt
     static float statSize = 0.10f;
     static float textScale = 0.30f;
 
+    auto currPlayer = GameLayer::Get().GetPlayerManager()->GetCurrentPlayer();
+
     glm::vec2 statPos = {m_Position.x - 0.45f, m_Position.y - yOffset};
     for (int i = 0; i < s_StatCount; i++)
     {
-        std::string statText = std::to_string(selectedStats[i]) + " / " + std::to_string(totalStats[i]);
+        std::string statText =
+            m_OwnedBy == currPlayer ?
+            std::to_string(selectedStats[i]) + " / " + std::to_string(totalStats[i]) :
+            std::to_string(totalStats[i]);
+
         Renderer2D::DrawQuad(
             glm::vec2(statPos.x, statPos.y - statSize),
             glm::vec2(statSize),
