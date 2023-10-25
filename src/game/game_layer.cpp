@@ -194,61 +194,64 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
-            if (tile->InRange(relMousePos))
-            {
-                if (!m_Arrow->GetStartTile()) m_Arrow->SetStartTile(tile);
 
-                if (m_Arrow->GetStartTile() != tile)
-                {
-                    if (tile->AssetsCanExist())
-                    {
-                        if (m_Arrow->GetStartTile()->HasSelectedUnitGroups())
-                        {
-                            if (Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
-                            {
-                                if (tile->GetOwnedBy() != currentPlayer ||
-                                    tile->HasSpaceForUnitGroups(m_Arrow->GetStartTile()->GetNumSelectedUnitGroups()))
-                                {
-                                    m_Arrow->GetStartTile()->MoveToTile(tile);
-                                }
-                            }
-                            else
-                            {
-                                m_Arrow->GetStartTile()->DeselectAllUnitGroups();
-                            }
-                        }
-                        else if (tile->GetOwnedBy() == currentPlayer)
-                        {
-                            m_Arrow->SetStartTile(tile);
-                            tile->HandleUnitGroupMouseClick(relMousePos);
-                        }
-                    }
-                    else
-                    {
-                        m_Arrow->GetStartTile()->DeselectAllUnitGroups();
-                    }
-                }
-                else if (tile->GetOwnedBy() == currentPlayer)
-                {
-                    if (!tile->HandleUnitGroupMouseClick(relMousePos))
-                    {
-                        if (!tile->IsMouseClickedInsideUnitGroupsBox(relMousePos))
-                        {
-                            tile->DeselectAllUnitGroups();
-                        }
-                    }
-                }
+            if (!tile->InRange(relMousePos))
+                continue;
 
-                goto tile_in_range;
-            }
+            ProcessTileInRange(tile, currentPlayer, relMousePos);
+            m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
+            return true;
         }
     }
 
+    // If no tile in range then deselect all unit groups
     if (m_Arrow->GetStartTile())
         m_Arrow->GetStartTile()->DeselectAllUnitGroups();
 
-    tile_in_range:
-    m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
-
+    m_Arrow->SetVisible(false);
     return true;
+}
+
+void GameLayer::ProcessTileInRange(const std::shared_ptr<Tile>& tile, const std::shared_ptr<Player>& currentPlayer, const glm::vec2& relMousePos)
+{
+    if (!m_Arrow->GetStartTile()) m_Arrow->SetStartTile(tile);
+
+    if (m_Arrow->GetStartTile() != tile)
+    {
+        // If assets can't exits on selected tile unit groups are deselected
+        if (!tile->AssetsCanExist())
+        {
+            m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+            return;
+        }
+
+        if (m_Arrow->GetStartTile()->HasSelectedUnitGroups())
+        {
+            // If tile is not adjacent unit groups can't be moved and they are deselected
+            if (!Tile::IsAdjacent(m_Arrow->GetStartTile()->GetCoords(), tile->GetCoords()))
+            {
+                m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+                return;
+            }
+
+            // If the tile is owned by the moving player and it has no space for units then return
+            if (tile->GetOwnedBy() == currentPlayer &&
+               !tile->HasSpaceForUnitGroups(m_Arrow->GetStartTile()->GetNumSelectedUnitGroups()))
+                return;
+
+            // Otherwise move units to tile
+            m_Arrow->GetStartTile()->MoveToTile(tile);
+        }
+        else if (tile->GetOwnedBy() == currentPlayer)
+        {
+            m_Arrow->SetStartTile(tile);
+            tile->HandleUnitGroupMouseClick(relMousePos);
+        }
+    } // If the tile is owned by the current player and a unit grup or unit group box has not been clicked then deselect
+    else if (tile->GetOwnedBy() == currentPlayer &&
+            !tile->HandleUnitGroupMouseClick(relMousePos) &&
+            !tile->IsMouseClickedInsideUnitGroupsBox(relMousePos))
+    {
+        tile->DeselectAllUnitGroups();
+    }
 }
