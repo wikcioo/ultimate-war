@@ -38,6 +38,14 @@ public:
         return ss.str();
     }
 
+    static std::string ReplaceChar(const std::string& str, char oldChar, char newChar)
+    {
+        std::string s = "";
+        for (size_t i = 0; i < str.size(); i++)
+            s += str[i] == oldChar ? newChar : str[i];
+        return s;
+    }
+
     static bool IsPointInRectangle(const glm::vec2& rectCenter, const glm::vec2& rectSize, const glm::vec2& point)
     {
         return (rectCenter.x - rectSize.x / 2 <= point.x && rectCenter.x + rectSize.x / 2 >= point.x &&
