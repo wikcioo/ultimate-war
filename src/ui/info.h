@@ -25,9 +25,4 @@ private:
     float m_ResourceNumberOffset = 0.07f;
     float m_ResourceStartX = 0.07f;
     float m_ResourceStartY = 0.08f;
-
-    std::shared_ptr<Texture2D> m_WoodTexture = ResourceManager::GetTexture("wood");
-    std::shared_ptr<Texture2D> m_RockTexture = ResourceManager::GetTexture("rock");
-    std::shared_ptr<Texture2D> m_SteelTexture = ResourceManager::GetTexture("steel");
-    std::shared_ptr<Texture2D> m_GoldTexture = ResourceManager::GetTexture("gold");
 };

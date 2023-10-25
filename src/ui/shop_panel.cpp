@@ -74,7 +74,8 @@ void ShopPanel::ProcessInvalidAssetPlacement(const glm::vec2& cursorPos)
             {
                 if (tile->GetOwnedBy() == currentPlayer)
                 {
-                    if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE && !tile->HasSpaceForUnitGroups(1) ||
+                    if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE &&
+                       (!tile->HasSpaceForUnitGroups(1) || !tile->CanRecruitUnitGroup(m_CursorAttachedAsset.UnitGroupType)) ||
                         m_CursorAttachedAsset.BuildingType != BuildingType::NONE && !tile->HasSpaceForBuildings(1) ||
                         !tile->AssetsCanExist())
                     {
@@ -118,18 +119,7 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
                 m_AssetBorderThickness
             );
 
-            if (!IsAssetAttachedToCursor())
-            {
-                Renderer2D::DrawTextStr(
-                    GetCostText(unitData.Cost),
-                    { cursorPos.x - m_AssetPriceSize, cursorPos.y + m_AssetPriceSize / 1.5f },
-                    m_AssetPriceSize,
-                    glm::vec3(1.0f),
-                    HTextAlign::LEFT,
-                    VTextAlign::BOTTOM,
-                    m_AssetPriceFontName
-                );
-            }
+            DrawAssetInfo(unitData.TextureName, unitData.Cost, unitData.RequiredBuilding);
         }
     }
 }
@@ -162,19 +152,93 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
                 m_AssetBorderThickness
             );
 
-            if (!IsAssetAttachedToCursor())
-            {
-                Renderer2D::DrawTextStr(
-                    GetCostText(buildingData.Cost),
-                    { cursorPos.x - m_AssetPriceSize, cursorPos.y + m_AssetPriceSize / 1.5f },
-                    m_AssetPriceSize,
-                    glm::vec3(1.0f),
-                    HTextAlign::LEFT,
-                    VTextAlign::BOTTOM,
-                    m_AssetPriceFontName
-                );
-            }
+            DrawAssetInfo(buildingData.TextureName, buildingData.Cost);
         }
+    }
+}
+
+void ShopPanel::DrawAssetInfo(const std::string& name, const Resources& cost,
+                              std::optional<BuildingType> requiredBuilding)
+{
+    glm::vec2 pos = {
+        m_Position.x + m_Size.x + m_Size.y + 0.05f,
+        m_Position.y + m_Size.y
+    };
+    glm::vec2 size = glm::vec2(m_Size.y * 2);
+    glm::vec4 color = ColorData::Get().UITheme.ShopPanelBackgroundColor;
+
+    // Background
+    Renderer2D::DrawQuad(pos, size, color);
+
+    // Asset name
+    Renderer2D::DrawTextStr(
+        Util::ReplaceChar(name, '_', ' '),
+        { pos.x, pos.y + 0.16f },
+        0.15f,
+        glm::vec3(1.0f),
+        HTextAlign::MIDDLE,
+        VTextAlign::MIDDLE,
+        "rexlia"
+    );
+
+    // Asset texture
+    Renderer2D::DrawQuad(
+        { pos.x, pos.y + 0.08f },
+        m_AssetSize * 0.7f,
+        ResourceManager::GetTexture(name)
+    );
+
+    // Price
+    static auto resourceData = Resources::GetResourceData();
+
+    static float hOffset = 0.09f;
+    static float resSize = 0.07f;
+    static float resHOffset = 0.02f;
+    static float textScale = 0.2f;
+
+    int costValues[resourceData.NumResources] = {
+        cost.Wood,
+        cost.Rock,
+        cost.Steel,
+        cost.Gold,
+    };
+
+    for (int i = 0; i < resourceData.NumResources; i++)
+    {
+        Renderer2D::DrawQuad(
+            glm::vec2(
+                pos.x - hOffset * glm::pow(-1.0, (double)(i % 2)) - hOffset / 2.0f,
+                pos.y - resHOffset - resSize * Util::Clamp<int>(i - 1, 0, 1)
+            ),
+            glm::vec2(resSize),
+            resourceData.ResourceTextures[i]
+        );
+
+        Renderer2D::DrawTextStr(
+            std::to_string(costValues[i]),
+            glm::vec2(
+                pos.x - resSize / 2.4f - hOffset * glm::pow(-1.0, (double)(i % 2)) + hOffset / 3.2f,
+                pos.y - resHOffset - resSize * Util::Clamp<int>(i - 1, 0, 1)
+            ),
+            textScale,
+            glm::vec3(1.0f),
+            HTextAlign::LEFT, VTextAlign::MIDDLE,
+            "rexlia"
+        );
+    }
+
+    // Draw required building if necessary
+    if (requiredBuilding.has_value() && requiredBuilding.value() != BuildingType::NONE)
+    {
+        Renderer2D::DrawTextStr(
+            std::string("Needs " + Util::ReplaceChar(BuildingDataMap[requiredBuilding.value()].TextureName, '_', ' ')).c_str(),
+            glm::vec2(pos.x, pos.y - 0.16f),
+            0.12f,
+            glm::vec3(1.0f),
+            HTextAlign::MIDDLE,
+            VTextAlign::MIDDLE,
+            "rexlia"
+        );
     }
 }
 

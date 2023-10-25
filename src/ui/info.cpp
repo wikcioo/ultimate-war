@@ -21,35 +21,21 @@ void Info::Draw()
     auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
     auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
 
-    const int numResources = 4;
+    static auto resourceData = Resources::GetResourceData();
 
-    int resourceNumbers[numResources] = {
+    int resourceNumbers[resourceData.NumResources] = {
         currPlayer->GetResources().Wood,
         currPlayer->GetResources().Rock,
         currPlayer->GetResources().Steel,
         currPlayer->GetResources().Gold
     };
 
-    glm::vec3 resourceNumberColors[numResources] = {
-        ColorData::Get().Resources.Wood,
-        ColorData::Get().Resources.Rock,
-        ColorData::Get().Resources.Steel,
-        ColorData::Get().Resources.Gold
-    };
-
-    std::shared_ptr<Texture2D> resourceTextures[numResources] = {
-        m_WoodTexture,
-        m_RockTexture,
-        m_SteelTexture,
-        m_GoldTexture
-    };
-
-    for (int i = 0; i < numResources; i++)
+    for (int i = 0; i < resourceData.NumResources; i++)
     {
         Renderer2D::DrawQuad(
             { -halfOfWidth + m_ResourceStartX, halfOfHeight - m_ResourceStartY - m_ResourceOffset * i},
             glm::vec2(m_ResourceScale),
-            resourceTextures[i]
+            resourceData.ResourceTextures[i]
         );
 
         Renderer2D::DrawTextStr(
@@ -59,7 +45,7 @@ void Info::Draw()
                 halfOfHeight - (m_ResourceStartY + 0.025f) - m_ResourceOffset * i
             },
             m_TextScale,
-            resourceNumberColors[i],
+            resourceData.ResourceNumberColors[i],
             HTextAlign::LEFT
         );
     }
