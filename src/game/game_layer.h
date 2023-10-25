@@ -45,6 +45,7 @@ public:
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
     bool OnKeyReleased(KeyReleasedEvent& event);
+    void ProcessTileInRange(const std::shared_ptr<Tile>& tile, const std::shared_ptr<Player>& currentPlayer, const glm::vec2& relMousePos);
 
 private:
     static GameLayer* s_Instance;
