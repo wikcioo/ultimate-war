@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <variant>
+#include <optional>
 #include <unordered_map>
 
 #include "core/camera.h"
@@ -35,6 +36,8 @@ private:
 
     void DrawUnitGroups(const glm::vec2& cursorPos);
     void DrawBuildings(const glm::vec2& cursorPos);
+    void DrawAssetInfo(const std::string& name, const Resources& cost,
+                       std::optional<BuildingType> requiredBuilding = std::nullopt);
 
     std::string GetCostText(Resources& cost);
 
