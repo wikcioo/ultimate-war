@@ -33,12 +33,12 @@ void PlayerManager::NextTurn()
         m_Players[m_CurrentPlayerIndex]->CollectResourcesFromOwnedTiles();
 }
 
-bool PlayerManager::IsInactivePlayer(const std::shared_ptr<Player> player)
+bool PlayerManager::IsInactivePlayer(const std::shared_ptr<Player>& player)
 {
     return player && player->GetOwnedTiles().size() == 0;
 }
 
-void PlayerManager::UpdatePlayerStatus(const std::shared_ptr<Player> player)
+void PlayerManager::UpdatePlayerStatus(const std::shared_ptr<Player>& player)
 {
     if(IsInactivePlayer(player))
     {

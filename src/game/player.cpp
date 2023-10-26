@@ -23,13 +23,13 @@ bool Player::SubtractResources(Resources& resources)
     return false;
 }
 
-void Player::AddOwnedTile(std::shared_ptr<Tile> tile)
+void Player::AddOwnedTile(const std::shared_ptr<Tile>& tile)
 {
     m_OwnedTiles.emplace_back(tile);
     tile->SetOwnership(shared_from_this());
 }
 
-void Player::RemoveOwnedTile(std::shared_ptr<Tile> tile)
+void Player::RemoveOwnedTile(const std::shared_ptr<Tile>& tile)
 {
     auto it = std::find(m_OwnedTiles.begin(), m_OwnedTiles.end(), tile);
     if (it != m_OwnedTiles.end())
@@ -38,6 +38,6 @@ void Player::RemoveOwnedTile(std::shared_ptr<Tile> tile)
 
 void Player::CollectResourcesFromOwnedTiles()
 {
-    for (auto tile : m_OwnedTiles)
+    for (const auto& tile : m_OwnedTiles)
         m_Resources += tile->GetResources();
 }

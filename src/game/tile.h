@@ -38,7 +38,7 @@ public:
     Tile(TileEnvironment environment, const glm::ivec2& coords);
     ~Tile();
 
-    void MoveToTile(std::shared_ptr<Tile> destTile);
+    void MoveToTile(const std::shared_ptr<Tile>& destTile);
     void CreateUnitGroup(UnitGroupType type);
     bool CanRecruitUnitGroup(UnitGroupType type);
     bool HasSpaceForUnitGroups(int num);
@@ -55,15 +55,15 @@ public:
 
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
     inline const Resources GetResources() const { return m_Resources; }
-    inline const std::shared_ptr<Player> GetOwnedBy() const { return m_OwnedBy; }
+    inline const std::shared_ptr<Player>& GetOwnedBy() const { return m_OwnedBy; }
     std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
     int GetNumSelectedUnitGroups();
 
-    void SetOwnership(std::shared_ptr<Player> player);
-    void ChangeOwnership(std::shared_ptr<Player> player);
+    void SetOwnership(const std::shared_ptr<Player>& player);
+    void ChangeOwnership(const std::shared_ptr<Player>& player);
 
 public:
     static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);
@@ -90,7 +90,7 @@ private:
     void DrawUnitGroups();
     void DrawBuildings();
     void EraseSelectedUnitGroups();
-    void TransferUnitGroupsToTile(std::shared_ptr<Tile> destTile);
+    void TransferUnitGroupsToTile(const std::shared_ptr<Tile>& destTile);
     DrawData GetUnitGroupDrawData();
     DrawData GetBuildingDrawData();
 
