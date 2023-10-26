@@ -1,5 +1,7 @@
 #include "resource_manager.h"
 
+#include <fstream>
+
 #include <stb/stb_image.h>
 
 #include "logger.h"
@@ -37,6 +39,14 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
     if (m_TextureCache.find(name) != m_TextureCache.end())
     {
         LOG_ERROR("ResourceManager: Texture with name {0} already in cache", name);
+        return;
+    }
+
+    std::fstream file(filepath);
+    if (!file.good())
+    {
+        LOG_ERROR("ResourceManager: Could not open texture file {0}", filepath);
+        file.close();
         return;
     }
 
