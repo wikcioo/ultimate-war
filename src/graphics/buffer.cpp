@@ -82,13 +82,10 @@ void IndexBuffer::Unbind() const
 FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
     : m_Width(width), m_Height(height)
 {
-    TextureData textureData = {
-        .Size={m_Width, m_Height},
-        .NrChannels=3,
-        .MinFilter=TextureFilter::LINEAR,
-        .MagFilter=TextureFilter::LINEAR,
-        .IsMultisample=true
-    };
+    TextureData textureData;
+    textureData.Size = { m_Width, m_Height };
+    textureData.NrChannels = 3;
+    textureData.IsMultisample = true;
 
     m_MultiSampledColorTexture = std::make_shared<Texture2D>(textureData);
     glGenFramebuffers(1, &m_MultiSampledBufferID);

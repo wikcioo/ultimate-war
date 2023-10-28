@@ -54,11 +54,7 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
     stbi_set_flip_vertically_on_load(1);
     unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 0);
 
-    TextureData textureData = {
-        .Size={width, height},
-        .Data=data,
-        .NrChannels=(unsigned int)nrChannels,
-    };
+    TextureData textureData = { {width, height}, data, (unsigned int)nrChannels };
     std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(textureData);
 
     stbi_image_free(data);
@@ -95,11 +91,7 @@ const std::shared_ptr<Texture2D>& ResourceManager::GetTexture(const std::string&
     {
         LOG_ERROR("ResourceManager: Unknown texture with name {0}", name);
         static unsigned char* data = new unsigned char[3] { 0xFF, 0x00, 0xFF };
-        static TextureData missingTextureData = {
-            .Size={1, 1},
-            .Data=data,
-            .NrChannels=(unsigned int)3,
-        };
+        static TextureData missingTextureData = { { 1, 1 }, data, 3u };
         static auto missingTexture = std::make_shared<Texture2D>(missingTextureData);
         return missingTexture;
     }
