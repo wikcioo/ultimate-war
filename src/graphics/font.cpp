@@ -35,13 +35,11 @@ Font::Font(const std::string& filepath)
         }
 
         TextureData data = {
-            .Size = {face->glyph->bitmap.width, face->glyph->bitmap.rows},
-            .Data = face->glyph->bitmap.buffer,
-            .NrChannels = 1,
-            .WrapHorizontal = TextureWrap::CLAMP_TO_EDGE,
-            .WrapVertical = TextureWrap::CLAMP_TO_EDGE,
-            .MinFilter = TextureFilter::LINEAR,
-            .MagFilter = TextureFilter::LINEAR
+            { face->glyph->bitmap.width, face->glyph->bitmap.rows },
+            face->glyph->bitmap.buffer,
+            1u,
+            TextureWrap::CLAMP_TO_EDGE,
+            TextureWrap::CLAMP_TO_EDGE
         };
 
         auto texture = std::make_shared<Texture2D>(data);

@@ -15,12 +15,12 @@ public:
 
     void Draw();
 
-    void SetStartTile(std::shared_ptr<Tile> tile) { m_StartTile = tile; m_StartPosition = tile->GetPosition(); }
+    void SetStartTile(const std::shared_ptr<Tile>& tile) { m_StartTile = tile; m_StartPosition = tile->GetPosition(); }
     void SetEndPosition(const glm::vec2& endPosition) { m_EndPosition = endPosition; }
     void SetVisible(bool visible) { m_Visible = visible; }
     void SetColor(const glm::vec4& color) { m_Color = color; }
 
-    std::shared_ptr<Tile> GetStartTile() { return m_StartTile; }
+    const std::shared_ptr<Tile>& GetStartTile() { return m_StartTile; }
 
     inline const bool IsVisible() const { return m_Visible; }
 

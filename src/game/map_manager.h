@@ -13,7 +13,7 @@ public:
     ~GameMapManager() = default;
     inline std::vector<std::string>& GetAvailableMaps() { return m_AvailableMapList; }
     inline std::string GetSelectedMapName() const { return m_SelectedMap; }
-    inline std::shared_ptr<GameMap> GetGameMap() const { return m_GameMap; }
+    inline const std::shared_ptr<GameMap>& GetGameMap() const { return m_GameMap; }
 
     void Load(const std::string& filepath, bool flip_vertically = true);
 private:

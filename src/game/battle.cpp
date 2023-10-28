@@ -8,7 +8,7 @@
 #include "util/util.h"
 #include "core/logger.h"
 
-BattleOutcome Battle::CalculateBattleOutcome(std::shared_ptr<Tile> attacker, std::shared_ptr<Tile> defender)
+BattleOutcome Battle::CalculateBattleOutcome(const std::shared_ptr<Tile>& attacker, const std::shared_ptr<Tile>& defender)
 {
     while (GetTotalUnitGroupHealth(attacker, true) > 0 && GetTotalUnitGroupHealth(defender, false) > 0)
     {
@@ -19,7 +19,7 @@ BattleOutcome Battle::CalculateBattleOutcome(std::shared_ptr<Tile> attacker, std
     return GetTotalUnitGroupHealth(attacker, true) > 0 ? BattleOutcome::ATTACKER_WON : BattleOutcome::DEFENDER_WON;
 }
 
-void Battle::SimulateBattleTick(std::shared_ptr<Tile> attacker, std::shared_ptr<Tile> defender)
+void Battle::SimulateBattleTick(const std::shared_ptr<Tile>& attacker, const std::shared_ptr<Tile>& defender)
 {
     std::vector<UnitStats*> attackerUnitStats = GatherUnits(attacker, true);
     std::vector<UnitStats*> defenderUnitStats = GatherUnits(defender, false);
@@ -52,7 +52,7 @@ void Battle::BattleUnits(const std::vector<UnitStats*>& attacker, const std::vec
     }
 }
 
-std::vector<UnitStats*> Battle::GatherUnits(std::shared_ptr<Tile> tile, bool checkSelectedOnly)
+std::vector<UnitStats*> Battle::GatherUnits(const std::shared_ptr<Tile>& tile, bool checkSelectedOnly)
 {
     std::vector<UnitStats*> unitStats;
 
@@ -78,13 +78,13 @@ void Battle::OneVOne(UnitStats* us1, UnitStats* us2)
     us1->Health = glm::max(us1->Health, 0);
 }
 
-void Battle::CleanupBattleField(std::shared_ptr<Tile> attacker, std::shared_ptr<Tile> defender)
+void Battle::CleanupBattleField(const std::shared_ptr<Tile>& attacker, const std::shared_ptr<Tile>& defender)
 {
     CleanupUnits(attacker, true);
     CleanupUnits(defender, false);
 }
 
-void Battle::CleanupUnits(std::shared_ptr<Tile> tile, bool checkSelectedOnly)
+void Battle::CleanupUnits(const std::shared_ptr<Tile>& tile, bool checkSelectedOnly)
 {
     for (UnitGroup* unitGroup : tile->GetUnitGroups())
     {
@@ -109,7 +109,7 @@ void Battle::CleanupUnits(std::shared_ptr<Tile> tile, bool checkSelectedOnly)
     );
 }
 
-int Battle::GetTotalUnitGroupHealth(std::shared_ptr<Tile> tile, bool checkSelectedOnly)
+int Battle::GetTotalUnitGroupHealth(const std::shared_ptr<Tile>& tile, bool checkSelectedOnly)
 {
     int totalHealth = 0;
 

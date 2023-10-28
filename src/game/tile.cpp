@@ -413,12 +413,12 @@ int Tile::GetNumSelectedUnitGroups()
     });
 }
 
-void Tile::SetOwnership(std::shared_ptr<Player> player)
+void Tile::SetOwnership(const std::shared_ptr<Player>& player)
 {
     m_OwnedBy = player;
 }
 
-void Tile::ChangeOwnership(std::shared_ptr<Player> player)
+void Tile::ChangeOwnership(const std::shared_ptr<Player>& player)
 {
     if(m_OwnedBy != nullptr)
         m_OwnedBy->RemoveOwnedTile(shared_from_this());
@@ -426,7 +426,7 @@ void Tile::ChangeOwnership(std::shared_ptr<Player> player)
     player->AddOwnedTile(shared_from_this());
 }
 
-void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
+void Tile::MoveToTile(const std::shared_ptr<Tile>& destTile)
 {
     if(destTile->m_OwnedBy == m_OwnedBy)
     {
@@ -445,7 +445,7 @@ void Tile::MoveToTile(std::shared_ptr<Tile> destTile)
     }
 }
 
-void Tile::TransferUnitGroupsToTile(std::shared_ptr<Tile> destTile)
+void Tile::TransferUnitGroupsToTile(const std::shared_ptr<Tile>& destTile)
 {
     if (destTile.get() == this) return;
 

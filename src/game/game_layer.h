@@ -32,9 +32,9 @@ public:
 
     static GameLayer& Get() { return *s_Instance; }
 
-    inline std::shared_ptr<OrthographicCameraController> GetCameraController() const { return m_CameraController; }
-    inline std::shared_ptr<GameMapManager> GetGameMapManager() const { return m_GameMapManager; }
-    inline std::shared_ptr<PlayerManager> GetPlayerManager() const { return m_PlayerManager; }
+    inline const std::shared_ptr<OrthographicCameraController>& GetCameraController() const { return m_CameraController; }
+    inline const std::shared_ptr<GameMapManager>& GetGameMapManager() const { return m_GameMapManager; }
+    inline const std::shared_ptr<PlayerManager>& GetPlayerManager() const { return m_PlayerManager; }
     inline bool IsGameActive() const { return m_GameActive; }
     inline int GetIteration() { return m_IterationNumber; }
 

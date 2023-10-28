@@ -18,8 +18,8 @@ public:
 
     void AddResources(Resources& resources);
     bool SubtractResources(Resources& resources);
-    void AddOwnedTile(std::shared_ptr<Tile> tile);
-    void RemoveOwnedTile(std::shared_ptr<Tile> tile);
+    void AddOwnedTile(const std::shared_ptr<Tile>& tile);
+    void RemoveOwnedTile(const std::shared_ptr<Tile>& tile);
     void CollectResourcesFromOwnedTiles();
 
 private:
