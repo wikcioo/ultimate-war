@@ -49,6 +49,7 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
         file.close();
         return;
     }
+    file.close();
 
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(1);
