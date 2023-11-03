@@ -24,7 +24,7 @@ int Tile::s_BuildingsPerRow = 5;
 int Tile::s_BuildingWidthToOffsetRatio = 10;
 
 const int Tile::s_StatCount = 3;
-const char* Tile::s_StatTextures[s_StatCount] = { "swords", "heart", "shield" };
+const char* Tile::s_StatTextures[s_StatCount] = { "swords", "shield", "heart" };
 
 std::shared_ptr<Texture2D> Tile::s_UpgradeIconTexture;
 
@@ -284,8 +284,8 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
     for (auto unitStats : unitStatsVector)
     {
         stats[0] += unitStats->Attack;
-        stats[1] += unitStats->Health;
-        stats[2] += unitStats->Defense;
+        stats[1] += unitStats->Defense;
+        stats[2] += unitStats->Health;
     }
 
     static float hOffset = 0.035f;
@@ -298,6 +298,13 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
         {0.0f, 0.0f, 0.0f, 0.6f}
     );
 
+    int unitStatsVectorSize = unitStatsVector.size();
+    int totalBaseStats[s_StatCount] = {
+        UnitGroupDataMap[unitGroup->GetType()].Stats.Attack  * unitStatsVectorSize,
+        UnitGroupDataMap[unitGroup->GetType()].Stats.Defense * unitStatsVectorSize,
+        UnitGroupDataMap[unitGroup->GetType()].Stats.Health  * unitStatsVectorSize
+    };
+
     for (int i = 0; i < s_StatCount; i++)
     {
         Renderer2D::DrawQuad(
@@ -306,11 +313,18 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
             ResourceManager::GetTexture(s_StatTextures[i])
         );
 
+        glm::vec3 statColor = glm::vec3(1.0f);
+
+        if (stats[i] < totalBaseStats[i])
+            statColor = glm::vec3(1.0f, 0.0f, 0.0f);
+        else if (stats[i] > totalBaseStats[i])
+            statColor = glm::vec3(0.0f, 1.0f, 0.0f);
+
         Renderer2D::DrawTextStr(
             std::to_string(stats[i]),
             { unitData.Position.x - statSize + hOffset, unitData.Position.y + statSize },
             textScale / GameLayer::Get().GetCameraController()->GetCamera()->GetZoom(),
-            glm::vec3(1.0f), HTextAlign::LEFT, VTextAlign::MIDDLE, "rexlia"
+            statColor, HTextAlign::LEFT, VTextAlign::MIDDLE, "rexlia"
         );
 
         unitData.Position.y -= statSize;
