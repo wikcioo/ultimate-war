@@ -24,6 +24,8 @@ struct UnitStats
     int Attack;
     int Defense;
     int Health;
+
+    UnitStats operator+(int scalar);
 };
 
 struct UnitGroupData

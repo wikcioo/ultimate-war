@@ -3,6 +3,16 @@
 #include "game/color_data.h"
 #include "core/resource_manager.h"
 
+Resources Resources::operator*(int scalar)
+{
+    return {
+        this->Wood  * scalar,
+        this->Rock  * scalar,
+        this->Steel * scalar,
+        this->Gold  * scalar
+    };
+}
+
 Resources& Resources::operator+=(const Resources& other)
 {
     Wood  += other.Wood;

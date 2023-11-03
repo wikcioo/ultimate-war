@@ -10,6 +10,15 @@ std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap = {
     { UnitGroupType::HARPY,     { { 3, 3, 3, 5 }, { 6,  1,  5 },     "harpy", BuildingType::HARPY_TOWER  } }
 };
 
+UnitStats UnitStats::operator+(int scalar)
+{
+    return {
+        this->Attack  + scalar,
+        this->Defense + scalar,
+        this->Health  + scalar
+    };
+}
+
 UnitGroup::UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats)
     : m_Type(type), m_IsSelected(false)
 {
