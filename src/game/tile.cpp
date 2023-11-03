@@ -27,11 +27,11 @@ const int Tile::s_StatCount = 3;
 const char* Tile::s_StatTextures[s_StatCount] = { "swords", "heart", "shield" };
 
 std::unordered_map<TileEnvironment, Resources> EnvironmentResourcesMap = {
-    { TileEnvironment::NONE,      {  0,  0,  0,  0 } },
-    { TileEnvironment::OCEAN,     { 10,  5,  2,  1 } },
-    { TileEnvironment::FOREST,    { 45, 15,  5,  3 } },
-    { TileEnvironment::DESERT,    {  2, 30, 20, 10 } },
-    { TileEnvironment::MOUNTAINS, {  5, 45, 40, 25 } }
+    { TileEnvironment::NONE,      { 0, 0, 0, 0 } },
+    { TileEnvironment::OCEAN,     { 1, 1, 1, 1 } },
+    { TileEnvironment::FOREST,    { 7, 2, 1, 2 } },
+    { TileEnvironment::DESERT,    { 2, 1, 0, 4 } },
+    { TileEnvironment::MOUNTAINS, { 1, 7, 3, 3 } }
 };
 
 Tile::Tile(TileEnvironment environment, const glm::ivec2& coords)
