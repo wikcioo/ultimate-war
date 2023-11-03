@@ -179,6 +179,7 @@ void Tile::DrawUnitGroups()
 
     auto unitData = GetUnitGroupDrawData();
     float initialX = unitData.Position.x;
+    bool isCurrentPlayer = GameLayer::Get().GetPlayerManager()->GetCurrentPlayer() == m_OwnedBy;
 
     int totalStats[s_StatCount] = { 0, 0, 0 };
     int selectedStats[s_StatCount] = { 0, 0, 0 };
@@ -223,6 +224,15 @@ void Tile::DrawUnitGroups()
             unitData.Size,
             ResourceManager::GetTexture(UnitGroupDataMap[m_UnitGroups[i]->GetType()].TextureName)
         );
+
+        if (m_UnitGroups[i]->UnitWasMovedInIteration(GameLayer::Get().GetIteration()) && isCurrentPlayer)
+        {
+            Renderer2D::DrawQuad(
+                unitData.Position,
+                unitData.Size,
+                {0.2f, 0.2f, 0.2f, 0.5f}
+            );
+        }
 
         if ((i + 1) % s_UnitGroupsPerRow == 0)
         {
@@ -454,6 +464,7 @@ void Tile::TransferUnitGroupsToTile(const std::shared_ptr<Tile>& destTile)
         if (!unit->IsSelected()) continue;
 
         destTile->GetUnitGroups().push_back(unit);
+        unit->SetMovedOnIteration(GameLayer::Get().GetIteration());
     }
 
     EraseSelectedUnitGroups();
@@ -480,7 +491,11 @@ bool Tile::HandleUnitGroupMouseClick(const glm::vec2& relMousePos)
             unitData.Size,
              relMousePos))
         {
-            m_UnitGroups[i]->ToggleSelected();
+            if (!m_UnitGroups[i]->UnitWasMovedInIteration(GameLayer::Get().GetIteration()))
+            {
+                m_UnitGroups[i]->ToggleSelected();
+            }
+
             return true;
         }
 
