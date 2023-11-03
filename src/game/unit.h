@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 #include <unordered_map>
 
 #include "game/building.h"
@@ -38,7 +39,7 @@ extern std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap;
 class UnitGroup
 {
 public:
-    UnitGroup(UnitGroupType type);
+    UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats = std::nullopt);
     ~UnitGroup() = default;
 
     void ToggleSelected() { m_IsSelected = !m_IsSelected; }
