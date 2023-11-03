@@ -123,6 +123,7 @@ void GameLayer::OnUpdate(float dt)
                 );
 
                 tile->CheckUnitGroupHover(relMousePos);
+                tile->CheckBuildingHover(relMousePos);
             }
         }
     }
@@ -246,10 +247,12 @@ void GameLayer::ProcessTileInRange(const std::shared_ptr<Tile>& tile, const std:
         {
             m_Arrow->SetStartTile(tile);
             tile->HandleUnitGroupMouseClick(relMousePos);
+            tile->HandleBuildingUpgradeIconMouseClick(relMousePos);
         }
     } // If the tile is owned by the current player and a unit grup or unit group box has not been clicked then deselect
     else if (tile->GetOwnedBy() == currentPlayer &&
             !tile->HandleUnitGroupMouseClick(relMousePos) &&
+            !tile->HandleBuildingUpgradeIconMouseClick(relMousePos) &&
             !tile->IsMouseClickedInsideUnitGroupsBox(relMousePos))
     {
         tile->DeselectAllUnitGroups();
