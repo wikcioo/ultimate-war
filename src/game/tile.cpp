@@ -24,20 +24,28 @@ int Tile::s_BuildingsPerRow = 5;
 int Tile::s_BuildingWidthToOffsetRatio = 10;
 
 const int Tile::s_StatCount = 3;
-const char* Tile::s_StatTextures[s_StatCount] = { "swords", "heart", "shield" };
+const char* Tile::s_StatTextures[s_StatCount] = { "swords", "shield", "heart" };
+
+std::shared_ptr<Texture2D> Tile::s_UpgradeIconTexture;
 
 std::unordered_map<TileEnvironment, Resources> EnvironmentResourcesMap = {
-    { TileEnvironment::NONE,      {  0,  0,  0,  0 } },
-    { TileEnvironment::OCEAN,     { 10,  5,  2,  1 } },
-    { TileEnvironment::FOREST,    { 45, 15,  5,  3 } },
-    { TileEnvironment::DESERT,    {  2, 30, 20, 10 } },
-    { TileEnvironment::MOUNTAINS, {  5, 45, 40, 25 } }
+    { TileEnvironment::NONE,      { 0, 0, 0, 0 } },
+    { TileEnvironment::OCEAN,     { 1, 1, 1, 1 } },
+    { TileEnvironment::FOREST,    { 7, 2, 1, 2 } },
+    { TileEnvironment::DESERT,    { 2, 1, 0, 4 } },
+    { TileEnvironment::MOUNTAINS, { 1, 7, 3, 3 } }
 };
 
 Tile::Tile(TileEnvironment environment, const glm::ivec2& coords)
     : m_Environment(environment), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
 {
     m_Resources = EnvironmentResourcesMap[m_Environment];
+    InitStaticRuntimeData();
+}
+
+void Tile::InitStaticRuntimeData()
+{
+    s_UpgradeIconTexture = ResourceManager::GetTexture("up_arrow");
 }
 
 Tile::~Tile()
@@ -55,7 +63,27 @@ void Tile::CreateUnitGroup(UnitGroupType type)
     }
 
     if (AssetsCanExist())
-        m_UnitGroups.emplace_back(new UnitGroup(type));
+    {
+        // When creating a unit group, check if unit stats should be upgraded
+        // based on the upgrade level of the required building
+        BuildingType requiredBuilding = UnitGroupDataMap[type].RequiredBuilding;
+        unsigned int maxRequiredBuildingLevel = 0;
+        for (auto building : m_Buildings)
+        {
+            if (building->GetType() == requiredBuilding)
+                maxRequiredBuildingLevel = glm::max(building->GetLevel(), maxRequiredBuildingLevel);
+        }
+
+        if (maxRequiredBuildingLevel > 0)
+        {
+            UnitStats* upgradedUnitStats = new UnitStats(UnitGroupDataMap[type].Stats + maxRequiredBuildingLevel);
+            m_UnitGroups.emplace_back(new UnitGroup(type, upgradedUnitStats));
+        }
+        else
+        {
+            m_UnitGroups.emplace_back(new UnitGroup(type));
+        }
+    }
     else
         LOG_WARN("Trying to add unit group of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
 }
@@ -256,8 +284,8 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
     for (auto unitStats : unitStatsVector)
     {
         stats[0] += unitStats->Attack;
-        stats[1] += unitStats->Health;
-        stats[2] += unitStats->Defense;
+        stats[1] += unitStats->Defense;
+        stats[2] += unitStats->Health;
     }
 
     static float hOffset = 0.035f;
@@ -270,6 +298,13 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
         {0.0f, 0.0f, 0.0f, 0.6f}
     );
 
+    int unitStatsVectorSize = unitStatsVector.size();
+    int totalBaseStats[s_StatCount] = {
+        UnitGroupDataMap[unitGroup->GetType()].Stats.Attack  * unitStatsVectorSize,
+        UnitGroupDataMap[unitGroup->GetType()].Stats.Defense * unitStatsVectorSize,
+        UnitGroupDataMap[unitGroup->GetType()].Stats.Health  * unitStatsVectorSize
+    };
+
     for (int i = 0; i < s_StatCount; i++)
     {
         Renderer2D::DrawQuad(
@@ -278,11 +313,18 @@ void Tile::DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup)
             ResourceManager::GetTexture(s_StatTextures[i])
         );
 
+        glm::vec3 statColor = glm::vec3(1.0f);
+
+        if (stats[i] < totalBaseStats[i])
+            statColor = glm::vec3(1.0f, 0.0f, 0.0f);
+        else if (stats[i] > totalBaseStats[i])
+            statColor = glm::vec3(0.0f, 1.0f, 0.0f);
+
         Renderer2D::DrawTextStr(
             std::to_string(stats[i]),
             { unitData.Position.x - statSize + hOffset, unitData.Position.y + statSize },
             textScale / GameLayer::Get().GetCameraController()->GetCamera()->GetZoom(),
-            glm::vec3(1.0f), HTextAlign::LEFT, VTextAlign::MIDDLE, "rexlia"
+            statColor, HTextAlign::LEFT, VTextAlign::MIDDLE, "rexlia"
         );
 
         unitData.Position.y -= statSize;
@@ -345,21 +387,79 @@ void Tile::CheckUnitGroupHover(const glm::vec2& relMousePos)
     }
 }
 
+void Tile::CheckBuildingHover(const glm::vec2& relMousePos)
+{
+    if (GameLayer::Get().GetPlayerManager()->GetCurrentPlayer() != m_OwnedBy) return;
+
+    auto buildingData = GetBuildingDrawData();
+    float initialX = buildingData.Position.x;
+    static glm::vec2 upgradeIconSize = buildingData.Size * 0.3f;
+
+    for (int i = 0; i < m_Buildings.size(); i++)
+    {
+        glm::vec2 upgradeIconPosition = buildingData.Position + buildingData.Size / 2.0f - upgradeIconSize / 2.0f;
+
+        if (Util::IsPointInRectangle(buildingData.Position, buildingData.Size, relMousePos))
+        {
+            // Upgrade icon
+            Renderer2D::DrawQuad(
+                upgradeIconPosition,
+                upgradeIconSize,
+                s_UpgradeIconTexture
+            );
+
+            if (Util::IsPointInRectangle(upgradeIconPosition, upgradeIconSize, relMousePos))
+            {
+                // Draw bigger upgrade icon to imitate bolding
+                Renderer2D::DrawQuad(
+                    upgradeIconPosition,
+                    glm::vec2(upgradeIconSize * 1.1f),
+                    s_UpgradeIconTexture
+                );
+            }
+        }
+
+        if ((i + 1) % s_BuildingsPerRow == 0)
+        {
+            buildingData.Position.x = initialX;
+            buildingData.Position.y -= (buildingData.OffsetSize.y + buildingData.Size.y);
+        }
+        else
+        {
+            buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
+        }
+    }
+}
+
 void Tile::DrawBuildings()
 {
     if (m_Buildings.empty()) return;
 
     auto buildingData = GetBuildingDrawData();
     float initialX = buildingData.Position.x;
+    static auto camera = GameLayer::Get().GetCameraController()->GetCamera();
 
     Renderer2D::DrawQuad(buildingData.BackgroundPosition, buildingData.BackgroundSize, {0.4f, 0.4f, 0.4f, 1.0f});
 
     for (int i = 0; i < m_Buildings.size(); i++)
     {
+        // Building texture
         Renderer2D::DrawQuad(
             buildingData.Position,
             buildingData.Size,
             ResourceManager::GetTexture(BuildingDataMap[m_Buildings[i]->GetType()].TextureName)
+        );
+
+        // Level number
+        // TODO(Viktor): Remove once having separater textures for different building levels
+        Renderer2D::DrawTextStr(
+            "lvl " + std::to_string(m_Buildings[i]->GetLevel()),
+            buildingData.Position - buildingData.Size / 2.0f,
+            0.3f / camera->GetZoom(),
+            glm::vec3(1.0f),
+            HTextAlign::LEFT,
+            VTextAlign::BOTTOM,
+            "rexlia"
         );
 
         if ((i + 1) % s_BuildingsPerRow == 0)
@@ -412,6 +512,23 @@ void Tile::DrawEnvironment()
             }
         }
     }
+}
+
+const Resources Tile::GetResources() const
+{
+    int extraGold = 0;
+    for (auto building : m_Buildings)
+    {
+        if (building->GetType() == BuildingType::GOLD_MINE)
+            extraGold += building->GetLevel() * 2;
+    }
+
+    return {
+        m_Resources.Wood,
+        m_Resources.Rock,
+        m_Resources.Steel,
+        m_Resources.Gold + extraGold
+    };
 }
 
 int Tile::GetNumSelectedUnitGroups()
@@ -507,6 +624,42 @@ bool Tile::HandleUnitGroupMouseClick(const glm::vec2& relMousePos)
         else
         {
             unitData.Position.x += unitData.Size.x + unitData.OffsetSize.x;
+        }
+    }
+
+    return false;
+}
+
+bool Tile::HandleBuildingUpgradeIconMouseClick(const glm::vec2& relMousePos)
+{
+    auto buildingData = GetBuildingDrawData();
+    float initialX = buildingData.Position.x;
+    static glm::vec2 upgradeIconSize = buildingData.Size * 0.3f;
+
+    for (int i = 0; i < m_Buildings.size(); i++)
+    {
+        if (Util::IsPointInRectangle(
+            buildingData.Position + buildingData.Size / 2.0f - upgradeIconSize / 2.0f,
+            upgradeIconSize,
+            relMousePos))
+        {
+            // NOTE: Consider using non-linear function for calculating cost based on current building upgrade level
+            Resources upgradeCost = BuildingDataMap[m_Buildings[i]->GetType()].BaseUpgradeCost * (m_Buildings[i]->GetLevel() + 1);
+            if (GameLayer::Get().GetPlayerManager()->GetCurrentPlayer()->SubtractResources(upgradeCost))
+            {
+                m_Buildings[i]->Upgrade();
+                return true;
+            }
+        }
+
+        if ((i + 1) % s_BuildingsPerRow == 0)
+        {
+            buildingData.Position.x = initialX;
+            buildingData.Position.y -= (buildingData.OffsetSize.y + buildingData.Size.y);
+        }
+        else
+        {
+            buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
         }
     }
 

@@ -49,17 +49,19 @@ public:
     bool HasSelectedUnitGroups();
     bool InRange(const glm::vec2& cursorPos);
     bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);
+    bool HandleBuildingUpgradeIconMouseClick(const glm::vec2& relMousePos);
     bool IsMouseClickedInsideUnitGroupsBox(const glm::vec2& relMousePos);
     bool AssetsCanExist() { return m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN; }
     void CheckUnitGroupHover(const glm::vec2& relMousePos);
+    void CheckBuildingHover(const glm::vec2& relMousePos);
 
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
-    inline const Resources GetResources() const { return m_Resources; }
     inline const std::shared_ptr<Player>& GetOwnedBy() const { return m_OwnedBy; }
     std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
+    const Resources GetResources() const;
     int GetNumSelectedUnitGroups();
 
     void SetOwnership(const std::shared_ptr<Player>& player);
@@ -84,6 +86,7 @@ public:
     static const char* s_StatTextures[];
 
 private:
+    void InitStaticRuntimeData();
     void DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup);
     void DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[]);
     void DrawEnvironment();
@@ -93,6 +96,9 @@ private:
     void TransferUnitGroupsToTile(const std::shared_ptr<Tile>& destTile);
     DrawData GetUnitGroupDrawData();
     DrawData GetBuildingDrawData();
+
+private:
+    static std::shared_ptr<Texture2D> s_UpgradeIconTexture;
 
 private:
     TileEnvironment m_Environment;

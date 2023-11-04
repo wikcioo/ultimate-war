@@ -19,6 +19,7 @@ struct Resources
     int Steel;
     int Gold;
 
+    Resources operator*(int scalar);
     Resources& operator+=(const Resources& other);
     Resources& operator-=(const Resources& other);
     bool operator>=(const Resources& other);

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 #include <unordered_map>
 
 #include "game/building.h"
@@ -23,6 +24,8 @@ struct UnitStats
     int Attack;
     int Defense;
     int Health;
+
+    UnitStats operator+(int scalar);
 };
 
 struct UnitGroupData
@@ -38,7 +41,7 @@ extern std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap;
 class UnitGroup
 {
 public:
-    UnitGroup(UnitGroupType type);
+    UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats = std::nullopt);
     ~UnitGroup() = default;
 
     void ToggleSelected() { m_IsSelected = !m_IsSelected; }
