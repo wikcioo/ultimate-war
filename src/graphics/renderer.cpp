@@ -302,6 +302,26 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
     }
 }
 
+glm::vec2 Renderer2D::GetTextSize(const std::shared_ptr<OrthographicCamera>& camera, const std::string& text,
+                                  const std::string& fontName)
+{
+    auto characters = ResourceManager::GetFont(fontName)->GetCharacters();
+
+    float maxCharHeightPx = 0.0f;
+    float textWidth = 0.0f;
+
+    for (std::string::const_iterator c = text.begin(); c != text.end(); c++)
+    {
+        float charHeightPx = characters[*c].Size.y;
+        if (charHeightPx > maxCharHeightPx)
+            maxCharHeightPx = charHeightPx;
+
+        textWidth += camera->ConvertPixelSizeToRelative(characters[*c].Size.x + characters[*c].Bearing.x);
+    }
+
+    return { textWidth, camera->ConvertPixelSizeToRelative(maxCharHeightPx, false) };
+}
+
 void Renderer2D::ClearColor(const glm::vec4& color)
 {
     glClearColor(color.r, color.g, color.b, color.a);

@@ -54,6 +54,8 @@ public:
     static void DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color = glm::vec3(1.0f),
                             HTextAlign hAlign = HTextAlign::LEFT, VTextAlign vAlign = VTextAlign::BOTTOM,
                             const std::string& fontName = "vinque");
+    static glm::vec2 GetTextSize(const std::shared_ptr<OrthographicCamera>& camera, const std::string& text,
+                                 const std::string& fontName);
 
     static void ClearColor(const glm::vec4& color);
 
