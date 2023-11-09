@@ -111,6 +111,8 @@ FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         LOG_ERROR("Framebuffer: Incomplete multisampled framebuffer");
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 FrameBuffer::~FrameBuffer()
