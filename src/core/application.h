@@ -17,7 +17,8 @@ enum class LayerStackReload
 {
     NONE,
     OPEN_MAIN_MENU,
-    START_NEW_GAME
+    START_NEW_GAME,
+    CONTINUE_LAST_GAME
 };
 
 class Application
@@ -31,7 +32,10 @@ public:
 
     void OpenMainMenu();
     void StartNewGame(NewGameDTO newGameData);
+    void ContinueLastGame();
     void Exit() { m_Running = false; }
+
+    bool LastGameAvailable() { return m_LastGameLayer ? true : false; }
 
     Window* GetWindow() { return m_Window.get(); }
     static Application& Get() { return *s_Instance; }

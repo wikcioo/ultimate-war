@@ -11,25 +11,32 @@ MainView::MainView()
     );
     startNewGameButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnStartNewGameButtonPressed));
 
+    Button* continueLastGameButton = new Button(
+        m_Camera,
+        { "CONTINUE LAST GAME", glm::vec2(0.0f, -0.15f), glm::vec2(1.0f, 0.1f) }
+    );
+    continueLastGameButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnContinueLastGameButtonPressed));
+
     Button* chooseMapButton = new Button(
         m_Camera,
-        { "CHOOSE THE MAP", glm::vec2(0.0f, -0.15f), glm::vec2(1.0f, 0.1f) }
+        { "CHOOSE THE MAP", glm::vec2(0.0f, -0.3f), glm::vec2(1.0f, 0.1f) }
     );
     chooseMapButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnChooseMapButtonPressed));
 
     Button* showContributorsButton = new Button(
         m_Camera,
-        { "CONTRIBUTORS", glm::vec2(0.0f, -0.3f), glm::vec2(1.0f, 0.1f) }
+        { "CONTRIBUTORS", glm::vec2(0.0f, -0.45f), glm::vec2(1.0f, 0.1f) }
     );
     showContributorsButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnShowContributorsButtonPressed));
 
     Button* exitButton = new Button(
         m_Camera,
-        { "EXIT", glm::vec2(0.0f, -0.45f), glm::vec2(1.0f, 0.1f) }
+        { "EXIT", glm::vec2(0.0f, -0.6f), glm::vec2(1.0f, 0.1f) }
     );
     exitButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnExitButtonPressed));
 
     m_Buttons.emplace_back(startNewGameButton);
+    m_Buttons.emplace_back(continueLastGameButton);
     m_Buttons.emplace_back(chooseMapButton);
     m_Buttons.emplace_back(showContributorsButton);
     m_Buttons.emplace_back(exitButton);
@@ -43,6 +50,7 @@ MainView::~MainView()
 
 void MainView::OnAttach()
 {
+    m_Buttons[1]->SetDisabled(!Application::Get().LastGameAvailable());
 }
 
 void MainView::OnUpdate()
@@ -78,6 +86,11 @@ void MainView::OnStartNewGameButtonPressed(ButtonCallbackData data)
     players.emplace_back((PlayerDTO){ "Bob", glm::vec3(0.0f, 0.0f, 1.0f) });
 
     Application::Get().StartNewGame({ selectedMap, players });
+}
+
+void MainView::OnContinueLastGameButtonPressed(ButtonCallbackData data)
+{
+    Application::Get().ContinueLastGame();
 }
 
 void MainView::OnChooseMapButtonPressed(ButtonCallbackData data)

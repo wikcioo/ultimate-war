@@ -95,6 +95,11 @@ void Application::StartNewGame(NewGameDTO newGameData)
     m_LayerStackReload = LayerStackReload::START_NEW_GAME;
 }
 
+void Application::ContinueLastGame()
+{
+    m_LayerStackReload = LayerStackReload::CONTINUE_LAST_GAME;
+}
+
 void Application::LoadResources()
 {
     ResourceManager::LoadFont("vinque", "assets/fonts/vinque/vinque.otf");
@@ -181,6 +186,19 @@ void Application::ProcessLayerStackReload()
 #endif
 
             m_LastGameLayer = m_GameLayer;
+            break;
+        }
+        case LayerStackReload::CONTINUE_LAST_GAME:
+        {
+            if (m_LastGameLayer)
+                m_GameLayer = m_LastGameLayer;
+
+            m_MainMenuLayer->SetIsActive(false);
+            m_GameLayer->SetIsActive(true);
+            m_UILayer->SetIsActive(true);
+#if defined(DEBUG)
+            m_DebugLayer->SetIsActive(true);
+#endif
             break;
         }
         default:

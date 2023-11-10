@@ -17,6 +17,7 @@ public:
 
 private:
     void OnStartNewGameButtonPressed(ButtonCallbackData data);
+    void OnContinueLastGameButtonPressed(ButtonCallbackData data);
     void OnChooseMapButtonPressed(ButtonCallbackData data);
     void OnShowContributorsButtonPressed(ButtonCallbackData data);
     void OnExitButtonPressed(ButtonCallbackData data);
