@@ -26,8 +26,8 @@ GameLayer::GameLayer()
     m_PlayerManager = std::make_shared<PlayerManager>();
     m_Arrow = std::make_shared<Arrow>();
 
-    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {1.0f, 0.0f, 0.0f});
-    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {0.0f, 0.0, 1.0f});
+    m_PlayerManager->AddPlayer({ Util::GenerateAnonymousName(), {1.0f, 0.0f, 0.0f} });
+    m_PlayerManager->AddPlayer({ Util::GenerateAnonymousName(), {0.0f, 0.0f, 1.0f} });
 }
 
 void GameLayer::OnAttach()

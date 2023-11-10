@@ -2,8 +2,8 @@
 
 #include <algorithm>
 
-Player::Player(const std::string& name, const glm::vec3& color, Resources resources)
-    :  m_Name(name), m_Color(color), m_Resources(resources)
+Player::Player(PlayerDTO playerData, Resources resources)
+    :  m_Name(playerData.Name), m_Color(playerData.Color), m_Resources(resources)
 {
 }
 

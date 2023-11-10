@@ -5,10 +5,16 @@
 
 #include "game/tile.h"
 
+struct PlayerDTO
+{
+    std::string Name;
+    glm::vec3 Color;
+};
+
 class Player : public std::enable_shared_from_this<Player>
 {
 public:
-    Player(const std::string& name, const glm::vec3& color, Resources resources = {0});
+    Player(PlayerDTO playerData, Resources resources = {0});
     ~Player() = default;
 
     inline std::string GetName() { return m_Name; }
