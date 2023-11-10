@@ -131,6 +131,12 @@ void Window::Init()
     {
         auto data = (WindowData*)glfwGetWindowUserPointer(window);
 
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
+
+        data->Width = width;
+        data->Height = height;
+
         if (maximized == GLFW_TRUE)
         {
             WindowMaximizedEvent event;
