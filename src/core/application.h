@@ -8,6 +8,10 @@
 #include "graphics/buffer.h"
 #include "graphics/vertex_array.h"
 
+#include "ui/ui_layer.h"
+#include "game/game_layer.h"
+#include "debug/debug_layer.h"
+
 class Application
 {
 public:
@@ -28,8 +32,14 @@ private:
 private:
     static Application* s_Instance;
 
+    std::shared_ptr<GameLayer> m_GameLayer;
+    std::shared_ptr<GameLayer> m_LastGameLayer;
+    std::shared_ptr<UILayer> m_UILayer;
+#if defined(DEBUG)
+    std::shared_ptr<DebugLayer> m_DebugLayer;
+#endif
     std::unique_ptr<Window> m_Window;
-    LayerStack m_LayerStack;
+    std::unique_ptr<LayerStack> m_LayerStack;
     bool m_Running = true;
     float m_DeltaTime;
 };

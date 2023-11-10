@@ -1,12 +1,9 @@
 #include "application.h"
 
-#include "game/game_layer.h"
 #include "core/core.h"
 #include "core/logger.h"
 #include "core/resource_manager.h"
-#include "debug/debug_layer.h"
 #include "graphics/renderer.h"
-#include "ui/ui_layer.h"
 
 Application* Application::s_Instance = nullptr;
 
@@ -17,24 +14,25 @@ Application::Application()
     Logger::Init();
     m_Window = std::make_unique<Window>();
     m_Window->SetEventCallback(BIND_EVENT_FN(Application::OnEvent));
+    m_LayerStack = std::make_unique<LayerStack>();
 
     LoadResources();
     InitializeColors();
 
     Renderer2D::Init();
 
-    GameLayer* gameLayer = new GameLayer();
+    std::shared_ptr<GameLayer> gameLayer = std::make_shared<GameLayer>();
     gameLayer->OnAttach();
-    m_LayerStack.PushLayer(gameLayer);
+    m_LayerStack->PushLayer(gameLayer);
 
-    UILayer* uiLayer = new UILayer();
+    std::shared_ptr<UILayer> uiLayer = std::make_shared<UILayer>();
     uiLayer->OnAttach();
-    m_LayerStack.PushOverlay(uiLayer);
+    m_LayerStack->PushOverlay(uiLayer);
 
 #if defined(DEBUG)
-    auto debugLayer = new DebugLayer();
+    std::shared_ptr<DebugLayer> debugLayer = std::make_shared<DebugLayer>();
     debugLayer->OnAttach();
-    m_LayerStack.PushOverlay(debugLayer);
+    m_LayerStack->PushOverlay(debugLayer);
 #endif
 }
 
@@ -47,7 +45,7 @@ void Application::OnEvent(Event& event)
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowClosedEvent>(BIND_EVENT_FN(Application::OnWindowClose));
 
-    for (auto it = m_LayerStack.rbegin(); it != m_LayerStack.rend(); it++)
+    for (auto it = m_LayerStack->rbegin(); it != m_LayerStack->rend(); it++)
     {
         if (event.Handled)
             break;
@@ -70,7 +68,7 @@ void Application::Run()
         m_DeltaTime = now - lastTime;
         lastTime = now;
 
-        for (auto layer : m_LayerStack)
+        for (auto layer : *m_LayerStack)
             layer->OnUpdate(m_DeltaTime);
 
         m_Window->OnUpdate();
