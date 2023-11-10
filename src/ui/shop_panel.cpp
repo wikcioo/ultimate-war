@@ -267,7 +267,6 @@ bool ShopPanel::OnKeyPressed(KeyPressedEvent& event)
         m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
         m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
         m_CursorAttachedAsset.Texture.reset();
-        return true;
     }
 
     return false;
