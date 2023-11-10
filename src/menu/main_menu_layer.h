@@ -12,7 +12,8 @@
 
 enum class ViewName
 {
-    MAIN
+    MAIN,
+    CHOOSE_MAP
 };
 
 class MainMenuView;
@@ -33,6 +34,8 @@ public:
     void SetView(ViewName viewName);
     const glm::vec2& GetRelWindowSize() { return m_RelWindowSize; }
     const std::shared_ptr<OrthographicCamera>& GetMainMenuCamera() { return m_MainMenuCamera; }
+
+    const std::string& GetSelectedMap();
 
 private:
     void OnWindowSizeChanged();

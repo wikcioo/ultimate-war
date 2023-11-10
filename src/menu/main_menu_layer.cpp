@@ -4,6 +4,7 @@
 #include "core/application.h"
 #include "graphics/renderer.h"
 #include "menu/views/main_view.h"
+#include "menu/views/choose_map_view.h"
 
 MainMenuLayer* MainMenuLayer::s_Instance = nullptr;
 
@@ -19,6 +20,8 @@ MainMenuLayer::MainMenuLayer()
 
     m_Views[ViewName::MAIN] = new MainView();
     m_Views[ViewName::MAIN]->OnAttach();
+    m_Views[ViewName::CHOOSE_MAP] = new ChooseMapView();
+    m_Views[ViewName::CHOOSE_MAP]->OnAttach();
 
     m_CurrentViewName = ViewName::MAIN;
 }
@@ -61,6 +64,11 @@ void MainMenuLayer::SetView(ViewName viewName)
 {
     m_Views[viewName]->OnAttach();
     m_CurrentViewName = viewName;
+}
+
+const std::string& MainMenuLayer::GetSelectedMap()
+{
+    return ((ChooseMapView*)m_Views[ViewName::CHOOSE_MAP])->GetSelectedMap();
 }
 
 void MainMenuLayer::OnWindowSizeChanged()

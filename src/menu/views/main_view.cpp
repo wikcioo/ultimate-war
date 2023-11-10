@@ -10,7 +10,15 @@ MainView::MainView()
         { "START NEW GAME", glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.1f) }
     );
     startNewGameButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnStartNewGameButtonPressed));
+
+    Button* chooseMapButton = new Button(
+        m_Camera,
+        { "CHOOSE THE MAP", glm::vec2(0.0f, -0.15f), glm::vec2(1.0f, 0.1f) }
+    );
+    chooseMapButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnChooseMapButtonPressed));
+
     m_Buttons.emplace_back(startNewGameButton);
+    m_Buttons.emplace_back(chooseMapButton);
 }
 
 MainView::~MainView()
@@ -44,12 +52,21 @@ void MainView::OnEvent(Event& event)
 
 void MainView::OnStartNewGameButtonPressed(ButtonCallbackData data)
 {
-    // NOTE: Hardcoded until choose map view implemented
-    auto selectedMap = "environments";
+    auto selectedMap = MainMenuLayer::Get().GetSelectedMap();
+    if (selectedMap.empty())
+    {
+        LOG_WARN("No map selected");
+        return;
+    }
 
     std::vector<PlayerDTO> players;
     players.emplace_back((PlayerDTO){ "John", glm::vec3(1.0f, 0.0f, 0.0f) });
     players.emplace_back((PlayerDTO){ "Bob", glm::vec3(0.0f, 0.0f, 1.0f) });
 
     Application::Get().StartNewGame({ selectedMap, players });
+}
+
+void MainView::OnChooseMapButtonPressed(ButtonCallbackData data)
+{
+    MainMenuLayer::Get().SetView(ViewName::CHOOSE_MAP);
 }
