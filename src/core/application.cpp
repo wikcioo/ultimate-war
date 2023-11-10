@@ -1,7 +1,6 @@
 #include "application.h"
 
 #include "core/core.h"
-#include "core/logger.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
 
@@ -21,27 +20,19 @@ Application::Application()
 
     Renderer2D::Init();
 
-    std::shared_ptr<GameLayer> gameLayer = std::make_shared<GameLayer>();
-    gameLayer->OnAttach();
-    m_LayerStack->PushLayer(gameLayer);
-
-    std::shared_ptr<UILayer> uiLayer = std::make_shared<UILayer>();
-    uiLayer->OnAttach();
-    m_LayerStack->PushOverlay(uiLayer);
+    m_MainMenuLayer = std::make_shared<MainMenuLayer>();
+    m_MainMenuLayer->OnAttach();
+    m_LayerStack->PushLayer(m_MainMenuLayer);
 
 #if defined(DEBUG)
     DebugLayer::InitImGui();
-#endif
-
-#if defined(DEBUG)
-    std::shared_ptr<DebugLayer> debugLayer = std::make_shared<DebugLayer>();
-    debugLayer->OnAttach();
-    m_LayerStack->PushOverlay(debugLayer);
 #endif
 }
 
 Application::~Application()
 {
+    Renderer2D::Shutdown();
+
 #if defined(DEBUG)
     DebugLayer::ShutdownImGui();
 #endif
@@ -54,6 +45,9 @@ void Application::OnEvent(Event& event)
 
     for (auto it = m_LayerStack->rbegin(); it != m_LayerStack->rend(); it++)
     {
+        if (!(*it)->IsActive())
+            continue;
+
         if (event.Handled)
             break;
         (*it)->OnEvent(event);
@@ -76,10 +70,24 @@ void Application::Run()
         lastTime = now;
 
         for (auto layer : *m_LayerStack)
+        {
+            if (!layer->IsActive())
+                continue;
+
             layer->OnUpdate(m_DeltaTime);
+        }
+
+        if (m_LayerStackReload != LayerStackReload::NONE)
+            ProcessLayerStackReload();
 
         m_Window->OnUpdate();
     }
+}
+
+void Application::StartNewGame(NewGameDTO newGameData)
+{
+    m_NewGameData = newGameData;
+    m_LayerStackReload = LayerStackReload::START_NEW_GAME;
 }
 
 void Application::LoadResources()
@@ -131,4 +139,37 @@ void Application::InitializeColors()
     ColorData::Get().Resources.Rock = { 0.5f, 0.5f, 0.5f };
     ColorData::Get().Resources.Steel = { 0.7f, 0.7f, 0.7f };
     ColorData::Get().Resources.Gold = { 0.984f, 0.792f, 0.188f };
+}
+
+void Application::ProcessLayerStackReload()
+{
+    switch (m_LayerStackReload)
+    {
+        case LayerStackReload::START_NEW_GAME:
+        {
+            m_MainMenuLayer->SetIsActive(false);
+
+            m_GameLayer = std::make_shared<GameLayer>();
+            m_GameLayer->OnAttach();
+            m_GameLayer->InitGame(m_NewGameData);
+            m_LayerStack->PushLayer(m_GameLayer);
+
+            m_UILayer = std::make_shared<UILayer>();
+            m_UILayer->OnAttach();
+            m_LayerStack->PushOverlay(m_UILayer);
+
+#if defined(DEBUG)
+            m_DebugLayer = std::make_shared<DebugLayer>();
+            m_DebugLayer->OnAttach();
+            m_LayerStack->PushOverlay(m_DebugLayer);
+#endif
+
+            m_LastGameLayer = m_GameLayer;
+            break;
+        }
+        default:
+            break;
+    }
+
+    m_LayerStackReload = LayerStackReload::NONE;
 }

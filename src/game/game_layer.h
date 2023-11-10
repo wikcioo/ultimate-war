@@ -16,6 +16,12 @@
 #include "game/player_manager.h"
 #include "game/color_data.h"
 
+struct NewGameDTO
+{
+    std::string MapName;
+    std::vector<PlayerDTO> Players;
+};
+
 class GameLayer : public Layer
 {
 #if defined(DEBUG)
@@ -38,6 +44,7 @@ public:
     inline bool IsGameActive() const { return m_GameActive; }
     inline int GetIteration() { return m_IterationNumber; }
 
+    void InitGame(NewGameDTO newGameData);
     void NextIteration() { m_IterationNumber++; }
     void ResetArrow();
     void EndGame();
