@@ -82,8 +82,8 @@ void MainView::OnStartNewGameButtonPressed(ButtonCallbackData data)
     }
 
     std::vector<PlayerDTO> players;
-    players.emplace_back((PlayerDTO){ "John", glm::vec3(1.0f, 0.0f, 0.0f) });
-    players.emplace_back((PlayerDTO){ "Bob", glm::vec3(0.0f, 0.0f, 1.0f) });
+    players.emplace_back(PlayerDTO("John", glm::vec3(1.0f, 0.0f, 0.0f)));
+    players.emplace_back(PlayerDTO("Bob", glm::vec3(0.0f, 0.0f, 1.0f)));
 
     Application::Get().StartNewGame({ selectedMap, players });
 }

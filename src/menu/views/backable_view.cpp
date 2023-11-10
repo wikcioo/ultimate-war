@@ -6,10 +6,12 @@
 BackableView::BackableView()
     : m_BackButtonSize(0.4, 0.1)
 {
-    m_BackButton = std::make_unique<Button>(
-        m_Camera,
-        (ButtonConfig){ "BACK", CalculateBackButtonPosition(), m_BackButtonSize }
-    );
+    ButtonConfig buttonConfig;
+    buttonConfig.Text = "BACK";
+    buttonConfig.Position = CalculateBackButtonPosition();
+    buttonConfig.Size = m_BackButtonSize;
+
+    m_BackButton = std::make_unique<Button>(m_Camera, buttonConfig);
     m_BackButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(BackableView::OnBackButtonPressed));
 }
 

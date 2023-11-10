@@ -9,6 +9,12 @@ struct PlayerDTO
 {
     std::string Name;
     glm::vec3 Color;
+
+    PlayerDTO(const std::string& name, const glm::vec3& color)
+    {
+        Name = name;
+        Color = color;
+    }
 };
 
 class Player : public std::enable_shared_from_this<Player>
