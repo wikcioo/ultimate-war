@@ -291,6 +291,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
                 s_Data->FontShader->SetFloat3("u_Color", color);
 
                 s_Data->FontVertexArray->Bind();
+                s_Data->FontVertexArray->GetIndexBuffer()->Bind();
                 glDrawElements(GL_TRIANGLES, s_Data->FontVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
 
                 pos_cpy.x += s_Data->Camera->ConvertPixelSizeToRelative(ch.Advance >> 6) * scale;
