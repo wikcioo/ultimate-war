@@ -30,6 +30,10 @@ Application::Application()
     m_LayerStack->PushOverlay(uiLayer);
 
 #if defined(DEBUG)
+    DebugLayer::InitImGui();
+#endif
+
+#if defined(DEBUG)
     std::shared_ptr<DebugLayer> debugLayer = std::make_shared<DebugLayer>();
     debugLayer->OnAttach();
     m_LayerStack->PushOverlay(debugLayer);
@@ -38,6 +42,9 @@ Application::Application()
 
 Application::~Application()
 {
+#if defined(DEBUG)
+    DebugLayer::ShutdownImGui();
+#endif
 }
 
 void Application::OnEvent(Event& event)
