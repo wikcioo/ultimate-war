@@ -29,6 +29,7 @@ public:
     void Run();
 
     void StartNewGame(NewGameDTO newGameData);
+    void Exit() { m_Running = false; }
 
     Window* GetWindow() { return m_Window.get(); }
     static Application& Get() { return *s_Instance; }

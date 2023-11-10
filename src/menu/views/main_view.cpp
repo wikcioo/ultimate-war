@@ -23,9 +23,16 @@ MainView::MainView()
     );
     showContributorsButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnShowContributorsButtonPressed));
 
+    Button* exitButton = new Button(
+        m_Camera,
+        { "EXIT", glm::vec2(0.0f, -0.45f), glm::vec2(1.0f, 0.1f) }
+    );
+    exitButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnExitButtonPressed));
+
     m_Buttons.emplace_back(startNewGameButton);
     m_Buttons.emplace_back(chooseMapButton);
     m_Buttons.emplace_back(showContributorsButton);
+    m_Buttons.emplace_back(exitButton);
 }
 
 MainView::~MainView()
@@ -81,4 +88,9 @@ void MainView::OnChooseMapButtonPressed(ButtonCallbackData data)
 void MainView::OnShowContributorsButtonPressed(ButtonCallbackData data)
 {
     MainMenuLayer::Get().SetView(ViewName::CONTRIBUTORS);
+}
+
+void MainView::OnExitButtonPressed(ButtonCallbackData data)
+{
+    Application::Get().Exit();
 }

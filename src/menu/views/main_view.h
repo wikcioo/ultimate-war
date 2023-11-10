@@ -19,6 +19,7 @@ private:
     void OnStartNewGameButtonPressed(ButtonCallbackData data);
     void OnChooseMapButtonPressed(ButtonCallbackData data);
     void OnShowContributorsButtonPressed(ButtonCallbackData data);
+    void OnExitButtonPressed(ButtonCallbackData data);
 
 private:
     std::vector<Button*> m_Buttons;
