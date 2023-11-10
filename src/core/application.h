@@ -16,6 +16,7 @@
 enum class LayerStackReload
 {
     NONE,
+    OPEN_MAIN_MENU,
     START_NEW_GAME
 };
 
@@ -28,6 +29,7 @@ public:
     void OnEvent(Event& event);
     void Run();
 
+    void OpenMainMenu();
     void StartNewGame(NewGameDTO newGameData);
     void Exit() { m_Running = false; }
 

@@ -84,6 +84,11 @@ void Application::Run()
     }
 }
 
+void Application::OpenMainMenu()
+{
+    m_LayerStackReload = LayerStackReload::OPEN_MAIN_MENU;
+}
+
 void Application::StartNewGame(NewGameDTO newGameData)
 {
     m_NewGameData = newGameData;
@@ -145,6 +150,17 @@ void Application::ProcessLayerStackReload()
 {
     switch (m_LayerStackReload)
     {
+        case LayerStackReload::OPEN_MAIN_MENU:
+        {
+            m_MainMenuLayer->SetIsActive(true);
+            m_MainMenuLayer->OnAttach();
+            m_GameLayer->SetIsActive(false);
+            m_UILayer->SetIsActive(false);
+#if defined(DEBUG)
+            m_DebugLayer->SetIsActive(false);
+#endif
+            break;
+        }
         case LayerStackReload::START_NEW_GAME:
         {
             m_MainMenuLayer->SetIsActive(false);
