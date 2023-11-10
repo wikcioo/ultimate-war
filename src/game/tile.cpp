@@ -437,7 +437,7 @@ void Tile::DrawBuildings()
 
     auto buildingData = GetBuildingDrawData();
     float initialX = buildingData.Position.x;
-    static auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+    auto camera = GameLayer::Get().GetCameraController()->GetCamera();
 
     Renderer2D::DrawQuad(buildingData.BackgroundPosition, buildingData.BackgroundSize, {0.4f, 0.4f, 0.4f, 1.0f});
 
