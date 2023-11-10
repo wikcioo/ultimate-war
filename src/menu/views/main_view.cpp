@@ -17,8 +17,15 @@ MainView::MainView()
     );
     chooseMapButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnChooseMapButtonPressed));
 
+    Button* showContributorsButton = new Button(
+        m_Camera,
+        { "CONTRIBUTORS", glm::vec2(0.0f, -0.3f), glm::vec2(1.0f, 0.1f) }
+    );
+    showContributorsButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(MainView::OnShowContributorsButtonPressed));
+
     m_Buttons.emplace_back(startNewGameButton);
     m_Buttons.emplace_back(chooseMapButton);
+    m_Buttons.emplace_back(showContributorsButton);
 }
 
 MainView::~MainView()
@@ -69,4 +76,9 @@ void MainView::OnStartNewGameButtonPressed(ButtonCallbackData data)
 void MainView::OnChooseMapButtonPressed(ButtonCallbackData data)
 {
     MainMenuLayer::Get().SetView(ViewName::CHOOSE_MAP);
+}
+
+void MainView::OnShowContributorsButtonPressed(ButtonCallbackData data)
+{
+    MainMenuLayer::Get().SetView(ViewName::CONTRIBUTORS);
 }

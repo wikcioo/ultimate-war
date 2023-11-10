@@ -5,6 +5,7 @@
 #include "graphics/renderer.h"
 #include "menu/views/main_view.h"
 #include "menu/views/choose_map_view.h"
+#include "menu/views/contributors_view.h"
 
 MainMenuLayer* MainMenuLayer::s_Instance = nullptr;
 
@@ -22,6 +23,8 @@ MainMenuLayer::MainMenuLayer()
     m_Views[ViewName::MAIN]->OnAttach();
     m_Views[ViewName::CHOOSE_MAP] = new ChooseMapView();
     m_Views[ViewName::CHOOSE_MAP]->OnAttach();
+    m_Views[ViewName::CONTRIBUTORS] = new ContributorsView();
+    m_Views[ViewName::CONTRIBUTORS]->OnAttach();
 
     m_CurrentViewName = ViewName::MAIN;
 }

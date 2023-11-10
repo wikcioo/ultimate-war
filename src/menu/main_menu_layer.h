@@ -13,7 +13,8 @@
 enum class ViewName
 {
     MAIN,
-    CHOOSE_MAP
+    CHOOSE_MAP,
+    CONTRIBUTORS
 };
 
 class MainMenuView;
