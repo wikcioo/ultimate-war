@@ -16,3 +16,5 @@ libs/Makefile
 .vscode/settings.json
 
 imgui.ini
+
+assets/maps/test*.map
