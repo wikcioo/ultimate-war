@@ -23,5 +23,5 @@ private:
 
 private:
     std::string m_SelectedMap;
-    std::unique_ptr<ToggleButtonGroup> m_MapButtonGroup;
+    std::vector<Button*> m_Buttons;
 };
