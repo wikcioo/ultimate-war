@@ -88,6 +88,13 @@ void OrthographicCamera::SetAspectRatio(float ratio)
     RecalculateProjectionMatrix();
 }
 
+void OrthographicCamera::SetWindowAspectRatio()
+{
+    static auto window = Application::Get().GetWindow();
+    m_AspectRatio = (float)window->GetWidth() / (float)window->GetHeight();
+    RecalculateProjectionMatrix();
+}
+
 void OrthographicCamera::SetZoom(float zoom)
 {
     m_Zoom = zoom;
