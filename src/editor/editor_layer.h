@@ -36,6 +36,7 @@ private:
     void CheckForTileInRange();
 
 private:
+    std::shared_ptr<OrthographicCamera> m_UICamera;
     std::shared_ptr<OrthographicCameraController> m_CameraController;
     std::unordered_map<glm::ivec2, Tile*> m_Map;
     Tile* m_PreviousTile;
