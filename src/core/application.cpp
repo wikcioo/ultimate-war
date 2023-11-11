@@ -88,6 +88,11 @@ void Application::OpenMainMenu()
     m_LayerStackReload = LayerStackReload::OPEN_MAIN_MENU;
 }
 
+void Application::OpenMapEditor()
+{
+    m_LayerStackReload = LayerStackReload::OPEN_MAP_EDITOR;
+}
+
 void Application::StartNewGame(NewGameDTO newGameData)
 {
     m_NewGameData = newGameData;
@@ -158,10 +163,15 @@ void Application::ProcessLayerStackReload()
         {
             m_MainMenuLayer->SetIsActive(true);
             m_MainMenuLayer->OnAttach();
-            m_GameLayer->SetIsActive(false);
-            m_UILayer->SetIsActive(false);
+            if (m_GameLayer)
+                m_GameLayer->SetIsActive(false);
+            if (m_UILayer)
+                m_UILayer->SetIsActive(false);
+            if (m_EditorLayer)
+                m_EditorLayer->SetIsActive(false);
 #if defined(DEBUG)
-            m_DebugLayer->SetIsActive(false);
+            if (m_DebugLayer)
+                m_DebugLayer->SetIsActive(false);
 #endif
             break;
         }
@@ -198,6 +208,14 @@ void Application::ProcessLayerStackReload()
 #if defined(DEBUG)
             m_DebugLayer->SetIsActive(true);
 #endif
+            break;
+        }
+        case LayerStackReload::OPEN_MAP_EDITOR:
+        {
+            m_MainMenuLayer->SetIsActive(false);
+            m_EditorLayer = std::make_shared<EditorLayer>();
+            m_EditorLayer->OnAttach();
+            m_LayerStack->PushLayer(m_EditorLayer);
             break;
         }
         default:
