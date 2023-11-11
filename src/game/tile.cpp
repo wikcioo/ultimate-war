@@ -510,6 +510,11 @@ void Tile::DrawEnvironment()
                 Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("stone"));
                 break;
             }
+            case TileEnvironment::HIGHLIGHT:
+            {
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.5f, 0.5f, 0.5f, 1.0f }, 5.0f);
+                break;
+            }
             default:
             {
                 Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 1.0f, 0.0f, 1.0f, 1.0f });

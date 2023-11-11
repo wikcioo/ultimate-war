@@ -29,7 +29,8 @@ enum class TileEnvironment
     OCEAN,
     FOREST,
     DESERT,
-    MOUNTAINS
+    MOUNTAINS,
+    HIGHLIGHT
 };
 
 class Tile : public std::enable_shared_from_this<Tile>
@@ -56,6 +57,7 @@ public:
     void CheckBuildingHover(const glm::vec2& relMousePos);
 
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
+    inline const void SetEnvironment(TileEnvironment environment) { m_Environment = environment; }
     inline const std::shared_ptr<Player>& GetOwnedBy() const { return m_OwnedBy; }
     std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
