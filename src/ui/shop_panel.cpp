@@ -1,7 +1,6 @@
 #include "shop_panel.h"
 
 #include "util/util.h"
-#include "core/core.h"
 #include "core/logger.h"
 #include "graphics/renderer.h"
 #include "game/color_data.h"

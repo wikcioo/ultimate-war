@@ -6,7 +6,6 @@
 
 #include "game/tile.h"
 #include "debug/debug_data.h"
-#include "core/core.h"
 #include "core/input.h"
 #include "core/logger.h"
 #include "core/resource_manager.h"

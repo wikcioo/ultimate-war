@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-#include "core/core.h"
 #include "core/input.h"
 
 OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotate)

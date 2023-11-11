@@ -1,6 +1,5 @@
 #include "application.h"
 
-#include "core/core.h"
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
 

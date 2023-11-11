@@ -1,6 +1,5 @@
 #include "main_menu_layer.h"
 
-#include "core/core.h"
 #include "core/application.h"
 #include "graphics/renderer.h"
 #include "menu/views/main_view.h"

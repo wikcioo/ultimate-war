@@ -1,6 +1,5 @@
 #include "backable_view.h"
 
-#include "core/core.h"
 #include "menu/main_menu_layer.h"
 
 BackableView::BackableView()

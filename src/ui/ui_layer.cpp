@@ -1,6 +1,5 @@
 #include "ui_layer.h"
 
-#include "core/core.h"
 #include "core/input.h"
 #include "core/application.h"
 #include "game/game_layer.h"

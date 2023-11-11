@@ -1,7 +1,6 @@
 #include "minimap.h"
 
 #include "util/util.h"
-#include "core/core.h"
 #include "core/logger.h"
 #include "core/application.h"
 #include "debug/debug_data.h"

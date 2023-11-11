@@ -1,6 +1,5 @@
 #include "button.h"
 
-#include "core/core.h"
 #include "util/util.h"
 #include "graphics/renderer.h"
 
