@@ -11,6 +11,8 @@
 #include "event/window_event.h"
 #include "ui/ui_element.h"
 
+#define MINIMAP_ASPECT_RATIO 1.7777f
+
 class Minimap : public UIElement
 {
 public:
