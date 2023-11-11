@@ -4,12 +4,11 @@
 #include "graphics/renderer.h"
 #include "menu/main_menu_layer.h"
 #include "game/map_manager.h"
+#include "core/application.h"
 
 ChooseMapView::ChooseMapView()
     : m_SelectedMap("")
 {
-    m_MapButtonGroup = std::make_unique<ToggleButtonGroup>(m_Camera);
-
     auto maps = GameMapManager::GetAvailableMaps();
 
     float yOffset = 0.05f;
@@ -19,13 +18,15 @@ ChooseMapView::ChooseMapView()
 
     for (const auto& map : maps)
     {
-        m_MapButtonGroup->AddButton({
-            Util::StrToUpper(map), glm::vec2(0.0f, yStartPosition), glm::vec2(0.8f, buttonHeight)
-        });
+        Button* mapButton = new Button(
+            m_Camera,
+            { Util::StrToUpper(map), glm::vec2(0.0f, yStartPosition), glm::vec2(1.0f, 0.1f) }
+        );
+        mapButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(ChooseMapView::OnMapButtonPressed));
+        m_Buttons.emplace_back(mapButton);
+
         yStartPosition -= buttonHeight + yOffset;
     }
-
-    m_MapButtonGroup->SetPressedCallback(BIND_BTN_CALLBACK_FN(ChooseMapView::OnMapButtonPressed));
 }
 
 ChooseMapView::~ChooseMapView()
@@ -34,14 +35,16 @@ ChooseMapView::~ChooseMapView()
 
 void ChooseMapView::OnUpdate()
 {
-    m_MapButtonGroup->OnUpdate();
+    for (auto button : m_Buttons)
+        button->OnUpdate();
 
     BackableView::OnUpdate();
 }
 
 void ChooseMapView::OnEvent(Event& event)
 {
-    m_MapButtonGroup->OnEvent(event);
+    for (auto button : m_Buttons)
+        button->OnEvent(event);
 
     BackableView::OnEvent(event);
 }
@@ -49,4 +52,10 @@ void ChooseMapView::OnEvent(Event& event)
 void ChooseMapView::OnMapButtonPressed(ButtonCallbackData data)
 {
     m_SelectedMap = Util::StrToLower(data.Text);
+
+    std::vector<PlayerDTO> players;
+    players.emplace_back(PlayerDTO("John", glm::vec3(1.0f, 0.0f, 0.0f)));
+    players.emplace_back(PlayerDTO("Bob", glm::vec3(0.0f, 0.0f, 1.0f)));
+
+    Application::Get().StartNewGame({ m_SelectedMap, players });
 }
