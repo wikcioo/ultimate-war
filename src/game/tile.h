@@ -84,6 +84,7 @@ public:
 
     static const int s_StatCount;
     static const char* s_StatTextures[];
+    static const std::array<glm::ivec2, 6> s_AdjacentTileOffsets;
 
 private:
     void InitStaticRuntimeData();

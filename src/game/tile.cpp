@@ -25,6 +25,10 @@ int Tile::s_BuildingWidthToOffsetRatio = 10;
 
 const int Tile::s_StatCount = 3;
 const char* Tile::s_StatTextures[s_StatCount] = { "swords", "shield", "heart" };
+const std::array<glm::ivec2, 6> Tile::s_AdjacentTileOffsets = {
+    glm::ivec2(-1, 1), {0,  1}, {1, 1},
+              {-1, 0}, {0, -1}, {1, 0}
+};
 
 std::shared_ptr<Texture2D> Tile::s_UpgradeIconTexture;
 
@@ -725,16 +729,11 @@ bool Tile::HasSelectedUnitGroups()
 
 bool Tile::IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2)
 {
-    static std::array<glm::ivec2, 6> adjacentTileOffsets = {
-        glm::ivec2(-1, 1), {0,  1}, {1, 1},
-                  {-1, 0}, {0, -1}, {1, 0}
-    };
-
     int offset = 0;
     if (tile1.x % 2 == 0)
         offset = -1;
 
-    for (auto tileOffset : adjacentTileOffsets)
+    for (auto tileOffset : s_AdjacentTileOffsets)
     {
         if (tileOffset.x != 0)
         {
