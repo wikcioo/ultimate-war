@@ -30,6 +30,7 @@ public:
     inline float GetAspectRatio() const { return m_AspectRatio; }
     inline float GetRotation() const { return m_Rotation; }
     inline float GetZoom() const { return m_Zoom; }
+    inline float GetScale() const { return m_Scale; }
 
     float GetHalfOfRelativeHeight();
     float GetHalfOfRelativeWidth();
