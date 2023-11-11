@@ -71,7 +71,7 @@ bool OrthographicCameraController::OnWindowResize(WindowResizedEvent& event)
 {
     m_Camera->SetWindowAspectRatio();
     m_Camera->SetScale(event.GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS);
-    return true;
+    return false;
 }
 
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)

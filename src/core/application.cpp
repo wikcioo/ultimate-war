@@ -45,7 +45,7 @@ void Application::OnEvent(Event& event)
 
     for (auto it = m_LayerStack->rbegin(); it != m_LayerStack->rend(); it++)
     {
-        if (!(*it)->IsActive())
+        if (!(*it)->IsActive() && event.GetCategory() != EventCategory::Window)
             continue;
 
         if (event.Handled)

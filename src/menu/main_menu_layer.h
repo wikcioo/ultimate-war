@@ -40,6 +40,7 @@ public:
 
 private:
     void OnWindowSizeChanged();
+    void RecalculateCamera();
 
 private:
     static MainMenuLayer* s_Instance;

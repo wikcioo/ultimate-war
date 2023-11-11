@@ -37,6 +37,7 @@ MainMenuLayer::~MainMenuLayer()
 
 void MainMenuLayer::OnAttach()
 {
+    RecalculateCamera();
     SetView(ViewName::MAIN);
 }
 
@@ -76,8 +77,13 @@ const std::string& MainMenuLayer::GetSelectedMap()
 
 void MainMenuLayer::OnWindowSizeChanged()
 {
-    auto window = Application::Get().GetWindow();
-    m_MainMenuCamera->SetAspectRatio((float)window->GetWidth() / (float)window->GetHeight());
+    RecalculateCamera();
+}
+
+void MainMenuLayer::RecalculateCamera()
+{
+    static auto window = Application::Get().GetWindow();
+    m_MainMenuCamera->SetWindowAspectRatio();
     m_MainMenuCamera->SetScale(window->GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS);
     m_RelWindowSize = m_MainMenuCamera->CalculateRelativeWindowSize();
 }
