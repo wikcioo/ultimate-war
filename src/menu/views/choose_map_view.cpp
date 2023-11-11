@@ -9,10 +9,20 @@
 ChooseMapView::ChooseMapView()
     : m_SelectedMap("")
 {
+}
+
+ChooseMapView::~ChooseMapView()
+{
+}
+
+void ChooseMapView::OnAttach()
+{
+    BackableView::OnAttach();
+    m_Buttons.clear();
     auto maps = GameMapManager::GetAvailableMaps();
 
-    float yOffset = 0.05f;
-    float buttonHeight = 0.1f;
+    static float yOffset = 0.05f;
+    static float buttonHeight = 0.1f;
     float totalHeight = (maps.size() * buttonHeight) + ((maps.size() - 1) * yOffset);
     float yStartPosition = totalHeight / 2.0f - buttonHeight / 2.0f;
 
@@ -27,10 +37,6 @@ ChooseMapView::ChooseMapView()
 
         yStartPosition -= buttonHeight + yOffset;
     }
-}
-
-ChooseMapView::~ChooseMapView()
-{
 }
 
 void ChooseMapView::OnUpdate()

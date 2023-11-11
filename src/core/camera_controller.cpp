@@ -76,7 +76,7 @@ bool OrthographicCameraController::OnWindowResize(WindowResizedEvent& event)
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)
 {
     float zoom = m_Camera->GetZoom() - (event.getYOffset() / 10.0f);
-    m_Camera->SetZoom(std::max(std::min(zoom, 10.0f), 0.1f));
+    m_Camera->SetZoom(std::max(std::min(zoom, 100.0f), 0.1f));
     m_CameraMovementSpeed = m_Camera->GetZoom();
     return true;
 }

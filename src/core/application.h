@@ -12,13 +12,15 @@
 #include "game/game_layer.h"
 #include "debug/debug_layer.h"
 #include "menu/main_menu_layer.h"
+#include "editor/editor_layer.h"
 
 enum class LayerStackReload
 {
     NONE,
     OPEN_MAIN_MENU,
     START_NEW_GAME,
-    CONTINUE_LAST_GAME
+    CONTINUE_LAST_GAME,
+    OPEN_MAP_EDITOR
 };
 
 class Application
@@ -31,6 +33,7 @@ public:
     void Run();
 
     void OpenMainMenu();
+    void OpenMapEditor();
     void StartNewGame(NewGameDTO newGameData);
     void ContinueLastGame();
     void Exit() { m_Running = false; }
@@ -53,6 +56,7 @@ private:
     std::shared_ptr<GameLayer> m_GameLayer;
     std::shared_ptr<GameLayer> m_LastGameLayer;
     std::shared_ptr<UILayer> m_UILayer;
+    std::shared_ptr<EditorLayer> m_EditorLayer;
 #if defined(DEBUG)
     std::shared_ptr<DebugLayer> m_DebugLayer;
 #endif
