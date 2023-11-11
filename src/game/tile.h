@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -72,6 +73,7 @@ public:
 public:
     static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);
     static glm::vec2 CalculateTilePosition(int x, int y);
+    static std::string GetEnvironmentName(TileEnvironment environment);
 
 public:
     static float s_BackgroundHeightRatio;

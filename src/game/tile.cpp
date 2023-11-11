@@ -768,3 +768,18 @@ glm::vec2 Tile::CalculateTilePosition(int x, int y)
 
     return { dx, dy };
 }
+
+std::string Tile::GetEnvironmentName(TileEnvironment environment)
+{
+    switch (environment)
+    {
+        case TileEnvironment::NONE:      return "none";
+        case TileEnvironment::OCEAN:     return "ocean";
+        case TileEnvironment::FOREST:    return "forest";
+        case TileEnvironment::DESERT:    return "desert";
+        case TileEnvironment::MOUNTAINS: return "mountains";
+        case TileEnvironment::HIGHLIGHT: return "highlight";
+    }
+
+    return "unknown";
+}
