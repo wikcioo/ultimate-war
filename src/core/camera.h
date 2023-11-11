@@ -21,6 +21,7 @@ public:
 
     void SetPosition(const glm::vec3& position);
     void SetAspectRatio(float ratio);
+    void SetWindowAspectRatio();
     void SetRotation(float rotation);
     void SetZoom(float zoom);
     void SetScale(float scale);

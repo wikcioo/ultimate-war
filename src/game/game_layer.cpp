@@ -6,7 +6,6 @@
 
 #include "game/tile.h"
 #include "debug/debug_data.h"
-#include "core/core.h"
 #include "core/input.h"
 #include "core/logger.h"
 #include "core/resource_manager.h"
@@ -25,34 +24,10 @@ GameLayer::GameLayer()
     m_GameMapManager = std::make_shared<GameMapManager>("");
     m_PlayerManager = std::make_shared<PlayerManager>();
     m_Arrow = std::make_shared<Arrow>();
-
-    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {1.0f, 0.0f, 0.0f});
-    m_PlayerManager->AddPlayer(Util::GenerateAnonymousName(), {0.0f, 0.0, 1.0f});
 }
 
 void GameLayer::OnAttach()
 {
-    m_GameMapManager->Load("environments");
-
-    glm::vec2 mapMiddle = {
-        (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) / 2.0f) - TILE_HEIGHT / 2.0f,
-        (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) / 2.0f) - (TILE_HEIGHT + TILE_OFFSET) / 2.0f
-    };
-    m_CameraController->GetCamera()->SetPosition(glm::vec3(mapMiddle, 0.0f));
-
-#if defined(DEBUG)
-    int i = 6;
-    for (auto player : m_PlayerManager->GetAllPlayers())
-    {
-        auto tile = m_GameMapManager->GetGameMap()->GetTile(i, 5);
-        tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
-        tile->CreateUnitGroup(UnitGroupType::DWARF);
-        tile->CreateUnitGroup(UnitGroupType::DEMON);
-        tile->CreateBuilding(BuildingType::GOLD_MINE);
-        player->AddOwnedTile(tile);
-        i++;
-    }
-#endif
 }
 
 void GameLayer::OnDetach()
@@ -154,6 +129,7 @@ void GameLayer::OnEvent(Event& event)
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(GameLayer::OnMouseButtonPressed));
     dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(GameLayer::OnKeyReleased));
+    dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(GameLayer::OnKeyPressed));
 }
 
 bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
@@ -167,6 +143,46 @@ bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
     }
 
     return false;
+}
+
+bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
+{
+    if (event.GetKeyCode() == GLFW_KEY_TAB && Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+    {
+        Application::Get().OpenMainMenu();
+        return true;
+    }
+
+    return false;
+}
+
+void GameLayer::InitGame(NewGameDTO newGameData)
+{
+    m_GameMapManager->Load(newGameData.MapName);
+
+    glm::vec2 mapMiddle = {
+        (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) / 2.0f) - TILE_HEIGHT / 2.0f,
+        (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) / 2.0f) - (TILE_HEIGHT + TILE_OFFSET) / 2.0f
+    };
+
+    m_CameraController->GetCamera()->SetPosition(glm::vec3(mapMiddle, 0.0f));
+
+    for (auto player : newGameData.Players)
+        m_PlayerManager->AddPlayer(player);
+
+#if defined(DEBUG)
+    int i = 6;
+    for (auto player : m_PlayerManager->GetAllPlayers())
+    {
+        auto tile = m_GameMapManager->GetGameMap()->GetTile(i, 5);
+        tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
+        tile->CreateUnitGroup(UnitGroupType::DWARF);
+        tile->CreateUnitGroup(UnitGroupType::DEMON);
+        tile->CreateBuilding(BuildingType::GOLD_MINE);
+        player->AddOwnedTile(tile);
+        i++;
+    }
+#endif
 }
 
 void GameLayer::ResetArrow()

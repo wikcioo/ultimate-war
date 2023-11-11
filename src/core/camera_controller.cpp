@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-#include "core/core.h"
 #include "core/input.h"
 
 OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotate)
@@ -69,9 +68,9 @@ void OrthographicCameraController::OnEvent(Event& event)
 
 bool OrthographicCameraController::OnWindowResize(WindowResizedEvent& event)
 {
-    m_Camera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
+    m_Camera->SetWindowAspectRatio();
     m_Camera->SetScale(event.GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS);
-    return true;
+    return false;
 }
 
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)

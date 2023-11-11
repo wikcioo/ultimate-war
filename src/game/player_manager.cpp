@@ -8,9 +8,9 @@ PlayerManager::PlayerManager()
 {
 }
 
-void PlayerManager::AddPlayer(const std::string& name, const glm::vec3& color)
+void PlayerManager::AddPlayer(PlayerDTO playerData)
 {
-    m_Players.emplace_back(std::make_shared<Player>(name.empty() ? Util::GenerateAnonymousName() : name, color));
+    m_Players.emplace_back(std::make_shared<Player>(playerData));
     m_ActivePlayerCount++;
 }
 

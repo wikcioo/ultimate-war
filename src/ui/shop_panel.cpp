@@ -1,7 +1,6 @@
 #include "shop_panel.h"
 
 #include "util/util.h"
-#include "core/core.h"
 #include "core/logger.h"
 #include "graphics/renderer.h"
 #include "game/color_data.h"
@@ -10,10 +9,18 @@
 
 #include <GLFW/glfw3.h>
 
+static glm::vec2 GetShopPanelSize(const glm::vec2& assetSize, float assetOffset)
+{
+    return glm::vec2(5 * (assetSize.x + assetOffset) + assetOffset, assetSize.y + assetOffset);
+}
+
 ShopPanel::ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const glm::vec2& offset,
                      const glm::vec2& assetSize, float assetOffset)
-    : UIElement(UICamera, UICamera->CalculateRelativeBottomLeftPosition() + offset,
-      glm::vec2(5 * (assetSize.x + assetOffset) + assetOffset, assetSize.y + assetOffset)),
+    : UIElement(
+        UICamera,
+        UICamera->CalculateRelativeBottomLeftPosition() + glm::vec2(offset.x - GetShopPanelSize(assetSize, assetOffset).x / 2.0f, offset.y),
+        GetShopPanelSize(assetSize, assetOffset)
+      ),
       m_AssetSize(assetSize), m_AssetOffset(assetOffset), m_Offset(offset),
       m_UnitGroupCount((int)UnitGroupType::COUNT), m_BuildingCount((int)BuildingType::COUNT),
       m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.125f), m_AssetPriceFontName("rexlia")
@@ -251,7 +258,11 @@ std::string ShopPanel::GetCostText(Resources& cost)
 
 bool ShopPanel::OnWindowResized(WindowResizedEvent& event)
 {
-    m_Position = m_UICamera->CalculateRelativeBottomLeftPosition() + m_Offset;
+    glm::vec2 bottomLeft = m_UICamera->CalculateRelativeBottomLeftPosition();
+    m_Position = glm::vec2(
+        bottomLeft.x + m_UICamera->GetHalfOfRelativeWidth() - m_Size.x / 2.0f,
+        bottomLeft.y + m_Offset.y
+    );
     return false;
 }
 
@@ -267,7 +278,6 @@ bool ShopPanel::OnKeyPressed(KeyPressedEvent& event)
         m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
         m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
         m_CursorAttachedAsset.Texture.reset();
-        return true;
     }
 
     return false;

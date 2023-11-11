@@ -46,6 +46,20 @@ public:
         return s;
     }
 
+    static std::string StrToUpper(const std::string& str)
+    {
+        std::string result = str;
+        std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+        return result;
+    }
+
+    static std::string StrToLower(const std::string& str)
+    {
+        std::string result = str;
+        std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+        return result;
+    }
+
     static bool IsPointInRectangle(const glm::vec2& rectCenter, const glm::vec2& rectSize, const glm::vec2& point)
     {
         return (rectCenter.x - rectSize.x / 2 <= point.x && rectCenter.x + rectSize.x / 2 >= point.x &&

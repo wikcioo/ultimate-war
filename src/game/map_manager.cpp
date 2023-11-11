@@ -17,7 +17,7 @@ GameMapManager::GameMapManager(const std::string& mapName)
         m_SelectedMap = mapName;
     }
 
-    RetrieveAvailableMaps();
+    m_AvailableMapList = GetAvailableMaps();
 }
 
 void GameMapManager::Load(const std::string& mapName, bool flip_vertically)
@@ -55,8 +55,7 @@ void GameMapManager::Load(const std::string& mapName, bool flip_vertically)
     m_SelectedMap = mapName;
 }
 
-
-void GameMapManager::RetrieveAvailableMaps()
+std::vector<std::string> GameMapManager::GetAvailableMaps()
 {
     std::vector<std::string> files = FileSystem::GetAllFilesInDirectory(s_MapDirectory);
 
@@ -69,7 +68,7 @@ void GameMapManager::RetrieveAvailableMaps()
     for (auto& file : files)
         file = Util::StripFileExtension(file);
 
-    m_AvailableMapList = files;
+    return files;
 }
 
 std::string GameMapManager::GetMapPath(const std::string& mapName)

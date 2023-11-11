@@ -19,20 +19,10 @@ DebugLayer::DebugLayer()
 
 void DebugLayer::OnAttach()
 {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-
-    auto window = Application::Get().GetWindow()->GetNativeWindow();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void DebugLayer::OnDetach()
 {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
 
 void DebugLayer::OnEvent(Event& event)
@@ -262,6 +252,24 @@ void DebugLayer::OnUpdate(float dt)
     DisplayPlayerWindow();
 
     EndFrame();
+}
+
+void DebugLayer::InitImGui()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+
+    auto window = Application::Get().GetWindow()->GetNativeWindow();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+}
+
+void DebugLayer::ShutdownImGui()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 #endif
