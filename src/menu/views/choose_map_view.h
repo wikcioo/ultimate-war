@@ -13,6 +13,7 @@ public:
     ChooseMapView();
     ~ChooseMapView();
 
+    virtual void OnAttach() override;
     virtual void OnUpdate() override;
     virtual void OnEvent(Event& event) override;
 
