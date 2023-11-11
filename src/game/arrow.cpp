@@ -7,7 +7,7 @@
 
 Arrow::Arrow(const glm::vec4& color, float thickness, float tipLength)
     : m_Color(color), m_StartPosition({0.0f, 0.0f}), m_EndPosition({0.0f, 0.0f}),
-      m_Thickness(thickness), m_TipLength(tipLength), m_Visible(false)
+      m_Thickness(thickness), m_TipLength(tipLength), m_Visible(false), m_Activated(false)
 {
     float arrowVertices[7 * 2] = {
         -1.0f, -1.0f,
@@ -93,8 +93,6 @@ float* Arrow::GetNewArrowData()
 
 void Arrow::Draw()
 {
-    if (!m_Visible) return;
-
     float* data = GetNewArrowData();
     m_ArrowVA->GetVertexBuffer()->Bind();
     m_ArrowVA->GetVertexBuffer()->UpdateData(data, 0, 14 * sizeof(float));
