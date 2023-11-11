@@ -147,7 +147,7 @@ bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
 
 bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
 {
-    if (event.GetKeyCode() == GLFW_KEY_ESCAPE)
+    if (event.GetKeyCode() == GLFW_KEY_TAB && Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
     {
         Application::Get().OpenMainMenu();
         return true;
