@@ -66,6 +66,7 @@ void GameLayer::OnUpdate(float dt)
                 {
                     isCursorOnAdjacentTile = true;
                     m_Arrow->SetEndPosition(tile->GetPosition());
+                    m_Arrow->SetVisible(true);
 
                     if (tile->GetOwnedBy() == currentPlayer &&
                        !tile->HasSpaceForUnitGroups(m_Arrow->GetStartTile()->GetNumSelectedUnitGroups()))
@@ -82,6 +83,10 @@ void GameLayer::OnUpdate(float dt)
                     {
                         m_Arrow->SetColor({0.0f, 1.0f, 1.0f, 1.0f});
                     }
+                }
+                else
+                {
+                    m_Arrow->SetVisible(false);
                 }
 
                 isCursorOnTile = true;
@@ -106,7 +111,8 @@ void GameLayer::OnUpdate(float dt)
     if (m_Arrow->IsVisible() && !isCursorOnAdjacentTile)
         m_Arrow->SetEndPosition(m_Arrow->GetStartTile()->GetPosition());
 
-    m_Arrow->Draw();
+    if (m_Arrow->IsActivated() && m_Arrow->IsVisible())
+        m_Arrow->Draw();
 
     if (notEnoughSpaceInfo.NotEnoughSpace)
     {
@@ -187,11 +193,11 @@ void GameLayer::InitGame(NewGameDTO newGameData)
 
 void GameLayer::ResetArrow()
 {
-    for(auto tile : m_PlayerManager->GetCurrentPlayer()->GetOwnedTiles())
+    for (auto tile : m_PlayerManager->GetCurrentPlayer()->GetOwnedTiles())
     {
         tile->DeselectAllUnitGroups();
     }
-    m_Arrow->SetVisible(false);
+    m_Arrow->SetActivated(false);
 }
 
 void GameLayer::EndGame()
@@ -201,7 +207,7 @@ void GameLayer::EndGame()
 
 bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
-    if(!m_GameActive) return true;
+    if (!m_GameActive) return true;
 
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
     auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
@@ -216,7 +222,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
                 continue;
 
             ProcessTileInRange(tile, currentPlayer, relMousePos);
-            m_Arrow->SetVisible(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
+            m_Arrow->SetActivated(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
             return true;
         }
     }
@@ -225,7 +231,7 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     if (m_Arrow->GetStartTile())
         m_Arrow->GetStartTile()->DeselectAllUnitGroups();
 
-    m_Arrow->SetVisible(false);
+    m_Arrow->SetActivated(false);
     return true;
 }
 
