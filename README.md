@@ -1,6 +1,3 @@
-# Gameplay
-![Application screenshot](docs/screenshots/game-ui-milestone3.png?raw=true)
-
 ## Specification
 
 - Turn based
@@ -50,3 +47,9 @@ Compile and run the project
 ```
 make -j && ./bin/Debug-linux/UltimateWar
 ```
+
+# Screenshots
+
+![Main Menu UI screenshot](docs/screenshots/main-menu-ui-milestone4.png?raw=true)
+![Gameplay UI screenshot](docs/screenshots/game-ui-milestone4.png?raw=true)
+![Map Editor UI screenshot](docs/screenshots/map-editor-ui-milestone4.png?raw=true)
