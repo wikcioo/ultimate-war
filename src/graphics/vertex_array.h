@@ -15,8 +15,8 @@ public:
     void Bind() const;
     void Unbind() const;
 
-    inline std::shared_ptr<VertexBuffer> GetVertexBuffer() const { return m_VertexBuffer; }
-    inline std::shared_ptr<IndexBuffer> GetIndexBuffer() const { return m_IndexBuffer; }
+    inline const std::shared_ptr<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
+    inline const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
 private:
     std::shared_ptr<VertexBuffer> m_VertexBuffer;

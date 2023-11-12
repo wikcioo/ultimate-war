@@ -7,7 +7,8 @@
 #include "core/application.h"
 
 OrthographicCamera::OrthographicCamera(float aspectRatio)
-    : m_Projection(1.0f), m_View(1.0f), m_Position(0.0f), m_AspectRatio(aspectRatio), m_Rotation(0.0f), m_Zoom(1.0f)
+    : m_Projection(1.0f), m_View(1.0f), m_Position(0.0f), m_AspectRatio(aspectRatio), m_Rotation(0.0f), m_Zoom(1.0f),
+      m_Scale(Application::Get().GetWindow()->GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS)
 {
     RecalculateProjectionMatrix();
     RecalculateViewMatrix();
@@ -15,12 +16,9 @@ OrthographicCamera::OrthographicCamera(float aspectRatio)
 
 glm::vec2 OrthographicCamera::ConvertRelativeSizeToPixel(const glm::vec2& size)
 {
-    float relWidth = m_Zoom * m_AspectRatio;
-    float relHeight = m_Zoom;
-
     static auto window = Application::Get().GetWindow();
-    float pixelSizeX = window->GetWidth() / (relWidth * 2) * size.x;
-    float pixelSizeY = window->GetHeight() / (relHeight * 2) * size.y;
+    float pixelSizeX = window->GetWidth() / (GetHalfOfRelativeWidth() * 2) * size.x;
+    float pixelSizeY = window->GetHeight() / (GetHalfOfRelativeHeight() * 2) * size.y;
 
     return { pixelSizeX, pixelSizeY };
 }
@@ -33,21 +31,16 @@ float OrthographicCamera::ConvertPixelSizeToRelative(float size, bool xAxis)
 
 glm::vec2 OrthographicCamera::ConvertPixelSizeToRelative(const glm::vec2& size)
 {
-    float relWidth = m_Zoom * m_AspectRatio;
-    float relHeight = m_Zoom;
-
     static auto window = Application::Get().GetWindow();
-    float relSizeX = size.x * relWidth / window->GetWidth();
-    float relSizeY = size.y * relHeight / window->GetHeight();
+    float relSizeX = size.x * (GetHalfOfRelativeWidth() * 2) / window->GetWidth();
+    float relSizeY = size.y * (GetHalfOfRelativeHeight() * 2) / window->GetHeight();
 
     return { relSizeX, relSizeY };
 }
 
 glm::vec2 OrthographicCamera::CalculateRelativeBottomLeftPosition()
 {
-    float relWidth = m_Zoom * m_AspectRatio;
-    float relHeight = m_Zoom;
-    return { m_Position.x - relWidth, m_Position.y - relHeight };
+    return { m_Position.x - GetHalfOfRelativeWidth(), m_Position.y - GetHalfOfRelativeHeight()};
 }
 
 glm::vec2 OrthographicCamera::CalculateRelativeMousePosition()
@@ -59,8 +52,8 @@ glm::vec2 OrthographicCamera::CalculateRelativeMousePosition()
     float pixelHeight = (float)window->GetHeight();
 
     auto relWindowSize = CalculateRelativeWindowSize();
-    float relX = (mousePos.x * relWindowSize.x / pixelWidth) - m_Zoom * m_AspectRatio + m_Position.x;
-    float relY = ((mousePos.y * relWindowSize.y / pixelHeight) - m_Zoom - m_Position.y) * -1;
+    float relX = (mousePos.x * relWindowSize.x / pixelWidth) - GetHalfOfRelativeWidth() + m_Position.x;
+    float relY = ((mousePos.y * relWindowSize.y / pixelHeight) - GetHalfOfRelativeHeight() - m_Position.y) * -1;
 
     glm::vec2 offset = { relX - m_Position.x, relY - m_Position.y };
     float r = glm::radians(m_Rotation);
@@ -78,15 +71,15 @@ glm::vec2 OrthographicCamera::CalculateScreenRelativeMousePosition()
     float pixelHeight = (float)window->GetHeight();
 
     auto relWindowSize = CalculateRelativeWindowSize();
-    float relX = (mousePos.x * relWindowSize.x / pixelWidth) - m_Zoom * m_AspectRatio;
-    float relY = ((mousePos.y * relWindowSize.y / pixelHeight) - m_Zoom) * -1;
+    float relX = (mousePos.x * relWindowSize.x / pixelWidth) - GetHalfOfRelativeWidth();
+    float relY = ((mousePos.y * relWindowSize.y / pixelHeight) - GetHalfOfRelativeHeight()) * -1;
 
     return { relX, relY };
 }
 
 glm::vec2 OrthographicCamera::CalculateRelativeWindowSize()
 {
-    return { m_Zoom * m_AspectRatio * 2, m_Zoom * 2 };
+    return { GetHalfOfRelativeWidth() * 2, GetHalfOfRelativeHeight() * 2 };
 }
 
 void OrthographicCamera::SetAspectRatio(float ratio)
@@ -95,9 +88,22 @@ void OrthographicCamera::SetAspectRatio(float ratio)
     RecalculateProjectionMatrix();
 }
 
+void OrthographicCamera::SetWindowAspectRatio()
+{
+    static auto window = Application::Get().GetWindow();
+    m_AspectRatio = (float)window->GetWidth() / (float)window->GetHeight();
+    RecalculateProjectionMatrix();
+}
+
 void OrthographicCamera::SetZoom(float zoom)
 {
     m_Zoom = zoom;
+    RecalculateProjectionMatrix();
+}
+
+void OrthographicCamera::SetScale(float scale)
+{
+    m_Scale = scale;
     RecalculateProjectionMatrix();
 }
 
@@ -113,12 +119,22 @@ void OrthographicCamera::SetRotation(float rotation)
     RecalculateViewMatrix();
 }
 
+float OrthographicCamera::GetHalfOfRelativeHeight()
+{
+    return m_Scale * m_Zoom;
+}
+
+float OrthographicCamera::GetHalfOfRelativeWidth()
+{
+    return m_Scale * m_Zoom * m_AspectRatio;
+}
+
 void OrthographicCamera::RecalculateProjectionMatrix()
 {
-    float left   = m_Zoom * m_AspectRatio * -1;
-    float right  = m_Zoom * m_AspectRatio;
-    float bottom = m_Zoom * -1;
-    float top    = m_Zoom;
+    float left   = GetHalfOfRelativeWidth() * -1;
+    float right  = GetHalfOfRelativeWidth();
+    float bottom = GetHalfOfRelativeHeight() * -1;
+    float top    = GetHalfOfRelativeHeight();
 
     m_Projection = glm::ortho(left, right, bottom, top, 0.0f, 1.0f);
     RecalculateProjectionViewMatrix();

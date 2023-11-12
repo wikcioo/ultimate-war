@@ -11,14 +11,14 @@ class GameMapManager
 public:
     GameMapManager(const std::string& filepath = "");
     ~GameMapManager() = default;
-    inline std::vector<std::string>& GetAvailableMaps() { return m_AvailableMapList; }
+
+    static std::vector<std::string> GetAvailableMaps();
+    static std::string GetMapPath(const std::string& mapName);
+
     inline std::string GetSelectedMapName() const { return m_SelectedMap; }
-    inline std::shared_ptr<GameMap> GetGameMap() const { return m_GameMap; }
+    inline const std::shared_ptr<GameMap>& GetGameMap() const { return m_GameMap; }
 
     void Load(const std::string& filepath, bool flip_vertically = true);
-private:
-    void RetrieveAvailableMaps();
-    std::string GetMapPath(const std::string& mapName);
 
 private:
     std::string m_SelectedMap;

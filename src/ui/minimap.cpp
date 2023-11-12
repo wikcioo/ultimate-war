@@ -1,7 +1,6 @@
 #include "minimap.h"
 
 #include "util/util.h"
-#include "core/core.h"
 #include "core/logger.h"
 #include "core/application.h"
 #include "debug/debug_data.h"
@@ -9,14 +8,14 @@
 #include "game/color_data.h"
 
 Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
-            const std::shared_ptr<OrthographicCamera>& gameCamera,
-            const std::shared_ptr<GameMapManager>& gameMapManager,
-            const glm::vec2& offset, const glm::vec2& size)
+                 const std::shared_ptr<OrthographicCamera>& gameCamera,
+                 const std::shared_ptr<GameMapManager>& gameMapManager,
+                 const glm::vec2& offset, const glm::vec2& size)
     : UIElement(UICamera, UICamera->CalculateRelativeBottomLeftPosition() + offset, size), m_Offset(offset),
       m_GameCamera(gameCamera), m_GameMapManager(gameMapManager), m_MinimapPos(m_Position + m_Size * 0.5f)
 {
-    m_MinimapCamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
-    m_MinimapCamera->SetZoom(5.0f);
+    m_MinimapCamera = std::make_shared<OrthographicCamera>(MINIMAP_ASPECT_RATIO);
+    m_MinimapCamera->SetScale(1.0f);
 
     auto pixelSize = m_GameCamera->ConvertRelativeSizeToPixel(size);
     m_Framebuffer = std::make_unique<FrameBuffer>((unsigned int)pixelSize.x, (unsigned int)pixelSize.y);
@@ -56,8 +55,8 @@ void Minimap::Draw()
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
         {
             auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
-            if (tile->GetType())
-                tile->DrawBase(ColorData::Get().TileColors.MiniMapColor);
+            if (tile->AssetsCanExist())
+                Renderer2D::DrawHexagon(tile->GetPosition(), glm::vec2(1.0f), ColorData::Get().TileColors.MiniMapColor);
         }
     }
 

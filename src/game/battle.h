@@ -13,14 +13,14 @@ enum class BattleOutcome
 class Battle
 {
 public:
-    static BattleOutcome CalculateBattleOutcome(std::shared_ptr<Tile> attacker, std::shared_ptr<Tile> defender);
+    static BattleOutcome CalculateBattleOutcome(const std::shared_ptr<Tile>& attacker, const std::shared_ptr<Tile>& defender);
 
 private:
-    static void SimulateBattleTick(std::shared_ptr<Tile> attacker, std::shared_ptr<Tile> defender);
+    static void SimulateBattleTick(const std::shared_ptr<Tile>& attacker, const std::shared_ptr<Tile>& defender);
     static void BattleUnits(const std::vector<UnitStats*>& attacker, const std::vector<UnitStats*>& defender);
-    static std::vector<UnitStats*> GatherUnits(std::shared_ptr<Tile> tile, bool checkSelectedOnly);
+    static std::vector<UnitStats*> GatherUnits(const std::shared_ptr<Tile>& tile, bool checkSelectedOnly);
     static void OneVOne(UnitStats* us1, UnitStats* us2);
-    static void CleanupBattleField(std::shared_ptr<Tile> attacker, std::shared_ptr<Tile> defender);
-    static void CleanupUnits(std::shared_ptr<Tile> tile, bool checkSelectedOnly);
-    static int GetTotalUnitGroupHealth(std::shared_ptr<Tile> tile, bool checkSelectedOnly);
+    static void CleanupBattleField(const std::shared_ptr<Tile>& attacker, const std::shared_ptr<Tile>& defender);
+    static void CleanupUnits(const std::shared_ptr<Tile>& tile, bool checkSelectedOnly);
+    static int GetTotalUnitGroupHealth(const std::shared_ptr<Tile>& tile, bool checkSelectedOnly);
 };

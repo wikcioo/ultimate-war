@@ -16,6 +16,12 @@
 #include "game/player_manager.h"
 #include "game/color_data.h"
 
+struct NewGameDTO
+{
+    std::string MapName;
+    std::vector<PlayerDTO> Players;
+};
+
 class GameLayer : public Layer
 {
 #if defined(DEBUG)
@@ -32,12 +38,13 @@ public:
 
     static GameLayer& Get() { return *s_Instance; }
 
-    inline std::shared_ptr<OrthographicCameraController> GetCameraController() const { return m_CameraController; }
-    inline std::shared_ptr<GameMapManager> GetGameMapManager() const { return m_GameMapManager; }
-    inline std::shared_ptr<PlayerManager> GetPlayerManager() const { return m_PlayerManager; }
+    inline const std::shared_ptr<OrthographicCameraController>& GetCameraController() const { return m_CameraController; }
+    inline const std::shared_ptr<GameMapManager>& GetGameMapManager() const { return m_GameMapManager; }
+    inline const std::shared_ptr<PlayerManager>& GetPlayerManager() const { return m_PlayerManager; }
     inline bool IsGameActive() const { return m_GameActive; }
     inline int GetIteration() { return m_IterationNumber; }
 
+    void InitGame(NewGameDTO newGameData);
     void NextIteration() { m_IterationNumber++; }
     void ResetArrow();
     void EndGame();
@@ -45,6 +52,8 @@ public:
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
     bool OnKeyReleased(KeyReleasedEvent& event);
+    bool OnKeyPressed(KeyPressedEvent& event);
+    void ProcessTileInRange(const std::shared_ptr<Tile>& tile, const std::shared_ptr<Player>& currentPlayer, const glm::vec2& relMousePos);
 
 private:
     static GameLayer* s_Instance;

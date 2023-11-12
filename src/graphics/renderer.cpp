@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "util/util.h"
+#include "game/tile.h"
 #include "core/logger.h"
 #include "core/resource_manager.h"
 
@@ -142,7 +143,30 @@ void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, c
     DrawGeometry(s_Data->HexagonVertexArray, position, size, color, borderThickness);
 }
 
-void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
+void Renderer2D::DrawHexagon(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader)
+{
+    DrawHexagon(glm::vec3(position, 0.0f), size, shader);
+}
+
+void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader)
+{
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(size.x, size.y, 1.0f));
+    auto relBtmLeft = glm::vec2(position.x - TILE_WIDTH / 4.0f, position.y - TILE_HEIGHT / 4.0f) - s_Data->Camera->CalculateRelativeBottomLeftPosition();
+    auto pxBtmLeft = s_Data->Camera->ConvertRelativeSizeToPixel(relBtmLeft);
+
+    s_Data->HexagonVertexArray->Bind();
+
+    shader->Bind();
+    shader->SetMat4("u_ProjectionView", s_Data->Camera->GetProjectionViewMatrix());
+    shader->SetMat4("u_Model", model);
+    shader->SetFloat("u_Time", (float)glfwGetTime());
+    shader->SetFloat2("u_BottomLeftPx", pxBtmLeft);
+    shader->SetFloat2("u_SizePx", s_Data->Camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT}));
+
+    glDrawElements(GL_TRIANGLES, s_Data->HexagonVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
+}
+
+void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray>& vertexArray, const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, std::optional<float> borderThickness)
 {
     glm::mat4 fullScaleModel = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(size.x, size.y, 1.0f));
     vertexArray->Bind();
@@ -191,7 +215,7 @@ void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray> vertexArray, co
 }
 
 void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color,
-                          TextAlignment alignment, const std::string& fontName)
+                             HTextAlign hAlign, VTextAlign vAlign, const std::string& fontName)
 {
     glm::vec2 pos_cpy = { position.x, position.y };
 
@@ -207,7 +231,22 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
     while (std::getline(iss, line, '\n'))
         lines.push_back(line);
 
-    float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y);
+    float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y) * scale;
+    float relSpacing = relCharHeight * 0.3f;
+
+    switch (vAlign)
+    {
+        case VTextAlign::BOTTOM:
+            pos_cpy.y += (relCharHeight + relSpacing) * (lines.size() - 1);
+            break;
+        case VTextAlign::MIDDLE:
+            pos_cpy.y += ((relCharHeight / 2.0f) * (lines.size() - 2.0f)) + (relSpacing * ((lines.size() - 1.0f) / 2.0f));
+            break;
+        case VTextAlign::TOP:
+            pos_cpy.y -= relCharHeight;
+            break;
+    }
+
     for (const auto& line : lines)
     {
         // Determine horizontal length of a line
@@ -218,14 +257,14 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
             lineLength += s_Data->Camera->ConvertPixelSizeToRelative((c.Size.x + c.Advance) >> 6) * scale;
         }
 
-        switch (alignment)
+        switch (hAlign)
         {
-            case TextAlignment::LEFT:
+            case HTextAlign::LEFT:
                 break;
-            case TextAlignment::MIDDLE:
+            case HTextAlign::MIDDLE:
                 pos_cpy.x -= lineLength / 2;
                 break;
-            case TextAlignment::RIGHT:
+            case HTextAlign::RIGHT:
                 pos_cpy.x -= lineLength;
                 break;
         }
@@ -252,6 +291,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
                 s_Data->FontShader->SetFloat3("u_Color", color);
 
                 s_Data->FontVertexArray->Bind();
+                s_Data->FontVertexArray->GetIndexBuffer()->Bind();
                 glDrawElements(GL_TRIANGLES, s_Data->FontVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
 
                 pos_cpy.x += s_Data->Camera->ConvertPixelSizeToRelative(ch.Advance >> 6) * scale;
@@ -259,8 +299,28 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
         }
 
         pos_cpy.x = position.x;
-        pos_cpy.y -= relCharHeight * scale * 1.3;
+        pos_cpy.y -= relCharHeight + relSpacing;
     }
+}
+
+glm::vec2 Renderer2D::GetTextSize(const std::shared_ptr<OrthographicCamera>& camera, const std::string& text,
+                                  const std::string& fontName)
+{
+    auto characters = ResourceManager::GetFont(fontName)->GetCharacters();
+
+    float maxCharHeightPx = 0.0f;
+    float textWidth = 0.0f;
+
+    for (std::string::const_iterator c = text.begin(); c != text.end(); c++)
+    {
+        float charHeightPx = characters[*c].Size.y;
+        if (charHeightPx > maxCharHeightPx)
+            maxCharHeightPx = charHeightPx;
+
+        textWidth += camera->ConvertPixelSizeToRelative(characters[*c].Size.x + characters[*c].Bearing.x);
+    }
+
+    return { textWidth, camera->ConvertPixelSizeToRelative(maxCharHeightPx, false) };
 }
 
 void Renderer2D::ClearColor(const glm::vec4& color)

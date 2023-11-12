@@ -17,17 +17,44 @@ void Info::Draw()
 {
     Renderer2D::BeginScene(m_UICamera);
 
-    float scale = 0.6f;
     auto currPlayer = m_PlayerManager->GetCurrentPlayer();
-    auto aspectRatio = m_UICamera->GetAspectRatio();
+    auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
+    auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
 
-    std::string gold = "Gold: " + std::to_string(currPlayer->GetGold());
-    std::string turn = "Turn: " + std::to_string(GameLayer::Get().GetIteration());
+    static auto resourceData = Resources::GetResourceData();
+
+    int resourceNumbers[resourceData.NumResources] = {
+        currPlayer->GetResources().Wood,
+        currPlayer->GetResources().Rock,
+        currPlayer->GetResources().Steel,
+        currPlayer->GetResources().Gold
+    };
+
+    for (int i = 0; i < resourceData.NumResources; i++)
+    {
+        Renderer2D::DrawQuad(
+            { -halfOfWidth + m_ResourceStartX, halfOfHeight - m_ResourceStartY - m_ResourceOffset * i},
+            glm::vec2(m_ResourceScale),
+            resourceData.ResourceTextures[i]
+        );
+
+        Renderer2D::DrawTextStr(
+            std::to_string(resourceNumbers[i]),
+            {
+                -halfOfWidth + m_ResourceStartX + m_ResourceNumberOffset,
+                halfOfHeight - (m_ResourceStartY + 0.025f) - m_ResourceOffset * i
+            },
+            m_TextScale,
+            resourceData.ResourceNumberColors[i],
+            HTextAlign::LEFT
+        );
+    }
+
+    std::string turn   = "Turn: "   + std::to_string(GameLayer::Get().GetIteration());
     std::string player = "Player: " + currPlayer->GetName();
 
-    Renderer2D::DrawTextStr(gold, { -aspectRatio + 0.1f, 0.9f }, scale, currPlayer->GetColor(), TextAlignment::LEFT);
-    Renderer2D::DrawTextStr(turn, { aspectRatio - 0.1f, 0.9f }, scale, currPlayer->GetColor(), TextAlignment::RIGHT);
-    Renderer2D::DrawTextStr(player, { 0.0f, 0.9f }, scale, currPlayer->GetColor(), TextAlignment::MIDDLE);
+    Renderer2D::DrawTextStr(turn, {  halfOfWidth - 0.05f, halfOfHeight - 0.1f }, m_TextScale, glm::vec3(0.9f), HTextAlign::RIGHT);
+    Renderer2D::DrawTextStr(player, { 0.0f, halfOfHeight - 0.1f }, m_TextScale, currPlayer->GetColor(), HTextAlign::MIDDLE);
 
     Renderer2D::EndScene();
 }

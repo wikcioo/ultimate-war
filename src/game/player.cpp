@@ -2,42 +2,42 @@
 
 #include <algorithm>
 
-Player::Player(const std::string& name, const glm::vec3& color, int gold)
-    :  m_Name(name), m_Color(color), m_Gold(gold)
+Player::Player(PlayerDTO playerData, Resources resources)
+    :  m_Name(playerData.Name), m_Color(playerData.Color), m_Resources(resources)
 {
 }
 
-void Player::AddGold(int amount)
+void Player::AddResources(Resources& resources)
 {
-    m_Gold += amount;
+    m_Resources += resources;
 }
 
-bool Player::SubtractGold(int amount)
+bool Player::SubtractResources(Resources& resources)
 {
-    if (m_Gold >= amount)
+    if (m_Resources >= resources)
     {
-        m_Gold -= amount;
+        m_Resources -= resources;
         return true;
     }
 
     return false;
 }
 
-void Player::AddOwnedTile(std::shared_ptr<Tile> tile)
+void Player::AddOwnedTile(const std::shared_ptr<Tile>& tile)
 {
     m_OwnedTiles.emplace_back(tile);
     tile->SetOwnership(shared_from_this());
 }
 
-void Player::RemoveOwnedTile(std::shared_ptr<Tile> tile)
+void Player::RemoveOwnedTile(const std::shared_ptr<Tile>& tile)
 {
     auto it = std::find(m_OwnedTiles.begin(), m_OwnedTiles.end(), tile);
     if (it != m_OwnedTiles.end())
         m_OwnedTiles.erase(it);
 }
 
-void Player::CollectGoldFromOwnedTiles()
+void Player::CollectResourcesFromOwnedTiles()
 {
-    for (auto tile : m_OwnedTiles)
-        m_Gold += tile->GetValue();
+    for (const auto& tile : m_OwnedTiles)
+        m_Resources += tile->GetResources();
 }

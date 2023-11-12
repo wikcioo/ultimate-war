@@ -19,7 +19,7 @@ workspace "UltimateWar"
 project "UltimateWar"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++20"
+    cppdialect "C++17"
 	architecture "x86_64"
     warnings "Default"
 

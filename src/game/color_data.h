@@ -29,6 +29,14 @@ public:
         glm::vec4 ShopPanelHighlighUnitGroupColor;
     } UITheme;
 
+    struct
+    {
+        glm::vec3 Wood;
+        glm::vec3 Rock;
+        glm::vec3 Steel;
+        glm::vec3 Gold;
+    } Resources;
+
 private:
     ColorData() {}
 };

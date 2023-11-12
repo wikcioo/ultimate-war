@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <variant>
+#include <optional>
 #include <unordered_map>
 
 #include "core/camera.h"
@@ -24,15 +25,21 @@ public:
     virtual void Draw() override;
 
 private:
+    bool OnWindowResized(WindowResizedEvent& event);
     bool OnMouseScrolled(MouseScrolledEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
     bool OnMouseButtonPressedPanel(MouseButtonPressedEvent& event);
     bool OnMouseButtonPressedGame(MouseButtonPressedEvent& event);
     void SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType> type);
     bool IsAssetAttachedToCursor() { return m_CursorAttachedAsset.Texture.get(); }
+    void ProcessInvalidAssetPlacement(const glm::vec2& cursorPos);
 
     void DrawUnitGroups(const glm::vec2& cursorPos);
     void DrawBuildings(const glm::vec2& cursorPos);
+    void DrawAssetInfo(const std::string& name, const Resources& cost,
+                       std::optional<BuildingType> requiredBuilding = std::nullopt);
+
+    std::string GetCostText(Resources& cost);
 
 private:
     int m_UnitGroupCount;
@@ -43,6 +50,7 @@ private:
     glm::vec2 m_AssetSize;
     float m_AssetPriceSize;
     std::string m_AssetPriceFontName;
+    glm::vec2 m_Offset;
 
     struct
     {

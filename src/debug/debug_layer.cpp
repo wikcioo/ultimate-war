@@ -19,20 +19,10 @@ DebugLayer::DebugLayer()
 
 void DebugLayer::OnAttach()
 {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-
-    auto window = Application::Get().GetWindow()->GetNativeWindow();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void DebugLayer::OnDetach()
 {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
 
 void DebugLayer::OnEvent(Event& event)
@@ -212,11 +202,11 @@ void DebugLayer::DisplayFontSettingsWindow()
     ImGui::SameLine();
     ImGui::RadioButton("RIGHT", &font_alignment, 2);
     if (font_alignment == 0)
-        DebugData::Get()->Font.Alignment = TextAlignment::LEFT;
+        DebugData::Get()->Font.Alignment = HTextAlign::LEFT;
     else if (font_alignment == 1)
-        DebugData::Get()->Font.Alignment = TextAlignment::MIDDLE;
+        DebugData::Get()->Font.Alignment = HTextAlign::MIDDLE;
     else if (font_alignment == 2)
-        DebugData::Get()->Font.Alignment = TextAlignment::RIGHT;
+        DebugData::Get()->Font.Alignment = HTextAlign::RIGHT;
 
     ImGui::End();
 }
@@ -238,7 +228,6 @@ void DebugLayer::DisplayPlayerWindow()
             ImGui::SetNextItemOpen(true, ImGuiCond_Once);
             if (ImGui::TreeNode(player->GetName().c_str()))
             {
-                ImGui::Text("gold: (%d)", player->GetGold());
                 ImGui::Text("owned tiles: (%zu)", player->GetOwnedTiles().size());
                 auto clr = player->GetColor();
                 ImGui::Text("color: "); ImGui::SameLine();
@@ -263,6 +252,24 @@ void DebugLayer::OnUpdate(float dt)
     DisplayPlayerWindow();
 
     EndFrame();
+}
+
+void DebugLayer::InitImGui()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+
+    auto window = Application::Get().GetWindow()->GetNativeWindow();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+}
+
+void DebugLayer::ShutdownImGui()
+{
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 #endif

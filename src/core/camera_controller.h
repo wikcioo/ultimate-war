@@ -16,7 +16,7 @@ public:
     void OnUpdate(float dt);
     void OnEvent(Event& event);
 
-    inline std::shared_ptr<OrthographicCamera> GetCamera() const { return m_Camera; }
+    inline const std::shared_ptr<OrthographicCamera>& GetCamera() const { return m_Camera; }
 
 private:
     bool OnWindowResize(WindowResizedEvent& event);

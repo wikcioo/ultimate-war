@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "layer.h"
@@ -10,18 +11,21 @@ public:
     LayerStack() = default;
     ~LayerStack();
 
-    void PushLayer(Layer* layer);
-    void PopLayer(Layer* layer);
+    void PushLayer(std::shared_ptr<Layer> layer);
+    void PopLayer(std::shared_ptr<Layer> layer);
 
-    void PushOverlay(Layer* overlay);
-    void PopOverlay(Layer* overlay);
+    void PushOverlay(std::shared_ptr<Layer> overlay);
+    void PopOverlay(std::shared_ptr<Layer> overlay);
 
-    std::vector<Layer*>::iterator begin() { return m_Layers.begin(); }
-    std::vector<Layer*>::iterator end() { return m_Layers.end(); }
-    std::vector<Layer*>::reverse_iterator rbegin() { return m_Layers.rbegin(); }
-    std::vector<Layer*>::reverse_iterator rend() { return m_Layers.rend(); }
+    void Enable(std::shared_ptr<Layer> layer) { layer->SetIsActive(true); }
+    void Disable(std::shared_ptr<Layer> layer) { layer->SetIsActive(false); }
+
+    std::vector<std::shared_ptr<Layer>>::iterator begin() { return m_Layers.begin(); }
+    std::vector<std::shared_ptr<Layer>>::iterator end() { return m_Layers.end(); }
+    std::vector<std::shared_ptr<Layer>>::reverse_iterator rbegin() { return m_Layers.rbegin(); }
+    std::vector<std::shared_ptr<Layer>>::reverse_iterator rend() { return m_Layers.rend(); }
 
 private:
-    std::vector<Layer*> m_Layers;
+    std::vector<std::shared_ptr<Layer>> m_Layers;
     unsigned int m_LayerInsertIndex = 0;
 };

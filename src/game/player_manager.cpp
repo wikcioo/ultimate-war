@@ -8,9 +8,9 @@ PlayerManager::PlayerManager()
 {
 }
 
-void PlayerManager::AddPlayer(const std::string& name, const glm::vec3& color)
+void PlayerManager::AddPlayer(PlayerDTO playerData)
 {
-    m_Players.emplace_back(std::make_shared<Player>(name.empty() ? Util::GenerateAnonymousName() : name, color));
+    m_Players.emplace_back(std::make_shared<Player>(playerData));
     m_ActivePlayerCount++;
 }
 
@@ -30,15 +30,15 @@ void PlayerManager::NextTurn()
         NextTurn();
 
     if (GameLayer::Get().GetIteration() != 0)
-        m_Players[m_CurrentPlayerIndex]->CollectGoldFromOwnedTiles();
+        m_Players[m_CurrentPlayerIndex]->CollectResourcesFromOwnedTiles();
 }
 
-bool PlayerManager::IsInactivePlayer(const std::shared_ptr<Player> player)
+bool PlayerManager::IsInactivePlayer(const std::shared_ptr<Player>& player)
 {
     return player && player->GetOwnedTiles().size() == 0;
 }
 
-void PlayerManager::UpdatePlayerStatus(const std::shared_ptr<Player> player)
+void PlayerManager::UpdatePlayerStatus(const std::shared_ptr<Player>& player)
 {
     if(IsInactivePlayer(player))
     {

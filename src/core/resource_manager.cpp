@@ -1,5 +1,7 @@
 #include "resource_manager.h"
 
+#include <fstream>
+
 #include <stb/stb_image.h>
 
 #include "logger.h"
@@ -40,49 +42,59 @@ void ResourceManager::LoadTexture(const std::string& name, const std::string& fi
         return;
     }
 
+    std::fstream file(filepath);
+    if (!file.good())
+    {
+        LOG_ERROR("ResourceManager: Could not open texture file {0}", filepath);
+        file.close();
+        return;
+    }
+    file.close();
+
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(1);
     unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 0);
 
-    TextureData textureData = {
-        .Size={width, height},
-        .Data=data,
-        .NrChannels=(unsigned int)nrChannels,
-    };
+    TextureData textureData = { {width, height}, data, (unsigned int)nrChannels };
     std::shared_ptr<Texture2D> texture = std::make_shared<Texture2D>(textureData);
 
     stbi_image_free(data);
     m_TextureCache[name] = texture;
 }
 
-std::shared_ptr<Font> ResourceManager::GetFont(const std::string& name)
+const std::shared_ptr<Font>& ResourceManager::GetFont(const std::string& name)
 {
     if (m_FontCache.find(name) == m_FontCache.end())
     {
         LOG_ERROR("ResourceManager: Unknown font with name {0}", name);
-        return nullptr;
+        static auto defaultFont = std::make_shared<Font>("assets/fonts/arial/arial.ttf");
+        return defaultFont;
     }
 
     return m_FontCache[name];
 }
 
-std::shared_ptr<Shader> ResourceManager::GetShader(const std::string& name)
+const std::shared_ptr<Shader>& ResourceManager::GetShader(const std::string& name)
 {
     if (m_ShaderCache.find(name) == m_ShaderCache.end())
     {
         LOG_ERROR("ResourceManager: Unknown shader with name {0}", name);
-        return nullptr;
+        static auto missingShader = std::make_shared<Shader>("assets/shaders/missing.glsl");
+        return missingShader;
     }
 
     return m_ShaderCache[name];
 }
 
-std::shared_ptr<Texture2D> ResourceManager::GetTexture(const std::string& name)
+const std::shared_ptr<Texture2D>& ResourceManager::GetTexture(const std::string& name)
 {
     if (m_TextureCache.find(name) == m_TextureCache.end())
     {
         LOG_ERROR("ResourceManager: Unknown texture with name {0}", name);
-        return nullptr;
+        static unsigned char* data = new unsigned char[3] { 0xFF, 0x00, 0xFF };
+        static TextureData missingTextureData = { { 1, 1 }, data, 3u };
+        static auto missingTexture = std::make_shared<Texture2D>(missingTextureData);
+        return missingTexture;
     }
 
     return m_TextureCache[name];

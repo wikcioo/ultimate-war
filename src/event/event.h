@@ -4,6 +4,8 @@
 #include <sstream>
 #include <functional>
 
+#define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
 enum class EventType
 {
     None = 0,

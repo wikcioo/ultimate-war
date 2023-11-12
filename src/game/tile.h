@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <glm/glm.hpp>
@@ -12,6 +13,8 @@
 #define TILE_HEIGHT (glm::sqrt(3))
 #define TILE_OFFSET  0.1f
 
+class Player;
+
 struct DrawData
 {
     glm::vec2 Size;
@@ -21,40 +24,56 @@ struct DrawData
     glm::vec2 BackgroundSize;
 };
 
-class Player;
+enum class TileEnvironment
+{
+    NONE,
+    OCEAN,
+    FOREST,
+    DESERT,
+    MOUNTAINS,
+    HIGHLIGHT
+};
 
 class Tile : public std::enable_shared_from_this<Tile>
 {
 public:
-    Tile(int type, const glm::ivec2& coords);
+    Tile(TileEnvironment environment, const glm::ivec2& coords);
     ~Tile();
 
-    void MoveToTile(std::shared_ptr<Tile> destTile);
+    void MoveToTile(const std::shared_ptr<Tile>& destTile);
     void CreateUnitGroup(UnitGroupType type);
     bool CanRecruitUnitGroup(UnitGroupType type);
+    bool HasSpaceForUnitGroups(int num);
+    bool HasSpaceForBuildings(int num);
     void CreateBuilding(BuildingType type);
     void DeselectAllUnitGroups();
-    void Draw(const glm::vec4& color);
-    void DrawBase(const glm::vec4& color);
+    void Draw();
     bool HasSelectedUnitGroups();
     bool InRange(const glm::vec2& cursorPos);
     bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);
+    bool HandleBuildingUpgradeIconMouseClick(const glm::vec2& relMousePos);
     bool IsMouseClickedInsideUnitGroupsBox(const glm::vec2& relMousePos);
+    bool AssetsCanExist() { return m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN; }
+    void CheckUnitGroupHover(const glm::vec2& relMousePos);
+    void CheckBuildingHover(const glm::vec2& relMousePos);
 
-    inline const int GetType() const { return m_Type; }
-    inline const int GetValue() const { return m_Value; }
-    inline const std::shared_ptr<Player> GetOwnedBy() const { return m_OwnedBy; }
+    inline const TileEnvironment GetEnvironment() const { return m_Environment; }
+    inline const void SetEnvironment(TileEnvironment environment) { m_Environment = environment; }
+    inline const std::shared_ptr<Player>& GetOwnedBy() const { return m_OwnedBy; }
     std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
+    const Resources GetResources() const;
+    int GetNumSelectedUnitGroups();
 
-    void SetOwnership(std::shared_ptr<Player> player);
-    void ChangeOwnership(std::shared_ptr<Player> player);
+    void SetOwnership(const std::shared_ptr<Player>& player);
+    void ChangeOwnership(const std::shared_ptr<Player>& player);
 
 public:
     static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);
     static glm::vec2 CalculateTilePosition(int x, int y);
+    static std::string GetEnvironmentName(TileEnvironment environment);
 
 public:
     static float s_BackgroundHeightRatio;
@@ -67,17 +86,28 @@ public:
     static int s_BuildingsPerRow;
     static int s_BuildingWidthToOffsetRatio;
 
+    static const int s_StatCount;
+    static const char* s_StatTextures[];
+    static const std::array<glm::ivec2, 6> s_AdjacentTileOffsets;
+
 private:
+    void InitStaticRuntimeData();
+    void DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup);
+    void DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[]);
+    void DrawEnvironment();
     void DrawUnitGroups();
     void DrawBuildings();
     void EraseSelectedUnitGroups();
-    void TransferUnitGroupsToTile(std::shared_ptr<Tile> destTile);
+    void TransferUnitGroupsToTile(const std::shared_ptr<Tile>& destTile);
     DrawData GetUnitGroupDrawData();
     DrawData GetBuildingDrawData();
 
 private:
-    int m_Type;
-    int m_Value;
+    static std::shared_ptr<Texture2D> s_UpgradeIconTexture;
+
+private:
+    TileEnvironment m_Environment;
+    Resources m_Resources;
     glm::ivec2 m_Coords;
     glm::vec2 m_Position;
     std::shared_ptr<Player> m_OwnedBy;

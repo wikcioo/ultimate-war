@@ -16,6 +16,9 @@ public:
     virtual void OnEvent(Event& event) override;
     virtual void OnUpdate(float dt) override;
 
+    static void InitImGui();
+    static void ShutdownImGui();
+
 private:
     void BeginFrame();
     void EndFrame();

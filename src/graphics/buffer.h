@@ -50,7 +50,7 @@ public:
 
     void PostProcess() const;
 
-    inline const std::shared_ptr<Texture2D> GetTexture() const { return m_DisplayedColorTexture; }
+    inline const std::shared_ptr<Texture2D>& GetTexture() const { return m_DisplayedColorTexture; }
 
 private:
     unsigned int m_Width, m_Height;
