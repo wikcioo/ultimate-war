@@ -6,6 +6,7 @@
 #include "debug/debug_data.h"
 #include "graphics/renderer.h"
 #include "game/color_data.h"
+#include "core/input.h"
 
 Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
                  const std::shared_ptr<OrthographicCamera>& gameCamera,
@@ -16,9 +17,20 @@ Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
 {
     m_MinimapCamera = std::make_shared<OrthographicCamera>(MINIMAP_ASPECT_RATIO);
     m_MinimapCamera->SetScale(1.0f);
+    m_MinimapCamera->SetPosition(gameCamera->GetPosition());
+
+    glm::vec2 mapZoom = {
+        (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) + TILE_WIDTH) / 2.0f,
+        (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) + (TILE_HEIGHT + TILE_OFFSET)) / 2.0f
+    };
+
+    float zoom = glm::max(mapZoom.x / gameCamera->GetAspectRatio(), mapZoom.y);
+    m_MinimapCamera->SetZoom(zoom);
 
     auto pixelSize = m_GameCamera->ConvertRelativeSizeToPixel(size);
     m_Framebuffer = std::make_unique<FrameBuffer>((unsigned int)pixelSize.x, (unsigned int)pixelSize.y);
+
+    m_MapSize = m_MinimapCamera->CalculateRelativeWindowSize();
 }
 
 void Minimap::OnEvent(Event& event)
@@ -37,19 +49,23 @@ void Minimap::OnEvent(Event& event)
 
 void Minimap::Draw()
 {
+    if (m_MouseWasPressed)
+    {
+        if (Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+        {
+            MoveCameraToClickLocation();
+        }
+        else
+        {
+            m_MouseWasPressed = false;
+        }
+    }
+
     m_Framebuffer->Bind();
 
     Renderer2D::ClearColor({0.0f, 0.0f, 0.0f, 0.0f});
 
-    m_MinimapCamera->SetPosition(m_GameCamera->GetPosition());
-#if defined(DEBUG)
-    m_MinimapCamera->SetZoom(m_GameCamera->GetZoom() * DebugData::Get()->MinimapData.Zoom);
-#else
-    m_MinimapCamera->SetZoom(m_GameCamera->GetZoom() * 3.0f);
-#endif
-
     Renderer2D::BeginScene(m_MinimapCamera);
-
     for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
     {
         for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
@@ -66,6 +82,10 @@ void Minimap::Draw()
                 }
 
                 Renderer2D::DrawHexagon(tile->GetPosition(), glm::vec2(1.0f), color);
+            }
+            else if (tile->GetEnvironment() == TileEnvironment::OCEAN)
+            {
+                Renderer2D::DrawHexagon(tile->GetPosition(), glm::vec2(1.0f), glm::vec4(0.2f, 0.5f, 0.8f, 1.0f));
             }
         }
     }
@@ -102,12 +122,32 @@ bool Minimap::OnMouseMoved(MouseMovedEvent& event)
 
 bool Minimap::OnMouseScrolled(MouseScrolledEvent& event)
 {
-    float zoom = m_MinimapCamera->GetZoom() - (event.getYOffset() / 5.0f);
-    m_MinimapCamera->SetZoom(std::max(std::min(zoom, 15.0f), 0.1f));
     return true;
 }
 
 bool Minimap::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
+    m_MouseWasPressed = true;
+    MoveCameraToClickLocation();
     return true;
+}
+
+void Minimap::MoveCameraToClickLocation()
+{
+    auto mouseClickPos = m_UICamera->CalculateRelativeMousePosition();
+    auto minimapBottomLeftPos = m_UICamera->CalculateRelativeBottomLeftPosition();
+
+    // Calculates distance in relative size from bottom left side to cursor position
+    auto distance = mouseClickPos - minimapBottomLeftPos;
+
+    // Gets proportion from -0.5 to 0.5 for where in the minimap mouse was clicked
+    auto normalizedCursorPosition = glm::vec2(distance.x / m_Size.x - 0.5f, distance.y / m_Size.y - 0.5f);
+
+    auto minimapCenter = m_MinimapCamera->GetPosition();
+
+    // calculates final game camera position
+    auto result = glm::vec2(minimapCenter.x + m_MapSize.x * normalizedCursorPosition.x,
+                            minimapCenter.y + m_MapSize.y * normalizedCursorPosition.y);
+
+    m_GameCamera->SetPosition({result, 0.0f});
 }

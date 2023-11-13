@@ -30,10 +30,13 @@ private:
     bool OnMouseMoved(MouseMovedEvent& event);
     bool OnMouseScrolled(MouseScrolledEvent& event);
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
+    void MoveCameraToClickLocation();
 
 private:
+    bool m_MouseWasPressed = false;
     glm::vec2 m_Offset;
     glm::vec2 m_MinimapPos;
+    glm::vec2 m_MapSize;
     std::unique_ptr<FrameBuffer> m_Framebuffer;
     std::shared_ptr<OrthographicCamera> m_GameCamera;
     std::shared_ptr<OrthographicCamera> m_MinimapCamera;
