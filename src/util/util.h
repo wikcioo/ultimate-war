@@ -7,6 +7,7 @@
 #include <functional>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/random.hpp>
 
 class Util
 {
@@ -76,5 +77,10 @@ public:
     static void RemoveElementsFromContainerWithCondition(T& container, std::function<bool(P)> func)
     {
         container.erase(std::remove_if(container.begin(), container.end(), func), container.end());
+    }
+
+    static glm::vec3 GetRandomColor()
+    {
+        return glm::linearRand(glm::vec3(0.0f), glm::vec3(1.0f));
     }
 };
