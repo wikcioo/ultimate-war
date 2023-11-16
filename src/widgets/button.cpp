@@ -1,5 +1,6 @@
 #include "button.h"
 
+#include "core/logger.h"
 #include "util/util.h"
 #include "graphics/renderer.h"
 
@@ -49,8 +50,15 @@ bool Button::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     auto relMousePosition = m_Camera->CalculateRelativeMousePosition();
     if (Util::IsPointInRectangle(m_Position, m_Size, relMousePosition))
     {
-        m_PressedCallback({ m_Id, m_Text });
-        return true;
+        if (m_PressedCallback)
+        {
+            m_PressedCallback({ m_Id, m_Text });
+            return true;
+        }
+        else
+        {
+            LOG_WARN("Button: PressedCallback not set for '{0}'", m_Text);
+        }
     }
 
     return false;
