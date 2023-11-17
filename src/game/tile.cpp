@@ -484,6 +484,7 @@ void Tile::DrawEnvironment()
     {
         glm::vec3 color;
         float yOffset = TILE_HEIGHT / 2.0f - 0.15f;
+        static auto tileColors = ColorData::Get().TileColors;
         switch (m_Environment)
         {
             case TileEnvironment::OCEAN:
@@ -494,19 +495,19 @@ void Tile::DrawEnvironment()
             }
             case TileEnvironment::FOREST:
             {
-                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.133f, 0.545f, 0.133f, 1.0f });
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { tileColors.ForestColor, 1.0f });
                 Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("tree"));
                 break;
             }
             case TileEnvironment::DESERT:
             {
-                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.898f, 0.788f, 0.643f, 1.0f });
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { tileColors.DesertColor, 1.0f });
                 Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("sand"));
                 break;
             }
             case TileEnvironment::MOUNTAINS:
             {
-                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.5f, 0.5f, 0.5f, 1.0f });
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { tileColors.MountainsColor, 1.0f });
                 Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("stone"));
                 break;
             }
