@@ -60,8 +60,8 @@ void ChooseMapView::OnMapButtonPressed(ButtonCallbackData data)
     m_SelectedMap = Util::StrToLower(data.Text);
 
     std::vector<PlayerDTO> players;
-    players.emplace_back(PlayerDTO("John", glm::vec3(1.0f, 0.0f, 0.0f)));
-    players.emplace_back(PlayerDTO("Bob", glm::vec3(0.0f, 0.0f, 1.0f)));
+    players.emplace_back(PlayerDTO("John", glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(4)));
+    players.emplace_back(PlayerDTO("Bob", glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(5)));
 
     Application::Get().StartNewGame({ m_SelectedMap, players });
 }

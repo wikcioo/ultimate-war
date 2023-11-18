@@ -8,10 +8,13 @@ PlayerManager::PlayerManager()
 {
 }
 
-void PlayerManager::AddPlayer(PlayerDTO playerData)
+std::shared_ptr<Player> PlayerManager::AddPlayer(PlayerDTO playerData)
 {
-    m_Players.emplace_back(std::make_shared<Player>(playerData));
+    auto player = std::make_shared<Player>(playerData);
+    m_Players.emplace_back(player);
     m_ActivePlayerCount++;
+
+    return player;
 }
 
 void PlayerManager::NextTurn()
