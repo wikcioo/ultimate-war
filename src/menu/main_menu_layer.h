@@ -39,6 +39,7 @@ public:
     const std::string& GetSelectedMap();
 
 private:
+    void InitViews();
     void OnWindowSizeChanged();
     void RecalculateCamera();
 
