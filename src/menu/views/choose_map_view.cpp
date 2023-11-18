@@ -7,7 +7,7 @@
 #include "core/application.h"
 
 ChooseMapView::ChooseMapView()
-    : m_SelectedMap("")
+    : BackableView(ViewName::MAIN), m_SelectedMap("")
 {
 }
 

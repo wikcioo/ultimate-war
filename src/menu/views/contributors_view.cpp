@@ -3,6 +3,7 @@
 #include "graphics/renderer.h"
 
 ContributorsView::ContributorsView()
+    : BackableView(ViewName::MAIN)
 {
 }
 
