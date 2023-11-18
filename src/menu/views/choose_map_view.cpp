@@ -41,6 +41,16 @@ void ChooseMapView::OnAttach()
 
 void ChooseMapView::OnUpdate(float dt)
 {
+    Renderer2D::DrawTextStr(
+        "Choose the map",
+        { 0.0f, m_Camera->GetHalfOfRelativeHeight() - 0.1f },
+        0.7f,
+        glm::vec3(1.0f),
+        HTextAlign::MIDDLE,
+        VTextAlign::TOP,
+        "rexlia"
+    );
+
     for (auto button : m_Buttons)
         button->OnUpdate();
 
