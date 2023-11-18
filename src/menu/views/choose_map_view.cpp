@@ -39,12 +39,12 @@ void ChooseMapView::OnAttach()
     }
 }
 
-void ChooseMapView::OnUpdate()
+void ChooseMapView::OnUpdate(float dt)
 {
     for (auto button : m_Buttons)
         button->OnUpdate();
 
-    BackableView::OnUpdate();
+    BackableView::OnUpdate(dt);
 }
 
 void ChooseMapView::OnEvent(Event& event)

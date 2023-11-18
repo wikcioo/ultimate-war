@@ -23,7 +23,7 @@ void BackableView::OnAttach()
     m_BackButton->SetPosition(CalculateBackButtonPosition());
 }
 
-void BackableView::OnUpdate()
+void BackableView::OnUpdate(float dt)
 {
     m_BackButton->OnUpdate();
 }

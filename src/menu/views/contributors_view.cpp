@@ -6,7 +6,7 @@ ContributorsView::ContributorsView()
 {
 }
 
-void ContributorsView::OnUpdate()
+void ContributorsView::OnUpdate(float dt)
 {
     Renderer2D::DrawTextStr(
         "CONTRIBUTORS",
@@ -20,7 +20,7 @@ void ContributorsView::OnUpdate()
 
     DrawContributors();
 
-    BackableView::OnUpdate();
+    BackableView::OnUpdate(dt);
 }
 
 void ContributorsView::OnEvent(Event& event)

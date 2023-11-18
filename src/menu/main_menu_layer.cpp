@@ -43,7 +43,7 @@ void MainMenuLayer::OnUpdate(float dt)
 
     Renderer2D::DrawQuad(glm::vec2(0.0f), m_RelWindowSize, glm::vec4(0.2f, 0.5f, 0.8f, 1.0f));
 
-    m_Views[m_CurrentViewName]->OnUpdate();
+    m_Views[m_CurrentViewName]->OnUpdate(dt);
 
     Renderer2D::EndScene();
 }
