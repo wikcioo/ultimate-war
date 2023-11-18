@@ -9,11 +9,15 @@ struct PlayerDTO
 {
     std::string Name;
     glm::vec3 Color;
+    glm::vec2 TileCoords;
 
-    PlayerDTO(const std::string& name, const glm::vec3& color)
+    PlayerDTO() {}
+
+    PlayerDTO(const std::string& name, const glm::vec3& color, const glm::vec2& tileCoords)
     {
         Name = name;
         Color = color;
+        TileCoords = tileCoords;
     }
 };
 

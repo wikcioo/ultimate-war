@@ -14,6 +14,7 @@ enum class ViewName
 {
     MAIN,
     CHOOSE_MAP,
+    CHOOSE_PLAYERS,
     CONTRIBUTORS
 };
 
@@ -39,6 +40,7 @@ public:
     const std::string& GetSelectedMap();
 
 private:
+    void InitViews();
     void OnWindowSizeChanged();
     void RecalculateCamera();
 

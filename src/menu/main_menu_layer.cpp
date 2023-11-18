@@ -4,6 +4,7 @@
 #include "graphics/renderer.h"
 #include "menu/views/main_view.h"
 #include "menu/views/choose_map_view.h"
+#include "menu/views/choose_players_view.h"
 #include "menu/views/contributors_view.h"
 
 MainMenuLayer* MainMenuLayer::s_Instance = nullptr;
@@ -18,14 +19,7 @@ MainMenuLayer::MainMenuLayer()
     m_MainMenuCamera = std::make_shared<OrthographicCamera>(aspectRatio);
     m_RelWindowSize = m_MainMenuCamera->CalculateRelativeWindowSize();
 
-    m_Views[ViewName::MAIN] = new MainView();
-    m_Views[ViewName::MAIN]->OnAttach();
-    m_Views[ViewName::CHOOSE_MAP] = new ChooseMapView();
-    m_Views[ViewName::CHOOSE_MAP]->OnAttach();
-    m_Views[ViewName::CONTRIBUTORS] = new ContributorsView();
-    m_Views[ViewName::CONTRIBUTORS]->OnAttach();
-
-    m_CurrentViewName = ViewName::MAIN;
+    InitViews();
 }
 
 MainMenuLayer::~MainMenuLayer()
@@ -50,7 +44,7 @@ void MainMenuLayer::OnUpdate(float dt)
 
     Renderer2D::DrawQuad(glm::vec2(0.0f), m_RelWindowSize, glm::vec4(0.2f, 0.5f, 0.8f, 1.0f));
 
-    m_Views[m_CurrentViewName]->OnUpdate();
+    m_Views[m_CurrentViewName]->OnUpdate(dt);
 
     Renderer2D::EndScene();
 }
@@ -72,6 +66,16 @@ void MainMenuLayer::SetView(ViewName viewName)
 const std::string& MainMenuLayer::GetSelectedMap()
 {
     return ((ChooseMapView*)m_Views[ViewName::CHOOSE_MAP])->GetSelectedMap();
+}
+
+void MainMenuLayer::InitViews()
+{
+    m_Views[ViewName::MAIN] = new MainView();
+    m_Views[ViewName::CHOOSE_MAP] = new ChooseMapView();
+    m_Views[ViewName::CHOOSE_PLAYERS] = new ChoosePlayersView();
+    m_Views[ViewName::CONTRIBUTORS] = new ContributorsView();
+
+    SetView(ViewName::MAIN);
 }
 
 void MainMenuLayer::OnWindowSizeChanged()

@@ -174,21 +174,14 @@ void GameLayer::InitGame(NewGameDTO newGameData)
     m_CameraController->GetCamera()->SetPosition(glm::vec3(mapMiddle, 0.0f));
 
     for (auto player : newGameData.Players)
-        m_PlayerManager->AddPlayer(player);
-
-#if defined(DEBUG)
-    int i = 6;
-    for (auto player : m_PlayerManager->GetAllPlayers())
     {
-        auto tile = m_GameMapManager->GetGameMap()->GetTile(i, 5);
-        tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
-        tile->CreateUnitGroup(UnitGroupType::DWARF);
-        tile->CreateUnitGroup(UnitGroupType::DEMON);
-        tile->CreateBuilding(BuildingType::GOLD_MINE);
-        player->AddOwnedTile(tile);
-        i++;
+        auto _player = m_PlayerManager->AddPlayer(player);
+        _player->AddOwnedTile(
+            GameLayer::Get().GetGameMapManager()->GetGameMap()->GetTile(
+                player.TileCoords.x, player.TileCoords.y
+            )
+        );
     }
-#endif
 }
 
 void GameLayer::ResetArrow()

@@ -9,11 +9,11 @@
 class BackableView : public MainMenuView
 {
 public:
-    BackableView();
+    BackableView(ViewName backViewName);
     ~BackableView();
 
     virtual void OnAttach() override;
-    virtual void OnUpdate() override;
+    virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
 private:
@@ -25,4 +25,5 @@ private:
 private:
     std::unique_ptr<Button> m_BackButton;
     glm::vec2 m_BackButtonSize;
+    ViewName m_BackViewName;
 };

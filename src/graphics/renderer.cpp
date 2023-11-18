@@ -254,7 +254,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
         for (std::string::const_iterator it = line.begin(); it != line.end(); it++)
         {
             auto c = characters[*it];
-            lineLength += s_Data->Camera->ConvertPixelSizeToRelative((c.Size.x + c.Advance) >> 6) * scale;
+            lineLength += s_Data->Camera->ConvertPixelSizeToRelative(c.Advance >> 6) * scale;
         }
 
         switch (hAlign)
@@ -317,7 +317,7 @@ glm::vec2 Renderer2D::GetTextSize(const std::shared_ptr<OrthographicCamera>& cam
         if (charHeightPx > maxCharHeightPx)
             maxCharHeightPx = charHeightPx;
 
-        textWidth += camera->ConvertPixelSizeToRelative(characters[*c].Size.x + characters[*c].Bearing.x);
+        textWidth += camera->ConvertPixelSizeToRelative(characters[*c].Advance >> 6);
     }
 
     return { textWidth, camera->ConvertPixelSizeToRelative(maxCharHeightPx, false) };

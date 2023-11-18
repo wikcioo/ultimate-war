@@ -18,7 +18,7 @@ public:
     const std::shared_ptr<Player>& GetCurrentPlayer() { return m_Players[m_CurrentPlayerIndex]; }
     std::vector<std::shared_ptr<Player>>& GetAllPlayers() { return m_Players; }
 
-    void AddPlayer(PlayerDTO playerData = { "", glm::vec3(1.0f, 0.0f, 1.0f) });
+    std::shared_ptr<Player> AddPlayer(PlayerDTO playerData);
     void UpdatePlayerStatus(const std::shared_ptr<Player>& player);
     void NextTurn();
 

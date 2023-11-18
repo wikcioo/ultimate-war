@@ -7,7 +7,7 @@
 #include "core/application.h"
 
 ChooseMapView::ChooseMapView()
-    : m_SelectedMap("")
+    : BackableView(ViewName::MAIN), m_SelectedMap("")
 {
 }
 
@@ -39,12 +39,22 @@ void ChooseMapView::OnAttach()
     }
 }
 
-void ChooseMapView::OnUpdate()
+void ChooseMapView::OnUpdate(float dt)
 {
+    Renderer2D::DrawTextStr(
+        "Choose the map",
+        { 0.0f, m_Camera->GetHalfOfRelativeHeight() - 0.1f },
+        0.7f,
+        glm::vec3(1.0f),
+        HTextAlign::MIDDLE,
+        VTextAlign::TOP,
+        "rexlia"
+    );
+
     for (auto button : m_Buttons)
         button->OnUpdate();
 
-    BackableView::OnUpdate();
+    BackableView::OnUpdate(dt);
 }
 
 void ChooseMapView::OnEvent(Event& event)
@@ -59,9 +69,5 @@ void ChooseMapView::OnMapButtonPressed(ButtonCallbackData data)
 {
     m_SelectedMap = Util::StrToLower(data.Text);
 
-    std::vector<PlayerDTO> players;
-    players.emplace_back(PlayerDTO("John", glm::vec3(1.0f, 0.0f, 0.0f)));
-    players.emplace_back(PlayerDTO("Bob", glm::vec3(0.0f, 0.0f, 1.0f)));
-
-    Application::Get().StartNewGame({ m_SelectedMap, players });
+    MainMenuLayer::Get().SetView(ViewName::CHOOSE_PLAYERS);
 }

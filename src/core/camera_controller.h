@@ -16,6 +16,7 @@ public:
     void OnUpdate(float dt);
     void OnEvent(Event& event);
 
+    void SetMovementSpeed(float speed) { m_CameraMovementSpeed = speed; }
     inline const std::shared_ptr<OrthographicCamera>& GetCamera() const { return m_Camera; }
 
 private:

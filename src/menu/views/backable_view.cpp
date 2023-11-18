@@ -2,8 +2,8 @@
 
 #include "menu/main_menu_layer.h"
 
-BackableView::BackableView()
-    : m_BackButtonSize(0.4, 0.1)
+BackableView::BackableView(ViewName backViewName)
+    : m_BackButtonSize(0.4, 0.1), m_BackViewName(backViewName)
 {
     ButtonConfig buttonConfig;
     buttonConfig.Text = "BACK";
@@ -23,7 +23,7 @@ void BackableView::OnAttach()
     m_BackButton->SetPosition(CalculateBackButtonPosition());
 }
 
-void BackableView::OnUpdate()
+void BackableView::OnUpdate(float dt)
 {
     m_BackButton->OnUpdate();
 }
@@ -43,7 +43,7 @@ void BackableView::OnWindowSizeChanged()
 
 void BackableView::OnBackButtonPressed(ButtonCallbackData data)
 {
-    MainMenuLayer::Get().SetView(ViewName::MAIN);
+    MainMenuLayer::Get().SetView(m_BackViewName);
 }
 
 glm::vec2 BackableView::CalculateBackButtonPosition()

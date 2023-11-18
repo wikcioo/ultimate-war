@@ -53,7 +53,7 @@ void MainView::OnAttach()
     m_Buttons[1]->SetDisabled(!Application::Get().LastGameAvailable());
 }
 
-void MainView::OnUpdate()
+void MainView::OnUpdate(float dt)
 {
     Renderer2D::DrawTextStr("Ultimate War", glm::vec2(0.0f, 0.5f), 1.0f, glm::vec3(0.9f),
                             HTextAlign::MIDDLE, VTextAlign::MIDDLE, "rexlia");
