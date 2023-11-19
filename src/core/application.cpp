@@ -131,6 +131,8 @@ void Application::LoadResources()
 
     ResourceManager::LoadTexture("cross", "assets/textures/icons/cross.png");
     ResourceManager::LoadTexture("up_arrow", "assets/textures/icons/up_arrow.png");
+    ResourceManager::LoadTexture("chest_open", "assets/textures/icons/chest_open.png");
+    ResourceManager::LoadTexture("chest_closed", "assets/textures/icons/chest_closed.png");
 
     ResourceManager::LoadTexture("target", "assets/textures/buildings/target.png");
     ResourceManager::LoadTexture("blacksmith", "assets/textures/buildings/blacksmith.png");
