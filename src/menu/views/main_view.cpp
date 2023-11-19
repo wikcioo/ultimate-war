@@ -64,6 +64,11 @@ void MainView::OnUpdate(float dt)
 
 void MainView::OnEvent(Event& event)
 {
+#if defined(DEBUG)
+    EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(MainView::OnKeyPressed));
+#endif
+
     for (auto button : m_Buttons)
     {
         if (event.Handled)
@@ -96,3 +101,55 @@ void MainView::OnExitButtonPressed(ButtonCallbackData data)
 {
     Application::Get().Exit();
 }
+
+#if defined(DEBUG)
+#include <algorithm>
+// quick way to get into the game layer from main menu layer
+// adds two dummy players to the first available tiles on the map
+// looks for map named 'simple' to load, otherwise loads the first available
+bool MainView::OnKeyPressed(KeyPressedEvent& event)
+{
+    if (event.GetKeyCode() == GLFW_KEY_F1)
+    {
+        auto availableMaps = GameMapManager::GetAvailableMaps();
+        if (availableMaps.size() < 1)
+        {
+            LOG_WARN("No available maps to load");
+            return false;
+        }
+
+        std::string mapName;
+        if (std::find(availableMaps.begin(), availableMaps.end(), "simple") != availableMaps.end())
+            mapName = "simple";
+        else
+            mapName = availableMaps[0];
+
+        GameMapManager manager(mapName);
+        std::vector<PlayerDTO> players;
+        std::vector<glm::vec2> tileCoords;
+
+        for (int y = 0; y < manager.GetGameMap()->GetTileCountY(); y++)
+        {
+            for (int x = 0; x < manager.GetGameMap()->GetTileCountX(); x++)
+            {
+                auto tile = manager.GetGameMap()->GetTile(x, y);
+                if (tile->AssetsCanExist())
+                {
+                    tileCoords.emplace_back(tile->GetCoords());
+                    if (tileCoords.size() == 2)
+                    {
+                        players.emplace_back(PlayerDTO("Foo", glm::vec3(1.0f, 0.0f, 0.0f), tileCoords[0]));
+                        players.emplace_back(PlayerDTO("Bar", glm::vec3(0.0f, 0.0f, 1.0f), tileCoords[1]));
+                        Application::Get().StartNewGame({ mapName, players });
+                        return true;
+                    }
+                }
+            }
+        }
+
+        LOG_WARN("Not enough available tiles to place players on");
+    }
+
+    return false;
+}
+#endif
