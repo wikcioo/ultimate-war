@@ -25,15 +25,18 @@ public:
     virtual void Draw() override;
 
 private:
-    bool OnWindowResized(WindowResizedEvent& event);
-    bool OnMouseScrolled(MouseScrolledEvent& event);
+    void OnWindowSizeChanged();
+
     bool OnKeyPressed(KeyPressedEvent& event);
+    bool OnMouseScrolled(MouseScrolledEvent& event);
     bool OnMouseButtonPressedPanel(MouseButtonPressedEvent& event);
+    bool OnMouseButtonShopPanelIconPressed(MouseButtonPressedEvent& event);
     bool OnMouseButtonPressedGame(MouseButtonPressedEvent& event);
     void SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType> type);
     bool IsAssetAttachedToCursor() { return m_CursorAttachedAsset.Texture.get(); }
     void ProcessInvalidAssetPlacement(const glm::vec2& cursorPos);
 
+    void DrawShopPanelIcon(const glm::vec2& cursorPos);
     void DrawUnitGroups(const glm::vec2& cursorPos);
     void DrawBuildings(const glm::vec2& cursorPos);
     void DrawAssetInfo(const std::string& name, const Resources& cost,
@@ -51,6 +54,14 @@ private:
     float m_AssetPriceSize;
     std::string m_AssetPriceFontName;
     glm::vec2 m_Offset;
+    bool m_Hidden;
+
+    struct
+    {
+        glm::vec2 CornerOffset;
+        glm::vec2 Size;
+        glm::vec2 Position;
+    } m_ShopPanelIcon;
 
     struct
     {

@@ -23,22 +23,39 @@ ShopPanel::ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const 
       ),
       m_AssetSize(assetSize), m_AssetOffset(assetOffset), m_Offset(offset),
       m_UnitGroupCount((int)UnitGroupType::COUNT), m_BuildingCount((int)BuildingType::COUNT),
-      m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.125f), m_AssetPriceFontName("rexlia")
+      m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.125f),
+      m_AssetPriceFontName("rexlia"), m_Hidden(true)
 {
+    m_ShopPanelIcon.CornerOffset = glm::vec2(0.05f);
+    m_ShopPanelIcon.Size = glm::vec2(0.15f);
+    m_ShopPanelIcon.Position = {
+        m_UICamera->GetHalfOfRelativeWidth() - m_ShopPanelIcon.Size.x - m_ShopPanelIcon.CornerOffset.x,
+        -m_UICamera->GetHalfOfRelativeHeight() + m_ShopPanelIcon.Size.y + m_ShopPanelIcon.CornerOffset.y
+    };
 }
 
 void ShopPanel::OnEvent(Event& event)
 {
+    if (event.GetCategory() == EventCategory::Window)
+        OnWindowSizeChanged();
+
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(ShopPanel::OnKeyPressed));
-    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(ShopPanel::OnWindowResized));
 
     auto mousePos = m_UICamera->CalculateRelativeMousePosition();
+
     if (mousePos.x > m_Position.x && mousePos.x < m_Position.x + m_Size.x &&
         mousePos.y > m_Position.y && mousePos.y < m_Position.y + m_Size.y * 2)
     {
         dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(ShopPanel::OnMouseScrolled));
         dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(ShopPanel::OnMouseButtonPressedPanel));
+    }
+    else if (mousePos.x > m_ShopPanelIcon.Position.x - m_ShopPanelIcon.Size.x / 2.0f &&
+             mousePos.x < m_ShopPanelIcon.Position.x + m_ShopPanelIcon.Size.x / 2.0f &&
+             mousePos.y > m_ShopPanelIcon.Position.y - m_ShopPanelIcon.Size.y / 2.0f &&
+             mousePos.y < m_ShopPanelIcon.Position.y + m_ShopPanelIcon.Size.y / 2.0f)
+    {
+        dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(ShopPanel::OnMouseButtonShopPanelIconPressed));
     }
     else
     {
@@ -52,13 +69,18 @@ void ShopPanel::Draw()
 
     auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
 
-    DrawBuildings(cursorPos);
-    DrawUnitGroups(cursorPos);
+    DrawShopPanelIcon(cursorPos);
 
-    if (IsAssetAttachedToCursor())
+    if (!m_Hidden)
     {
-        Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
-        ProcessInvalidAssetPlacement(cursorPos);
+        DrawBuildings(cursorPos);
+        DrawUnitGroups(cursorPos);
+
+        if (IsAssetAttachedToCursor())
+        {
+            Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
+            ProcessInvalidAssetPlacement(cursorPos);
+        }
     }
 
     Renderer2D::EndScene();
@@ -96,6 +118,19 @@ void ShopPanel::ProcessInvalidAssetPlacement(const glm::vec2& cursorPos)
             }
         }
     }
+}
+
+void ShopPanel::DrawShopPanelIcon(const glm::vec2& cursorPos)
+{
+    static auto openShopPanelIcon = ResourceManager::GetTexture("chest_open");
+    static auto closedShopPanelIcon = ResourceManager::GetTexture("chest_closed");
+
+    auto shopPanelIcon = m_Hidden ? closedShopPanelIcon : openShopPanelIcon;
+    Renderer2D::DrawQuad(
+        m_ShopPanelIcon.Position,
+        m_ShopPanelIcon.Size,
+        shopPanelIcon
+    );
 }
 
 void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
@@ -256,14 +291,18 @@ std::string ShopPanel::GetCostText(Resources& cost)
     return oss.str();
 }
 
-bool ShopPanel::OnWindowResized(WindowResizedEvent& event)
+void ShopPanel::OnWindowSizeChanged()
 {
     glm::vec2 bottomLeft = m_UICamera->CalculateRelativeBottomLeftPosition();
     m_Position = glm::vec2(
         bottomLeft.x + m_UICamera->GetHalfOfRelativeWidth() - m_Size.x / 2.0f,
         bottomLeft.y + m_Offset.y
     );
-    return false;
+
+    m_ShopPanelIcon.Position = {
+        m_UICamera->GetHalfOfRelativeWidth() - m_ShopPanelIcon.Size.x - m_ShopPanelIcon.CornerOffset.x,
+        -m_UICamera->GetHalfOfRelativeHeight() + m_ShopPanelIcon.Size.y + m_ShopPanelIcon.CornerOffset.y
+    };
 }
 
 bool ShopPanel::OnMouseScrolled(MouseScrolledEvent& event)
@@ -315,6 +354,15 @@ bool ShopPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
     }
 
     return false;
+}
+
+bool ShopPanel::OnMouseButtonShopPanelIconPressed(MouseButtonPressedEvent& event)
+{
+    m_Hidden = !m_Hidden;
+    m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
+    m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
+    m_CursorAttachedAsset.Texture = nullptr;
+    return true;
 }
 
 bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
