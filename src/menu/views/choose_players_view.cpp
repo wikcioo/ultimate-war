@@ -541,14 +541,18 @@ ColumnDrawData ChoosePlayersView::GetColumnDrawData(ColumnType type)
 glm::vec2 ChoosePlayersView::CalculateMousePositionOnMap()
 {
     auto mapCamera = m_MapCameraController->GetCamera();
-    auto mouseClickPos = m_Camera->CalculateRelativeMousePosition();
+
     auto minimapBottomLeftPos = m_MapDrawData.Position - m_MapDrawData.Size * 0.5f;
-    auto distance = mouseClickPos - minimapBottomLeftPos;
-    auto normalizedCursorPosition = glm::vec2(distance.x / m_MapDrawData.Size.x - 0.5f, distance.y / m_MapDrawData.Size.y - 0.5f);
     auto minimapCenter = mapCamera->GetPosition();
     auto m_MapSize = mapCamera->CalculateRelativeWindowSize();
-    auto result = glm::vec2(minimapCenter.x + m_MapSize.x * normalizedCursorPosition.x,
-                            minimapCenter.y + m_MapSize.y * normalizedCursorPosition.y);
+
+    auto result = m_Camera->CalculateMousePositionInGameObjectInUI(
+        minimapBottomLeftPos,
+        m_MapDrawData.Size,
+        m_MapSize,
+        minimapCenter
+    );
+
     return result;
 }
 

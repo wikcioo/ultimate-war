@@ -134,20 +134,15 @@ bool Minimap::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 
 void Minimap::MoveCameraToClickLocation()
 {
-    auto mouseClickPos = m_UICamera->CalculateRelativeMousePosition();
     auto minimapBottomLeftPos = m_UICamera->CalculateRelativeBottomLeftPosition();
-
-    // Calculates distance in relative size from bottom left side to cursor position
-    auto distance = mouseClickPos - minimapBottomLeftPos;
-
-    // Gets proportion from -0.5 to 0.5 for where in the minimap mouse was clicked
-    auto normalizedCursorPosition = glm::vec2(distance.x / m_Size.x - 0.5f, distance.y / m_Size.y - 0.5f);
-
     auto minimapCenter = m_MinimapCamera->GetPosition();
 
-    // calculates final game camera position
-    auto result = glm::vec2(minimapCenter.x + m_MapSize.x * normalizedCursorPosition.x,
-                            minimapCenter.y + m_MapSize.y * normalizedCursorPosition.y);
+    auto result = m_UICamera->CalculateMousePositionInGameObjectInUI(
+        minimapBottomLeftPos,
+        m_Size,
+        m_MapSize,
+        minimapCenter
+    );
 
     m_GameCamera->SetPosition({result, 0.0f});
 }
