@@ -21,6 +21,7 @@ public:
     std::shared_ptr<Player> AddPlayer(PlayerDTO playerData);
     void UpdatePlayerStatus(const std::shared_ptr<Player>& player);
     void NextTurn();
+    void SetCurrentPlayerIndex(int index) { m_CurrentPlayerIndex = index; }
 
 private:
     bool IsInactivePlayer(const std::shared_ptr<Player>& player);
