@@ -170,7 +170,7 @@ void ChoosePlayersView::OnStartGameButtonPressed(ButtonCallbackData data)
     {
         std::string name = it->second.Player.Name;
         glm::vec3 color = it->second.Player.Color;
-        glm::vec2 tileCoords = it->second.Player.TileCoords;
+        std::vector<glm::vec2> tileCoords = it->second.Player.TileCoords;
         players.emplace_back(PlayerDTO(name, color, tileCoords));
     }
 
@@ -212,7 +212,7 @@ void ChoosePlayersView::AddPlayer()
         m_PlayersData.insert(std::make_pair(
             m_SelectedTile.TileRef->GetPosition(),
             PlayerData(
-                PlayerDTO(m_UsernameInputBox->GetText(), m_NextPlayerInfo.Color, m_SelectedTile.TileRef->GetCoords()),
+                PlayerDTO(m_UsernameInputBox->GetText(), m_NextPlayerInfo.Color, { m_SelectedTile.TileRef->GetCoords() }),
                 m_SelectedTile.TileRef->GetEnvironmentName(m_SelectedTile.TileRef->GetEnvironment())
             )
         ));
