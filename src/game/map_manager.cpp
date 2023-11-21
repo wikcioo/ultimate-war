@@ -55,6 +55,29 @@ void GameMapManager::Load(const std::string& mapName, bool flip_vertically)
     m_SelectedMap = mapName;
 }
 
+void GameMapManager::Load(const std::string& mapName, const std::vector<std::vector<std::string>>& mapData)
+{
+    MapData map;
+    for (size_t y = 0; y < mapData.size(); y++)
+    {
+        const auto& rowData = mapData[y];
+
+        std::vector<std::shared_ptr<Tile>> row;
+        for (size_t x = 0; x < rowData.size(); x++)
+        {
+            const auto& columnData = rowData[x];
+
+            auto t = std::make_shared<Tile>((TileEnvironment)std::stoi(columnData), glm::ivec2(x, y));
+            row.emplace_back(t);
+        }
+
+        map.emplace_back(row);
+    }
+
+    m_GameMap = std::make_shared<GameMap>(map);
+    m_SelectedMap = mapName;
+}
+
 std::vector<std::string> GameMapManager::GetAvailableMaps()
 {
     std::vector<std::string> files = FileSystem::GetAllFilesInDirectory(s_MapDirectory);
