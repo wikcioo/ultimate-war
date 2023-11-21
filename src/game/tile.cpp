@@ -92,6 +92,22 @@ void Tile::CreateUnitGroup(UnitGroupType type)
         LOG_WARN("Trying to add unit group of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
 }
 
+void Tile::CreateUnitGroup(UnitGroup unitGroup)
+{
+    if (!HasSpaceForUnitGroups(1))
+    {
+        LOG_WARN("Not enough space to add unit group object of type '{0}' to tile",
+                 UnitGroupDataMap[unitGroup.GetType()].TextureName);
+        return;
+    }
+
+    if (AssetsCanExist())
+        m_UnitGroups.emplace_back(new UnitGroup(unitGroup));
+    else
+        LOG_WARN("Trying to add unit group object of type '{0}' to non-existent tile",
+                 UnitGroupDataMap[unitGroup.GetType()].TextureName);
+}
+
 bool Tile::CanRecruitUnitGroup(UnitGroupType type)
 {
     if (type == UnitGroupType::NONE || type == UnitGroupType::COUNT)
@@ -135,6 +151,22 @@ void Tile::CreateBuilding(BuildingType type)
         m_Buildings.emplace_back(new Building(type));
     else
         LOG_WARN("Trying to add building of type '{0}' to non-existent tile", BuildingDataMap[type].TextureName);
+}
+
+void Tile::CreateBuilding(Building building)
+{
+    if (!HasSpaceForBuildings(1))
+    {
+        LOG_WARN("Not enough space to add building of type '{0}' to tile",
+                 BuildingDataMap[building.GetType()].TextureName);
+        return;
+    }
+
+    if (AssetsCanExist())
+        m_Buildings.emplace_back(new Building(building));
+    else
+        LOG_WARN("Trying to add building of type '{0}' to non-existent tile",
+                 BuildingDataMap[building.GetType()].TextureName);
 }
 
 void Tile::Draw()
