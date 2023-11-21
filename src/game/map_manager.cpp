@@ -80,18 +80,7 @@ void GameMapManager::Load(const std::string& mapName, const std::vector<std::vec
 
 std::vector<std::string> GameMapManager::GetAvailableMaps()
 {
-    std::vector<std::string> files = FileSystem::GetAllFilesInDirectory(s_MapDirectory);
-
-    // Remove all entries in files vector which do not end with s_MapFileSuffix
-    files.erase(std::remove_if(files.begin(), files.end(), [](const std::string& s) {
-        if (s.length() <= s_MapFileSuffix.length()) return true;
-        return (s.compare(s.length() - s_MapFileSuffix.length(), s_MapFileSuffix.length(), s_MapFileSuffix) != 0);
-    }), files.end());
-
-    for (auto& file : files)
-        file = Util::StripFileExtension(file);
-
-    return files;
+    return FileSystem::GetFilesInDirectoryWithExtension(s_MapDirectory, s_MapFileSuffix);
 }
 
 std::string GameMapManager::GetMapPath(const std::string& mapName)

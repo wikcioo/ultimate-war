@@ -41,4 +41,20 @@ public:
 
         return files;
     }
+
+    static std::vector<std::string> GetFilesInDirectoryWithExtension(const std::string& directory, const std::string& extension)
+    {
+        std::vector<std::string> files = FileSystem::GetAllFilesInDirectory(directory);
+
+        // Remove all entries in files vector which do not end with extension
+        files.erase(std::remove_if(files.begin(), files.end(), [extension](const std::string& s) {
+            if (s.length() <= extension.length()) return true;
+            return (s.compare(s.length() - extension.length(), extension.length(), extension) != 0);
+        }), files.end());
+
+        for (auto& file : files)
+            file = Util::StripFileExtension(file);
+
+        return files;
+    }
 };
