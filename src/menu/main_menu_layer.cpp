@@ -5,6 +5,7 @@
 #include "menu/views/main_view.h"
 #include "menu/views/choose_map_view.h"
 #include "menu/views/choose_players_view.h"
+#include "menu/views/choose_save_view.h"
 #include "menu/views/contributors_view.h"
 
 MainMenuLayer* MainMenuLayer::s_Instance = nullptr;
@@ -73,6 +74,7 @@ void MainMenuLayer::InitViews()
     m_Views[ViewName::MAIN] = new MainView();
     m_Views[ViewName::CHOOSE_MAP] = new ChooseMapView();
     m_Views[ViewName::CHOOSE_PLAYERS] = new ChoosePlayersView();
+    m_Views[ViewName::CHOOSE_SAVE] = new ChooseSaveView();
     m_Views[ViewName::CONTRIBUTORS] = new ContributorsView();
 
     SetView(ViewName::MAIN);

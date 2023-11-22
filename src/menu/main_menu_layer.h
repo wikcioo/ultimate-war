@@ -15,6 +15,7 @@ enum class ViewName
     MAIN,
     CHOOSE_MAP,
     CHOOSE_PLAYERS,
+    CHOOSE_SAVE,
     CONTRIBUTORS
 };
 
