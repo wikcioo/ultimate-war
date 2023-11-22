@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 
 #include "game/player.h"
 #include "game/map_manager.h"
@@ -98,9 +99,9 @@ private:
     std::string m_PlayerUsername;
     std::map<glm::vec2, PlayerData, Vec2FloatCompare> m_PlayersData;
 
-    InputBox* m_UsernameInputBox;
-    Button* m_AddPlayerButton;
-    Button* m_StartGameButton;
+    std::unique_ptr<InputBox> m_UsernameInputBox;
+    std::unique_ptr<Button> m_AddPlayerButton;
+    std::unique_ptr<Button> m_StartGameButton;
     glm::vec2 m_StartGameButtonSize;
 
     glm::vec2 m_MapZoom;

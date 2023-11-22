@@ -32,6 +32,7 @@ public:
     ~Building() = default;
 
     void Upgrade() { m_Level += 1; }
+    void SetLevel(unsigned int level) { m_Level = level; }
 
     const BuildingType GetType() const { return m_Type; }
     const unsigned int GetLevel() const { return m_Level; }

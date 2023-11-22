@@ -5,7 +5,7 @@
 
 #include "event/window_event.h"
 #include "menu/views/backable_view.h"
-#include "widgets/toggle_button_group.h"
+#include "widgets/button.h"
 
 class ChooseMapView : public BackableView
 {

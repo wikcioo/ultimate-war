@@ -164,7 +164,10 @@ bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
 
 void GameLayer::InitGame(NewGameDTO newGameData)
 {
-    m_GameMapManager->Load(newGameData.MapName);
+    if (newGameData.MapData.has_value())
+        m_GameMapManager->Load(newGameData.MapName, newGameData.MapData.value());
+    else
+        m_GameMapManager->Load(newGameData.MapName);
 
     glm::vec2 mapMiddle = {
         (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) / 2.0f) - TILE_WIDTH / 2.0f,
@@ -176,11 +179,14 @@ void GameLayer::InitGame(NewGameDTO newGameData)
     for (auto player : newGameData.Players)
     {
         auto _player = m_PlayerManager->AddPlayer(player);
-        _player->AddOwnedTile(
-            GameLayer::Get().GetGameMapManager()->GetGameMap()->GetTile(
-                player.TileCoords.x, player.TileCoords.y
-            )
-        );
+        for (const auto& tileCoords : player.TileCoords)
+        {
+            _player->AddOwnedTile(
+                GameLayer::Get().GetGameMapManager()->GetGameMap()->GetTile(
+                    tileCoords.x, tileCoords.y
+                )
+            );
+        }
     }
 }
 

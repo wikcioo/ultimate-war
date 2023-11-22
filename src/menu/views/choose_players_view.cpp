@@ -21,19 +21,16 @@ ChoosePlayersView::ChoosePlayersView()
 
     m_NextPlayerInfo.Color = Util::GetRandomColor();
 
-    m_AddPlayerButton = new Button(
-        m_Camera,
-        { "Add", glm::vec2(0.0f), glm::vec2(0.15f, 0.06f) }
-    );
+    ButtonConfig addPlayerButtonConfig = { "Add", glm::vec2(0.0f), glm::vec2(0.15f, 0.06f) };
+    m_AddPlayerButton = std::make_unique<Button>(m_Camera, addPlayerButtonConfig);
     m_AddPlayerButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(ChoosePlayersView::OnAddPlayerButtonPressed));
 
-    m_StartGameButton = new Button(
-        m_Camera,
-        { "Start", CalculateStartGameButtonPosition(), m_StartGameButtonSize }
-    );
+    ButtonConfig startGameButtonConfig = { "Start", CalculateStartGameButtonPosition(), m_StartGameButtonSize };
+    m_StartGameButton = std::make_unique<Button>(m_Camera, startGameButtonConfig);
     m_StartGameButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(ChoosePlayersView::OnStartGameButtonPressed));
 
-    m_UsernameInputBox = new InputBox(m_Camera, { glm::vec2(0.0f), glm::vec2(0.3f, 0.06f) });
+    InputBoxConfig usernameInputBoxConfig = { glm::vec2(0.0f), glm::vec2(0.3f, 0.06f) };
+    m_UsernameInputBox = std::make_unique<InputBox>(m_Camera, usernameInputBoxConfig);
     m_UsernameInputBox->SetAcceptedCallback(BIND_INPUT_BOX_CALLBACK_FN(ChoosePlayersView::OnUsernameInputBoxAccepted));
     m_UsernameInputBox->SetOnKeyChangedCallback(BIND_INPUT_BOX_CALLBACK_FN(ChoosePlayersView::OnUsernameInputBoxKeyChanged));
     m_UsernameInputBox->SetCharacterLimit(15);
@@ -170,7 +167,7 @@ void ChoosePlayersView::OnStartGameButtonPressed(ButtonCallbackData data)
     {
         std::string name = it->second.Player.Name;
         glm::vec3 color = it->second.Player.Color;
-        glm::vec2 tileCoords = it->second.Player.TileCoords;
+        std::vector<glm::vec2> tileCoords = it->second.Player.TileCoords;
         players.emplace_back(PlayerDTO(name, color, tileCoords));
     }
 
@@ -212,7 +209,7 @@ void ChoosePlayersView::AddPlayer()
         m_PlayersData.insert(std::make_pair(
             m_SelectedTile.TileRef->GetPosition(),
             PlayerData(
-                PlayerDTO(m_UsernameInputBox->GetText(), m_NextPlayerInfo.Color, m_SelectedTile.TileRef->GetCoords()),
+                PlayerDTO(m_UsernameInputBox->GetText(), m_NextPlayerInfo.Color, { m_SelectedTile.TileRef->GetCoords() }),
                 m_SelectedTile.TileRef->GetEnvironmentName(m_SelectedTile.TileRef->GetEnvironment())
             )
         ));

@@ -19,6 +19,7 @@ public:
     inline const std::shared_ptr<GameMap>& GetGameMap() const { return m_GameMap; }
 
     void Load(const std::string& mapName, bool flip_vertically = true);
+    void Load(const std::string& mapName, const std::vector<std::vector<std::string>>& mapData);
 
 private:
     std::string m_SelectedMap;

@@ -55,20 +55,32 @@ void GameMapManager::Load(const std::string& mapName, bool flip_vertically)
     m_SelectedMap = mapName;
 }
 
+void GameMapManager::Load(const std::string& mapName, const std::vector<std::vector<std::string>>& mapData)
+{
+    MapData map;
+    for (size_t y = 0; y < mapData.size(); y++)
+    {
+        const auto& rowData = mapData[y];
+
+        std::vector<std::shared_ptr<Tile>> row;
+        for (size_t x = 0; x < rowData.size(); x++)
+        {
+            const auto& columnData = rowData[x];
+
+            auto t = std::make_shared<Tile>((TileEnvironment)std::stoi(columnData), glm::ivec2(x, y));
+            row.emplace_back(t);
+        }
+
+        map.emplace_back(row);
+    }
+
+    m_GameMap = std::make_shared<GameMap>(map);
+    m_SelectedMap = mapName;
+}
+
 std::vector<std::string> GameMapManager::GetAvailableMaps()
 {
-    std::vector<std::string> files = FileSystem::GetAllFilesInDirectory(s_MapDirectory);
-
-    // Remove all entries in files vector which do not end with s_MapFileSuffix
-    files.erase(std::remove_if(files.begin(), files.end(), [](const std::string& s) {
-        if (s.length() <= s_MapFileSuffix.length()) return true;
-        return (s.compare(s.length() - s_MapFileSuffix.length(), s_MapFileSuffix.length(), s_MapFileSuffix) != 0);
-    }), files.end());
-
-    for (auto& file : files)
-        file = Util::StripFileExtension(file);
-
-    return files;
+    return FileSystem::GetFilesInDirectoryWithExtension(s_MapDirectory, s_MapFileSuffix);
 }
 
 std::string GameMapManager::GetMapPath(const std::string& mapName)

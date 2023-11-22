@@ -13,6 +13,8 @@ ChooseMapView::ChooseMapView()
 
 ChooseMapView::~ChooseMapView()
 {
+    for (auto button : m_Buttons)
+        delete button;
 }
 
 void ChooseMapView::OnAttach()

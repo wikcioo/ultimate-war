@@ -2,6 +2,8 @@
 
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
+#include "loader/save_loader.h"
+#include "loader/save_loader_exception.h"
 
 Application* Application::s_Instance = nullptr;
 
@@ -102,6 +104,12 @@ void Application::StartNewGame(NewGameDTO newGameData)
 void Application::ContinueLastGame()
 {
     m_LayerStackReload = LayerStackReload::CONTINUE_LAST_GAME;
+}
+
+void Application::LoadSave(const std::string& saveName)
+{
+    m_SaveName = saveName;
+    m_LayerStackReload = LayerStackReload::LOAD_SAVE;
 }
 
 void Application::LoadResources()
@@ -214,6 +222,36 @@ void Application::ProcessLayerStackReload()
 #if defined(DEBUG)
             m_DebugLayer->SetIsActive(true);
 #endif
+            break;
+        }
+        case LayerStackReload::LOAD_SAVE:
+        {
+            try
+            {
+                m_GameLayer = SaveLoader::Load(m_SaveName);
+                m_GameLayer->OnAttach();
+                m_LayerStack->PushLayer(m_GameLayer);
+
+                m_MainMenuLayer->SetIsActive(false);
+            }
+            catch (SaveLoaderException e)
+            {
+                // TODO: Add UI notification
+                LOG_ERROR("Corrupted .war file: {0}", e.what());
+                break;
+            }
+
+            m_UILayer = std::make_shared<UILayer>();
+            m_UILayer->OnAttach();
+            m_LayerStack->PushOverlay(m_UILayer);
+
+#if defined(DEBUG)
+            m_DebugLayer = std::make_shared<DebugLayer>();
+            m_DebugLayer->OnAttach();
+            m_LayerStack->PushOverlay(m_DebugLayer);
+#endif
+
+            m_LastGameLayer = m_GameLayer;
             break;
         }
         case LayerStackReload::OPEN_MAP_EDITOR:

@@ -2,8 +2,8 @@
 
 #include <algorithm>
 
-Player::Player(PlayerDTO playerData, Resources resources)
-    :  m_Name(playerData.Name), m_Color(playerData.Color), m_Resources(resources)
+Player::Player(PlayerDTO playerData)
+    :  m_Name(playerData.Name), m_Color(playerData.Color), m_Resources(playerData.ResourceData)
 {
 }
 

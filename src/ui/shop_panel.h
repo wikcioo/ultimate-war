@@ -32,6 +32,7 @@ private:
     bool OnMouseButtonPressedPanel(MouseButtonPressedEvent& event);
     bool OnMouseButtonShopPanelIconPressed(MouseButtonPressedEvent& event);
     bool OnMouseButtonPressedGame(MouseButtonPressedEvent& event);
+
     void SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType> type);
     bool IsAssetAttachedToCursor() { return m_CursorAttachedAsset.Texture.get(); }
     void ProcessInvalidAssetPlacement(const glm::vec2& cursorPos);
@@ -43,6 +44,7 @@ private:
                        std::optional<BuildingType> requiredBuilding = std::nullopt);
 
     std::string GetCostText(Resources& cost);
+    void ToggleShopPanelVisibility();
 
 private:
     int m_UnitGroupCount;

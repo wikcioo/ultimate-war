@@ -9,22 +9,25 @@ struct PlayerDTO
 {
     std::string Name;
     glm::vec3 Color;
-    glm::vec2 TileCoords;
+    std::vector<glm::vec2> TileCoords;
+    Resources ResourceData;
 
     PlayerDTO() {}
 
-    PlayerDTO(const std::string& name, const glm::vec3& color, const glm::vec2& tileCoords)
+    PlayerDTO(const std::string& name, const glm::vec3& color, const std::vector<glm::vec2>& tileCoords,
+              Resources resources = {0})
     {
         Name = name;
         Color = color;
         TileCoords = tileCoords;
+        ResourceData = resources;
     }
 };
 
 class Player : public std::enable_shared_from_this<Player>
 {
 public:
-    Player(PlayerDTO playerData, Resources resources = {0});
+    Player(PlayerDTO playerData);
     ~Player() = default;
 
     inline std::string GetName() { return m_Name; }
