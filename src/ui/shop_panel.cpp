@@ -291,6 +291,14 @@ std::string ShopPanel::GetCostText(Resources& cost)
     return oss.str();
 }
 
+void ShopPanel::ToggleShopPanelVisibility()
+{
+    m_Hidden = !m_Hidden;
+    m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
+    m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
+    m_CursorAttachedAsset.Texture = nullptr;
+}
+
 void ShopPanel::OnWindowSizeChanged()
 {
     glm::vec2 bottomLeft = m_UICamera->CalculateRelativeBottomLeftPosition();
@@ -317,6 +325,12 @@ bool ShopPanel::OnKeyPressed(KeyPressedEvent& event)
         m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
         m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
         m_CursorAttachedAsset.Texture.reset();
+        return true;
+    }
+    else if (event.GetKeyCode() == GLFW_KEY_B)
+    {
+        ToggleShopPanelVisibility();
+        return true;
     }
 
     return false;
@@ -358,10 +372,7 @@ bool ShopPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
 
 bool ShopPanel::OnMouseButtonShopPanelIconPressed(MouseButtonPressedEvent& event)
 {
-    m_Hidden = !m_Hidden;
-    m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
-    m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
-    m_CursorAttachedAsset.Texture = nullptr;
+    ToggleShopPanelVisibility();
     return true;
 }
 
