@@ -360,6 +360,9 @@ std::shared_ptr<GameLayer> SaveLoader::ConstructGameLayer(const _SaveData& data)
 
     gameLayer->GetPlayerManager()->SetCurrentPlayerIndex(data.CurrentPlayerIndex);
 
+    for (const auto& player : gameLayer->GetPlayerManager()->GetAllPlayers())
+        gameLayer->GetPlayerManager()->UpdatePlayerStatus(player);
+
     // add unit groups and buildings to tiles
     auto gameMap = gameLayer->GetGameMapManager()->GetGameMap();
 
