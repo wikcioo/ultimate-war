@@ -10,6 +10,7 @@
 class SaveLoader
 {
 public:
+    static void Save(const std::string& saveName, const std::shared_ptr<GameLayer>& gameLayer);
     static std::shared_ptr<GameLayer> Load(const std::string& saveName);
     static std::vector<std::string> GetAvailableSaves();
 
@@ -59,6 +60,6 @@ private:
 
 private:
     static std::shared_ptr<GameLayer> ConstructGameLayer(const _SaveData& data);
-    static std::vector<std::string> Tokenize(const std::string& str, char token);
+    static std::vector<std::string> Tokenize(const std::string& str, char separator);
     static std::string StripOuterChars(const std::string& str);
 };

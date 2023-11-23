@@ -48,6 +48,8 @@ public:
     void SetSelected(bool isSelected) { m_IsSelected = isSelected; }
     void SetMovedOnIteration(int iteration) { m_MovedOnIteration = iteration; }
 
+    int GetMovedOnIteration() { return m_MovedOnIteration; }
+
     // TODO: Rethink
     void IncrementQuantity(int quantity = 1);
 

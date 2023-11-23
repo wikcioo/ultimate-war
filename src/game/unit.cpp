@@ -20,7 +20,7 @@ UnitStats UnitStats::operator+(int scalar)
 }
 
 UnitGroup::UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats)
-    : m_Type(type), m_IsSelected(false)
+    : m_Type(type), m_IsSelected(false), m_MovedOnIteration(0)
 {
     auto unitStats = stats.has_value() ? stats.value() : new UnitStats(UnitGroupDataMap[type].Stats);
     m_Stats.push_back(unitStats);

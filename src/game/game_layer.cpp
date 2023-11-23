@@ -158,6 +158,12 @@ bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
         Application::Get().OpenMainMenu();
         return true;
     }
+    else if (event.GetKeyCode() == GLFW_KEY_X)
+    {
+        // TODO: Add pop-up asking for save name
+        Application::Get().SaveGame("test_save");
+        return true;
+    }
 
     return false;
 }

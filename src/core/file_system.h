@@ -25,10 +25,24 @@ public:
         }
         else
         {
-            LOG_ERROR("FileSystem: Could not open file {0}", filepath);
+            LOG_ERROR("FileSystem: Could not open file '{0}' for reading", filepath);
         }
 
         return str;
+    }
+
+    static void WriteFile(const std::string& filepath, const std::string& content)
+    {
+        std::ofstream ofs(filepath, std::ios::out);
+        if (ofs)
+        {
+            ofs << content;
+            ofs.close();
+        }
+        else
+        {
+            LOG_ERROR("FileSystem: Could not open file '{0}' for writing", filepath);
+        }
     }
 
     static std::vector<std::string> GetAllFilesInDirectory(const std::string& path, bool includeExtension = true)

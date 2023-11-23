@@ -106,6 +106,19 @@ void Application::ContinueLastGame()
     m_LayerStackReload = LayerStackReload::CONTINUE_LAST_GAME;
 }
 
+void Application::SaveGame(const std::string& saveName)
+{
+    try
+    {
+        SaveLoader::Save(saveName, m_GameLayer);
+        LOG_DEBUG("Saved the game");
+    }
+    catch (SaveLoaderException e)
+    {
+        LOG_ERROR("Failed to save the game: {0}", e.what());
+    }
+}
+
 void Application::LoadSave(const std::string& saveName)
 {
     m_SaveName = saveName;

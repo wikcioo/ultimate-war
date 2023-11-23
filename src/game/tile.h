@@ -63,6 +63,7 @@ public:
     inline const void SetEnvironment(TileEnvironment environment) { m_Environment = environment; }
     inline const std::shared_ptr<Player>& GetOwnedBy() const { return m_OwnedBy; }
     std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
+    std::vector<Building*>& GetBuildings() { return m_Buildings; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
