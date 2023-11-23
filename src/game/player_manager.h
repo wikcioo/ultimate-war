@@ -23,6 +23,9 @@ public:
     void NextTurn();
     void SetCurrentPlayerIndex(int index) { m_CurrentPlayerIndex = index; }
 
+    int GetCurrentPlayerIndex() { return m_CurrentPlayerIndex; }
+    int GetActivePlayerCount() { return m_ActivePlayerCount; }
+
 private:
     bool IsInactivePlayer(const std::shared_ptr<Player>& player);
 
