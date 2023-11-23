@@ -10,6 +10,7 @@
 class SaveLoader
 {
 public:
+    static void Save(const std::string& saveName, const std::shared_ptr<GameLayer>& gameLayer);
     static std::shared_ptr<GameLayer> Load(const std::string& saveName);
     static std::vector<std::string> GetAvailableSaves();
 

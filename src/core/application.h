@@ -37,6 +37,7 @@ public:
     void OpenMapEditor();
     void StartNewGame(NewGameDTO newGameData);
     void ContinueLastGame();
+    void SaveGame(const std::string& saveName);
     void LoadSave(const std::string& saveName);
     void Exit() { m_Running = false; }
 

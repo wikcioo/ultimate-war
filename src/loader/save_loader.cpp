@@ -8,6 +8,128 @@
 std::string SaveLoader::s_SaveDirectory = "saves/";
 std::string SaveLoader::s_SaveFileSuffix = ".war";
 
+void SaveLoader::Save(const std::string& saveName, const std::shared_ptr<GameLayer>& gameLayer)
+{
+    std::string content;
+
+    auto mapManager = gameLayer->GetGameMapManager();
+    auto playerManager = gameLayer->GetPlayerManager();
+
+    // collect game data
+    std::string mapName = mapManager->GetSelectedMapName();
+    int numberOfRows = mapManager->GetGameMap()->GetTileCountY();
+
+    std::string mapTileData;
+    for (int y = 0; y < mapManager->GetGameMap()->GetTileCountY(); y++)
+    {
+        for (int x = 0; x < mapManager->GetGameMap()->GetTileCountX(); x++)
+        {
+            mapTileData += std::to_string((int)mapManager->GetGameMap()->GetTile(x, y)->GetEnvironment());
+            mapTileData += ' ';
+        }
+
+        mapTileData += '\n';
+    }
+
+    int iterationNumber = gameLayer->GetIteration();
+    int currentPlayerIndex = playerManager->GetCurrentPlayerIndex();
+    int numberOfPlayers = playerManager->GetAllPlayers().size();
+
+    std::vector<std::string> players;
+    for (const auto& player : playerManager->GetAllPlayers())
+    {
+        auto name = player->GetName();
+        auto color = player->GetColor();
+        auto res = player->GetResources();
+
+        std::ostringstream oss;
+        oss << "\"" << name << "\" ";
+        oss << "(" << color.r << "," << color.g << "," << color.b << ") ";
+        oss << "(" << res.Wood << "," << res.Rock << "," << res.Steel << "," << res.Gold << ")";
+
+        players.emplace_back(oss.str());
+    }
+
+    std::vector<std::string> tiles;
+    for (int y = 0; y < mapManager->GetGameMap()->GetTileCountY(); y++)
+    {
+        for (int x = 0; x < mapManager->GetGameMap()->GetTileCountX(); x++)
+        {
+            auto tile = mapManager->GetGameMap()->GetTile(x, y);
+            if (tile->IsOwned())
+            {
+                std::ostringstream oss;
+                oss << "(" << tile->GetCoords().x << "," << tile->GetCoords().y << ")\n";
+
+                auto playerName = tile->GetOwnedBy()->GetName();
+                bool foundPlayer = false;
+                for (size_t i = 0; i < players.size(); i++)
+                {
+                    auto player = players[i];
+                    if (player.find("\"" + playerName + "\"") != std::string::npos)
+                    {
+                        oss << "P" << i << '\n';
+                        foundPlayer = true;
+                        break;
+                    }
+                }
+
+                if (!foundPlayer)
+                {
+                    throw SaveLoaderException(
+                        "SaveLoader: Could not find tile's owner '" + playerName + "'"
+                    );
+                }
+
+                for (auto ug : tile->GetUnitGroups())
+                {
+                    auto type = (int)ug->GetType();
+                    auto moved_on_iteration = ug->GetMovedOnIteration();
+                    auto stats_vec = ug->GetUnitStats();
+
+                    if (!stats_vec.empty())
+                    {
+                        auto stats = stats_vec[0];
+                        oss << "U(" << type << "," << moved_on_iteration << ",";
+                        oss << "(" << stats->Attack << ";" << stats->Defense << ";" << stats->Health << "))\n";
+                    }
+                    else
+                    {
+                        throw SaveLoaderException("SaveLoader: Empty unit stats vector");
+                    }
+                }
+
+                for (auto b : tile->GetBuildings())
+                {
+                    auto type = (int)b->GetType();
+                    auto level = b->GetLevel();
+
+                    oss << "B(" << type << "," << level << ")\n";
+                }
+
+                tiles.emplace_back(oss.str());
+            }
+        }
+    }
+
+    // write data to content string
+    content += mapName + '\n';
+    content += std::to_string(numberOfRows) + '\n';
+    content += mapTileData;
+    content += std::to_string(iterationNumber) + '\n';
+    content += std::to_string(currentPlayerIndex) + '\n';
+    content += std::to_string(numberOfPlayers) + '\n';
+
+    for (const auto& playerData : players)
+        content += playerData + '\n';
+
+    for (const auto& tileData : tiles)
+        content += tileData;
+
+    // save to disk
+    FileSystem::WriteFile(s_SaveDirectory + saveName + s_SaveFileSuffix, content);
+}
+
 std::shared_ptr<GameLayer> SaveLoader::Load(const std::string& saveName)
 {
     std::string filepath = s_SaveDirectory + saveName + s_SaveFileSuffix;
