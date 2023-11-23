@@ -177,19 +177,30 @@ std::shared_ptr<GameLayer> SaveLoader::Load(const std::string& saveName)
     {
         _PlayerData playerData;
 
-        // tokenize player data e.g. "bob" (1.0,0.0,0.0) (1,1,1,1)
-        auto playerTokens = Tokenize(lines[lineNumber], ' ');
-        if (playerTokens.size() < 3)
+        std::string line = lines[lineNumber];
+
+        // extract player name
+        size_t end = line.find_last_of("\"");
+        if (end != std::string::npos)
+        {
+            playerData.Name = line.substr(1, end - 1);
+        }
+        else
+        {
+            throw SaveLoaderException("SaveLoader: Could not find player name in quotes");
+        }
+
+        // tokenize the rest of player data e.g. (1.0,0.0,0.0) (1,1,1,1)
+        auto playerTokens = Tokenize(line.substr(end + 2), ' ');
+        if (playerTokens.size() < 2)
         {
             throw SaveLoaderException(
                 "SaveLoader: Incorrent number of player tokens: '" + std::to_string(playerTokens.size()) + "'"
             );
         }
 
-        playerData.Name = StripOuterChars(playerTokens[0]);
-
         // tokenize color e.g. (1.0,0.0,0.0) - remove '(' and ')' before tokenization
-        auto colorTokens = Tokenize(StripOuterChars(playerTokens[1]), ',');
+        auto colorTokens = Tokenize(StripOuterChars(playerTokens[0]), ',');
         if (colorTokens.size() < 3)
         {
             throw SaveLoaderException(
@@ -204,7 +215,7 @@ std::shared_ptr<GameLayer> SaveLoader::Load(const std::string& saveName)
         };
 
         // tokenize resources e.g. (1,1,1,1) - remove '(' and ')' before tokenization
-        auto resourceTokens = Tokenize(StripOuterChars(playerTokens[2]), ',');
+        auto resourceTokens = Tokenize(StripOuterChars(playerTokens[1]), ',');
         if (resourceTokens.size() < 4)
         {
             throw SaveLoaderException(

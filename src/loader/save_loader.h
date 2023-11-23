@@ -60,6 +60,6 @@ private:
 
 private:
     static std::shared_ptr<GameLayer> ConstructGameLayer(const _SaveData& data);
-    static std::vector<std::string> Tokenize(const std::string& str, char token);
+    static std::vector<std::string> Tokenize(const std::string& str, char separator);
     static std::string StripOuterChars(const std::string& str);
 };
