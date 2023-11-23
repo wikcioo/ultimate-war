@@ -83,4 +83,10 @@ public:
     {
         return glm::linearRand(glm::vec3(0.0f), glm::vec3(1.0f));
     }
+
+    static void RemoveCRLF(std::string& input)
+    {
+        input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
+        input.erase(std::remove(input.begin(), input.end(), '\n'), input.end());
+    }
 };

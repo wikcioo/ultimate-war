@@ -17,6 +17,7 @@ void SaveLoader::Save(const std::string& saveName, const std::shared_ptr<GameLay
 
     // collect game data
     std::string mapName = mapManager->GetSelectedMapName();
+    Util::RemoveCRLF(mapName);
     int numberOfRows = mapManager->GetGameMap()->GetTileCountY();
 
     std::string mapTileData;
