@@ -816,3 +816,14 @@ std::string Tile::GetEnvironmentName(TileEnvironment environment)
 
     return "unknown";
 }
+
+void Tile::AddRandomUnits()
+{
+    int unitGroupCount = (int)Util::GenerateRandomNumber(2, 6);
+
+    for (int i = 0; i < unitGroupCount; i++)
+    {
+        UnitGroupType unitGroupType = (UnitGroupType)Util::GenerateRandomNumber(0, (double)UnitGroupType::COUNT);
+        this->CreateUnitGroup(unitGroupType);
+    }
+}

@@ -72,6 +72,7 @@ public:
 
     void SetOwnership(const std::shared_ptr<Player>& player);
     void ChangeOwnership(const std::shared_ptr<Player>& player);
+    void AddRandomUnits();
 
 public:
     static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);

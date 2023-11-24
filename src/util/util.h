@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <functional>
+#include <random>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
@@ -82,6 +83,15 @@ public:
     static glm::vec3 GetRandomColor()
     {
         return glm::linearRand(glm::vec3(0.0f), glm::vec3(1.0f));
+    }
+
+    static double GenerateRandomNumber(double min, double max)
+    {
+        static std::random_device rd;
+        static std::default_random_engine generator(rd());
+        std::uniform_real_distribution<double> dist(min, max); // distribution in range [min, max)
+
+        return dist(rd);
     }
 
     static void RemoveCRLF(std::string& input)
