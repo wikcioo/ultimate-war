@@ -1,11 +1,11 @@
-#include "info.h"
+#include "game_info.h"
 
 #include <string>
 
 #include "graphics/renderer.h"
 #include "game/game_layer.h"
 
-Info::Info(const std::shared_ptr<OrthographicCamera>& UICamera,
+GameInfo::GameInfo(const std::shared_ptr<OrthographicCamera>& UICamera,
            const std::shared_ptr<PlayerManager>& playerManager,
            const glm::vec2& offset, const glm::vec2& size)
     : UIElement(UICamera, UICamera->CalculateRelativeBottomLeftPosition() + offset, {size.y * UICamera->GetAspectRatio(), size.y}),
@@ -13,7 +13,7 @@ Info::Info(const std::shared_ptr<OrthographicCamera>& UICamera,
 {
 }
 
-void Info::Draw()
+void GameInfo::Draw()
 {
     Renderer2D::BeginScene(m_UICamera);
 

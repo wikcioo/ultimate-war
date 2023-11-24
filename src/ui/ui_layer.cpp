@@ -4,9 +4,9 @@
 #include "core/application.h"
 #include "game/game_layer.h"
 #include "graphics/renderer.h"
-#include "ui/minimap.h"
-#include "ui/shop_panel.h"
-#include "ui/info.h"
+#include "ui/game/minimap.h"
+#include "ui/game/shop_panel.h"
+#include "ui/game/game_info.h"
 
 UILayer::UILayer()
     : Layer("UILayer")
@@ -30,7 +30,7 @@ UILayer::UILayer()
             glm::vec2(m_UICamera->GetHalfOfRelativeWidth(), 0.0f)
         ));
 
-    m_UIElements.emplace_back(std::make_shared<Info>(m_UICamera, GameLayer::Get().GetPlayerManager()));
+    m_UIElements.emplace_back(std::make_shared<GameInfo>(m_UICamera, GameLayer::Get().GetPlayerManager()));
 }
 
 void UILayer::OnAttach()

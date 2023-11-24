@@ -6,13 +6,13 @@
 #include "ui/ui_element.h"
 #include "core/resource_manager.h"
 
-class Info : public UIElement
+class GameInfo : public UIElement
 {
 public:
-    Info(const std::shared_ptr<OrthographicCamera>& UICamera,
+    GameInfo(const std::shared_ptr<OrthographicCamera>& UICamera,
          const std::shared_ptr<PlayerManager>& playerManager,
          const glm::vec2& offset = { 0.0f, 0.0f }, const glm::vec2& size = { 1.0f, 0.5f });
-    ~Info() = default;
+    ~GameInfo() = default;
 
     virtual void Draw() override;
 
