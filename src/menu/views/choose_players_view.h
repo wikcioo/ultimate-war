@@ -60,7 +60,6 @@ private:
     void OnStartGameButtonPressed(ButtonCallbackData data);
     void OnAddPlayerButtonPressed(ButtonCallbackData data);
     void OnUsernameInputBoxAccepted(InputBoxCallbackData data);
-    void OnUsernameInputBoxKeyChanged(InputBoxCallbackData data);
 
     void AddPlayer();
 

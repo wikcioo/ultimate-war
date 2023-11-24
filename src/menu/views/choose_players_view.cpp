@@ -32,7 +32,6 @@ ChoosePlayersView::ChoosePlayersView()
     InputBoxConfig usernameInputBoxConfig = { glm::vec2(0.0f), glm::vec2(0.3f, 0.06f) };
     m_UsernameInputBox = std::make_unique<InputBox>(m_Camera, usernameInputBoxConfig);
     m_UsernameInputBox->SetAcceptedCallback(BIND_INPUT_BOX_CALLBACK_FN(ChoosePlayersView::OnUsernameInputBoxAccepted));
-    m_UsernameInputBox->SetOnKeyChangedCallback(BIND_INPUT_BOX_CALLBACK_FN(ChoosePlayersView::OnUsernameInputBoxKeyChanged));
     m_UsernameInputBox->SetCharacterLimit(15);
 }
 
@@ -182,11 +181,6 @@ void ChoosePlayersView::OnAddPlayerButtonPressed(ButtonCallbackData data)
 void ChoosePlayersView::OnUsernameInputBoxAccepted(InputBoxCallbackData data)
 {
     AddPlayer();
-}
-
-void ChoosePlayersView::OnUsernameInputBoxKeyChanged(InputBoxCallbackData data)
-{
-    m_UsernameInputBox->SetText(data.Text);
 }
 
 void ChoosePlayersView::AddPlayer()
