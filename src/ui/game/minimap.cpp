@@ -17,17 +17,23 @@ Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
 {
     m_MinimapCamera = std::make_shared<OrthographicCamera>(MINIMAP_ASPECT_RATIO);
     m_MinimapCamera->SetScale(1.0f);
-    m_MinimapCamera->SetPosition(gameCamera->GetPosition());
+
+    glm::vec2 mapMiddle = {
+        (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) / 2.0f) - TILE_WIDTH / 2.0f,
+        (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) / 2.0f) - (TILE_HEIGHT + TILE_OFFSET) / 4.0f
+    };
+
+    m_MinimapCamera->SetPosition(glm::vec3(mapMiddle, 0.0f));
 
     glm::vec2 mapZoom = {
         (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) + TILE_WIDTH) / 2.0f,
         (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) + (TILE_HEIGHT + TILE_OFFSET)) / 2.0f
     };
 
+    auto pixelSize = m_MinimapCamera->ConvertRelativeSizeToPixel(size);
     float zoom = glm::max(mapZoom.x / gameCamera->GetAspectRatio(), mapZoom.y);
     m_MinimapCamera->SetZoom(zoom);
 
-    auto pixelSize = m_GameCamera->ConvertRelativeSizeToPixel(size);
     m_Framebuffer = std::make_unique<FrameBuffer>((unsigned int)pixelSize.x, (unsigned int)pixelSize.y);
 
     m_MapSize = m_MinimapCamera->CalculateRelativeWindowSize();
