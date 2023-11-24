@@ -43,13 +43,6 @@ void UILayer::OnDetach()
 
 void UILayer::OnUpdate(float dt)
 {
-    if(!GameLayer::Get().IsGameActive())
-    {
-        Renderer2D::BeginScene(m_UICamera);
-        Renderer2D::DrawTextStr("Game Over", { 0.0f, 0.0f }, 1.0f,
-                          { 0.95, 0.7, 0.5 }, HTextAlign::MIDDLE);
-        Renderer2D::EndScene();
-    }
     for (auto element : m_UIElements)
         element->Draw();
 }
