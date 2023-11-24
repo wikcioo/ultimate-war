@@ -31,10 +31,10 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    if (Input::IsKeyPressed(GLFW_KEY_W) ||
-        Input::IsKeyPressed(GLFW_KEY_S) ||
-        Input::IsKeyPressed(GLFW_KEY_A) ||
-        Input::IsKeyPressed(GLFW_KEY_D))
+    if (m_CameraController->IsKeyPressed(GLFW_KEY_W) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_S) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_A) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_D))
     {
         if (Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
             CheckForTileInRange();
