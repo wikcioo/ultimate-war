@@ -11,14 +11,14 @@
 UILayer::UILayer()
     : Layer("UILayer")
 {
-    m_GameCamera = GameLayer::Get().GetCameraController()->GetCamera();
-    m_UICamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
+    auto window = Application::Get().GetWindow();
+    m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
 
     float minimapHeight = 0.5f;
     m_UIElements.emplace_back(
         std::make_shared<Minimap>(
             m_UICamera,
-            m_GameCamera,
+            gameCamera,
             GameLayer::Get().GetGameMapManager(),
             glm::vec2(0.0f, 0.0f),
             glm::vec2(minimapHeight * MINIMAP_ASPECT_RATIO, minimapHeight)

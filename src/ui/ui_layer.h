@@ -24,6 +24,5 @@ private:
 
 private:
     std::shared_ptr<OrthographicCamera> m_UICamera;
-    std::shared_ptr<OrthographicCamera> m_GameCamera;
     std::vector<std::shared_ptr<UIElement>> m_UIElements;
 };
