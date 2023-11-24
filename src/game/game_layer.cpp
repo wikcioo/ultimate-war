@@ -194,6 +194,16 @@ void GameLayer::InitGame(NewGameDTO newGameData)
             );
         }
     }
+
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    {
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        {
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            if (tile->AssetsCanExist() && !tile->IsOwned())
+                tile->AddRandomUnits();
+        }
+    }
 }
 
 void GameLayer::ResetArrow()
