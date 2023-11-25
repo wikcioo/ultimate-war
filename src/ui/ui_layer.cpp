@@ -8,6 +8,7 @@
 #include "ui/game/shop_panel.h"
 #include "ui/game/game_info.h"
 #include "ui/editor/editor_info.h"
+#include "ui/editor/editor_save_popup.h"
 
 UILayer::UILayer()
     : Layer("UILayer")
@@ -65,6 +66,7 @@ void UILayer::PushGameLayerElements()
 void UILayer::PushEditorLayerElements()
 {
     m_UIElements.emplace_back(std::make_shared<EditorInfo>(m_UICamera));
+    m_UIElements.emplace_back(std::make_shared<EditorSavePopup>(m_UICamera));
 }
 
 bool UILayer::OnWindowResized(WindowResizedEvent& event)

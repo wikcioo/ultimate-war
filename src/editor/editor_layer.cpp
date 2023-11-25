@@ -118,7 +118,7 @@ void EditorLayer::SaveMap(const std::string& mapName)
         }
     }
 
-    std::ofstream outputFile("assets/maps/test.map");
+    std::ofstream outputFile("assets/maps/" + mapName + ".map");
     bool addExtraLine = minX % 2 != 0;
     if (outputFile.is_open())
     {
@@ -158,11 +158,6 @@ bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
         {
             if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
                 Application::Get().OpenMainMenu();
-            break;
-        }
-        case GLFW_KEY_X:
-        {
-            SaveMap("test");
             break;
         }
         case GLFW_KEY_1:
