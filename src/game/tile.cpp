@@ -35,9 +35,9 @@ std::shared_ptr<Texture2D> Tile::s_UpgradeIconTexture;
 std::unordered_map<TileEnvironment, Resources> EnvironmentResourcesMap = {
     { TileEnvironment::NONE,      { 0, 0, 0, 0 } },
     { TileEnvironment::OCEAN,     { 1, 1, 1, 1 } },
-    { TileEnvironment::FOREST,    { 7, 2, 1, 2 } },
-    { TileEnvironment::DESERT,    { 2, 1, 0, 4 } },
-    { TileEnvironment::MOUNTAINS, { 1, 7, 3, 3 } }
+    { TileEnvironment::FOREST,    { 6, 2, 1, 1 } },
+    { TileEnvironment::DESERT,    { 2, 1, 6, 1 } },
+    { TileEnvironment::MOUNTAINS, { 1, 6, 2, 1 } }
 };
 
 Tile::Tile(TileEnvironment environment, const glm::ivec2& coords)
@@ -81,11 +81,11 @@ void Tile::CreateUnitGroup(UnitGroupType type)
         if (maxRequiredBuildingLevel > 0)
         {
             UnitStats* upgradedUnitStats = new UnitStats(UnitGroupDataMap[type].Stats + maxRequiredBuildingLevel);
-            m_UnitGroups.emplace_back(new UnitGroup(type, upgradedUnitStats));
+            m_UnitGroups.emplace_back(new UnitGroup(type, upgradedUnitStats, GameLayer::Get().GetIteration()));
         }
         else
         {
-            m_UnitGroups.emplace_back(new UnitGroup(type));
+            m_UnitGroups.emplace_back(new UnitGroup(type, std::nullopt, GameLayer::Get().GetIteration()));
         }
     }
     else
@@ -562,7 +562,7 @@ const Resources Tile::GetResources() const
     for (auto building : m_Buildings)
     {
         if (building->GetType() == BuildingType::GOLD_MINE)
-            extraGold += building->GetLevel() * 2;
+            extraGold += building->GetLevel() * 2 + 2;
     }
 
     return {
