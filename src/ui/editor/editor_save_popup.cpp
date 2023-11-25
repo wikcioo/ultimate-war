@@ -6,6 +6,7 @@
 #include "editor/editor_layer.h"
 #include "core/input.h"
 #include "core/logger.h"
+#include "util/util.h"
 
 EditorSavePopup::EditorSavePopup(const std::shared_ptr<OrthographicCamera>& UICamera, const glm::vec2& offset, const glm::vec2& size)
     : UIElement(UICamera, UICamera->CalculateRelativeBottomLeftPosition() + offset, {size.y * UICamera->GetAspectRatio(), size.y}),
@@ -118,12 +119,20 @@ void EditorSavePopup::OnMapNameInputBoxAccepted(InputBoxCallbackData data)
 bool EditorSavePopup::SaveMap()
 {
     auto mapName = m_MapNameInputBox->GetText();
+    Util::Trim(mapName);
 
     if (mapName.empty())
     {
         LOG_WARN("EditorSavePopup: Empty map name");
         return false;
     }
+
+    if (!Util::IsAlphanumericWithSpaces(mapName))
+    {
+        LOG_WARN("EditorSavePopup: Map name is not alphanumeric");
+        return false;
+    }
+
     EditorLayer::Get().SaveMap(mapName);
 
     return true;
