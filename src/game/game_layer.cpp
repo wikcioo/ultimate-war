@@ -187,11 +187,11 @@ void GameLayer::InitGame(NewGameDTO newGameData)
         auto _player = m_PlayerManager->AddPlayer(player);
         for (const auto& tileCoords : player.TileCoords)
         {
-            _player->AddOwnedTile(
-                GameLayer::Get().GetGameMapManager()->GetGameMap()->GetTile(
-                    tileCoords.x, tileCoords.y
-                )
-            );
+            auto tile = GameLayer::Get().GetGameMapManager()->GetGameMap()->GetTile(tileCoords.x, tileCoords.y);
+            UnitGroup ug(UnitGroupType::SWORDSMAN);
+            ug.SetMovedOnIteration(-1);
+            tile->CreateUnitGroup(ug);
+            _player->AddOwnedTile(tile);
         }
     }
 
