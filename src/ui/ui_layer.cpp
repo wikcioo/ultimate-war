@@ -13,7 +13,35 @@ UILayer::UILayer()
 {
     auto window = Application::Get().GetWindow();
     m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
+}
 
+void UILayer::OnAttach()
+{
+}
+
+void UILayer::OnDetach()
+{
+    m_UIElements.clear();
+}
+
+void UILayer::OnUpdate(float dt)
+{
+    for (auto element : m_UIElements)
+        element->Draw();
+}
+
+void UILayer::OnEvent(Event& event)
+{
+    EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(UILayer::OnWindowResized));
+
+    for (auto element : m_UIElements)
+        element->OnEvent(event);
+}
+
+void UILayer::PushGameLayerElements()
+{
+    auto gameCamera = GameLayer::Get().GetCameraController()->GetCamera();
     float minimapHeight = 0.5f;
     m_UIElements.emplace_back(
         std::make_shared<Minimap>(
@@ -33,28 +61,6 @@ UILayer::UILayer()
     m_UIElements.emplace_back(std::make_shared<GameInfo>(m_UICamera, GameLayer::Get().GetPlayerManager()));
 }
 
-void UILayer::OnAttach()
-{
-}
-
-void UILayer::OnDetach()
-{
-}
-
-void UILayer::OnUpdate(float dt)
-{
-    for (auto element : m_UIElements)
-        element->Draw();
-}
-
-void UILayer::OnEvent(Event& event)
-{
-    EventDispatcher dispatcher(event);
-    dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(UILayer::OnWindowResized));
-
-    for (auto element : m_UIElements)
-        element->OnEvent(event);
-}
 
 bool UILayer::OnWindowResized(WindowResizedEvent& event)
 {

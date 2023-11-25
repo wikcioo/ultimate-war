@@ -19,6 +19,8 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
+    void PushGameLayerElements();
+
 private:
     bool OnWindowResized(WindowResizedEvent& event);
 
