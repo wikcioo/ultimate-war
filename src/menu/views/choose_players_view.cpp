@@ -32,7 +32,6 @@ ChoosePlayersView::ChoosePlayersView()
     InputBoxConfig usernameInputBoxConfig = { glm::vec2(0.0f), glm::vec2(0.3f, 0.06f) };
     m_UsernameInputBox = std::make_unique<InputBox>(m_Camera, usernameInputBoxConfig);
     m_UsernameInputBox->SetAcceptedCallback(BIND_INPUT_BOX_CALLBACK_FN(ChoosePlayersView::OnUsernameInputBoxAccepted));
-    m_UsernameInputBox->SetOnKeyChangedCallback(BIND_INPUT_BOX_CALLBACK_FN(ChoosePlayersView::OnUsernameInputBoxKeyChanged));
     m_UsernameInputBox->SetCharacterLimit(15);
 }
 
@@ -182,11 +181,6 @@ void ChoosePlayersView::OnAddPlayerButtonPressed(ButtonCallbackData data)
 void ChoosePlayersView::OnUsernameInputBoxAccepted(InputBoxCallbackData data)
 {
     AddPlayer();
-}
-
-void ChoosePlayersView::OnUsernameInputBoxKeyChanged(InputBoxCallbackData data)
-{
-    m_UsernameInputBox->SetText(data.Text);
 }
 
 void ChoosePlayersView::AddPlayer()
@@ -541,14 +535,18 @@ ColumnDrawData ChoosePlayersView::GetColumnDrawData(ColumnType type)
 glm::vec2 ChoosePlayersView::CalculateMousePositionOnMap()
 {
     auto mapCamera = m_MapCameraController->GetCamera();
-    auto mouseClickPos = m_Camera->CalculateRelativeMousePosition();
+
     auto minimapBottomLeftPos = m_MapDrawData.Position - m_MapDrawData.Size * 0.5f;
-    auto distance = mouseClickPos - minimapBottomLeftPos;
-    auto normalizedCursorPosition = glm::vec2(distance.x / m_MapDrawData.Size.x - 0.5f, distance.y / m_MapDrawData.Size.y - 0.5f);
     auto minimapCenter = mapCamera->GetPosition();
     auto m_MapSize = mapCamera->CalculateRelativeWindowSize();
-    auto result = glm::vec2(minimapCenter.x + m_MapSize.x * normalizedCursorPosition.x,
-                            minimapCenter.y + m_MapSize.y * normalizedCursorPosition.y);
+
+    auto result = m_Camera->CalculateMousePositionInGameObjectInUI(
+        minimapBottomLeftPos,
+        m_MapDrawData.Size,
+        m_MapSize,
+        minimapCenter
+    );
+
     return result;
 }
 

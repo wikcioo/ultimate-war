@@ -5,6 +5,7 @@
 #include "widgets/button.h"
 #include "menu/views/view.h"
 #include "event/window_event.h"
+#include "event/key_event.h"
 
 class BackableView : public MainMenuView
 {
@@ -18,6 +19,7 @@ public:
 
 private:
     void OnWindowSizeChanged();
+    bool OnKeyPressed(KeyPressedEvent& event);
 
     void OnBackButtonPressed(ButtonCallbackData data);
     glm::vec2 CalculateBackButtonPosition();

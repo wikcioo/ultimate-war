@@ -19,11 +19,13 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
+    void PushGameLayerElements();
+    void PushEditorLayerElements();
+
 private:
     bool OnWindowResized(WindowResizedEvent& event);
 
 private:
     std::shared_ptr<OrthographicCamera> m_UICamera;
-    std::shared_ptr<OrthographicCamera> m_GameCamera;
     std::vector<std::shared_ptr<UIElement>> m_UIElements;
 };

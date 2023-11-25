@@ -806,12 +806,12 @@ std::string Tile::GetEnvironmentName(TileEnvironment environment)
 {
     switch (environment)
     {
-        case TileEnvironment::NONE:      return "none";
-        case TileEnvironment::OCEAN:     return "ocean";
-        case TileEnvironment::FOREST:    return "forest";
-        case TileEnvironment::DESERT:    return "desert";
-        case TileEnvironment::MOUNTAINS: return "mountains";
-        case TileEnvironment::HIGHLIGHT: return "highlight";
+        case TileEnvironment::NONE:      return "None";
+        case TileEnvironment::OCEAN:     return "Ocean";
+        case TileEnvironment::FOREST:    return "Forest";
+        case TileEnvironment::DESERT:    return "Desert";
+        case TileEnvironment::MOUNTAINS: return "Mountains";
+        case TileEnvironment::HIGHLIGHT: return "Highlight";
     }
 
     return "unknown";

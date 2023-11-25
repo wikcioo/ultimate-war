@@ -19,23 +19,23 @@ void OrthographicCameraController::OnUpdate(float dt)
 
     glm::vec2 movementVector = { 0.0f, 0.0f };
     float compensatedMovementSpeed = m_CameraMovementSpeed * dt;
-    if (Input::IsKeyPressed(GLFW_KEY_W))
+    if (m_Keys[GLFW_KEY_W])
     {
         movementVector.x -= compensatedMovementSpeed * sin(r);
         movementVector.y += compensatedMovementSpeed * cos(r);
     }
-    if (Input::IsKeyPressed(GLFW_KEY_S))
+    if (m_Keys[GLFW_KEY_S])
     {
         movementVector.x += compensatedMovementSpeed * sin(r);
         movementVector.y -= compensatedMovementSpeed * cos(r);
     }
 
-    if (Input::IsKeyPressed(GLFW_KEY_A))
+    if (m_Keys[GLFW_KEY_A])
     {
         movementVector.x -= compensatedMovementSpeed * cos(r);
         movementVector.y -= compensatedMovementSpeed * sin(r);
     }
-    if (Input::IsKeyPressed(GLFW_KEY_D))
+    if (m_Keys[GLFW_KEY_D])
     {
         movementVector.x += compensatedMovementSpeed * cos(r);
         movementVector.y += compensatedMovementSpeed * sin(r);
@@ -50,9 +50,9 @@ void OrthographicCameraController::OnUpdate(float dt)
     if (m_Rotate)
     {
 
-        if (Input::IsKeyPressed(GLFW_KEY_Q))
+        if (m_Keys[GLFW_KEY_Q])
             cameraRotation += m_CameraRotationSpeed * dt;
-        if (Input::IsKeyPressed(GLFW_KEY_E))
+        if (m_Keys[GLFW_KEY_E])
             cameraRotation -= m_CameraRotationSpeed * dt;
 
         m_Camera->SetRotation(cameraRotation);
@@ -63,6 +63,8 @@ void OrthographicCameraController::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(OrthographicCameraController::OnWindowResize));
+    dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OrthographicCameraController::OnKeyPressed));
+    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(OrthographicCameraController::OnKeyReleased));
     dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
 }
 
@@ -73,10 +75,27 @@ bool OrthographicCameraController::OnWindowResize(WindowResizedEvent& event)
     return false;
 }
 
+bool OrthographicCameraController::OnKeyPressed(KeyPressedEvent& event)
+{
+    m_Keys[event.GetKeyCode()] = true;
+    return false;
+}
+
+bool OrthographicCameraController::OnKeyReleased(KeyReleasedEvent& event)
+{
+    m_Keys[event.GetKeyCode()] = false;
+    return false;
+}
+
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)
 {
     float zoom = m_Camera->GetZoom() - (event.getYOffset() / 10.0f);
     m_Camera->SetZoom(std::max(std::min(zoom, 100.0f), 0.1f));
     m_CameraMovementSpeed = m_Camera->GetZoom();
     return true;
+}
+
+void OrthographicCameraController::ResetKeys()
+{
+    memset(m_Keys, 0, sizeof(m_Keys));
 }

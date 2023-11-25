@@ -1,6 +1,7 @@
 #include "backable_view.h"
 
 #include "menu/main_menu_layer.h"
+#include "core/input.h"
 
 BackableView::BackableView(ViewName backViewName)
     : m_BackButtonSize(0.4, 0.1), m_BackViewName(backViewName)
@@ -33,7 +34,22 @@ void BackableView::OnEvent(Event& event)
     if (event.GetCategory() == EventCategory::Window)
         OnWindowSizeChanged();
 
+    EventDispatcher dispatcher(event);
+
+    dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(BackableView::OnKeyPressed));
+
     m_BackButton->OnEvent(event);
+}
+
+bool BackableView::OnKeyPressed(KeyPressedEvent& event)
+{
+    if (event.GetKeyCode() == GLFW_KEY_TAB && Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+    {
+        MainMenuLayer::Get().SetView(m_BackViewName);
+        return true;
+    }
+
+    return false;
 }
 
 void BackableView::OnWindowSizeChanged()

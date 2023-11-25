@@ -6,12 +6,14 @@
 #include "core/input.h"
 #include "graphics/renderer.h"
 
+EditorLayer* EditorLayer::s_Instance = nullptr;
+
 EditorLayer::EditorLayer()
     : Layer("EditorLayer")
 {
+    s_Instance = this;
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
-    m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
 }
 
 void EditorLayer::OnAttach()
@@ -31,10 +33,10 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    if (Input::IsKeyPressed(GLFW_KEY_W) ||
-        Input::IsKeyPressed(GLFW_KEY_S) ||
-        Input::IsKeyPressed(GLFW_KEY_A) ||
-        Input::IsKeyPressed(GLFW_KEY_D))
+    if (m_CameraController->IsKeyPressed(GLFW_KEY_W) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_S) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_A) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_D))
     {
         if (Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
             CheckForTileInRange();
@@ -48,20 +50,6 @@ void EditorLayer::OnUpdate(float dt)
     for (const auto& pair : m_Map) {
         pair.second->Draw();
     }
-
-    Renderer2D::EndScene();
-
-    auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
-    auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
-    static float textScale = 0.3f;
-
-    std::string selectedEnvironment = Tile::GetEnvironmentName(m_SelectedTileEnvType);
-    std::string mapEditor = "Map Editor";
-
-    Renderer2D::BeginScene(m_UICamera);
-
-    Renderer2D::DrawTextStr(selectedEnvironment, {  halfOfWidth - 0.05f, halfOfHeight - 0.1f }, textScale, glm::vec3(0.9f), HTextAlign::RIGHT);
-    Renderer2D::DrawTextStr(mapEditor, { 0.0f, halfOfHeight - 0.1f }, textScale, glm::vec3(0.9f), HTextAlign::MIDDLE);
 
     Renderer2D::EndScene();
 }
@@ -95,8 +83,6 @@ void EditorLayer::CreateAdjacentHightlightTiles(glm::ivec2 coords)
 void EditorLayer::OnEvent(Event& event)
 {
     m_CameraController->OnEvent(event);
-    m_UICamera->SetAspectRatio(m_CameraController->GetCamera()->GetAspectRatio());
-    m_UICamera->SetScale(m_CameraController->GetCamera()->GetScale());
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
@@ -104,7 +90,7 @@ void EditorLayer::OnEvent(Event& event)
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(EditorLayer::OnKeyPressed));
 }
 
-void EditorLayer::SaveMap()
+void EditorLayer::SaveMap(const std::string& mapName)
 {
     int minX = 0, minY = 0;
     int maxX = 0, maxY = 0;
@@ -132,7 +118,7 @@ void EditorLayer::SaveMap()
         }
     }
 
-    std::ofstream outputFile("assets/maps/test.map");
+    std::ofstream outputFile("assets/maps/" + mapName + ".map");
     bool addExtraLine = minX % 2 != 0;
     if (outputFile.is_open())
     {
@@ -172,11 +158,6 @@ bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
         {
             if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
                 Application::Get().OpenMainMenu();
-            break;
-        }
-        case GLFW_KEY_X:
-        {
-            SaveMap();
             break;
         }
         case GLFW_KEY_1:

@@ -193,7 +193,10 @@ void Application::ProcessLayerStackReload()
             if (m_GameLayer)
                 m_GameLayer->SetIsActive(false);
             if (m_UILayer)
+            {
                 m_UILayer->SetIsActive(false);
+                m_UILayer->OnDetach();
+            }
             if (m_EditorLayer)
                 m_EditorLayer->SetIsActive(false);
 #if defined(DEBUG)
@@ -213,6 +216,7 @@ void Application::ProcessLayerStackReload()
 
             m_UILayer = std::make_shared<UILayer>();
             m_UILayer->OnAttach();
+            m_UILayer->PushGameLayerElements();
             m_LayerStack->PushOverlay(m_UILayer);
 
 #if defined(DEBUG)
@@ -231,6 +235,7 @@ void Application::ProcessLayerStackReload()
 
             m_MainMenuLayer->SetIsActive(false);
             m_GameLayer->SetIsActive(true);
+            m_UILayer->PushGameLayerElements();
             m_UILayer->SetIsActive(true);
 #if defined(DEBUG)
             m_DebugLayer->SetIsActive(true);
@@ -256,6 +261,7 @@ void Application::ProcessLayerStackReload()
 
             m_UILayer = std::make_shared<UILayer>();
             m_UILayer->OnAttach();
+            m_UILayer->PushGameLayerElements();
             m_LayerStack->PushOverlay(m_UILayer);
 
 #if defined(DEBUG)
@@ -273,6 +279,10 @@ void Application::ProcessLayerStackReload()
             m_EditorLayer = std::make_shared<EditorLayer>();
             m_EditorLayer->OnAttach();
             m_LayerStack->PushLayer(m_EditorLayer);
+            m_UILayer = std::make_shared<UILayer>();
+            m_UILayer->OnAttach();
+            m_UILayer->PushEditorLayerElements();
+            m_LayerStack->PushOverlay(m_UILayer);
             break;
         }
         default:
