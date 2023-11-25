@@ -14,7 +14,6 @@ EditorLayer::EditorLayer()
     s_Instance = this;
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
-    m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
 }
 
 void EditorLayer::OnAttach()
@@ -53,20 +52,6 @@ void EditorLayer::OnUpdate(float dt)
     }
 
     Renderer2D::EndScene();
-
-    auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
-    auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
-    static float textScale = 0.3f;
-
-    std::string selectedEnvironment = Tile::GetEnvironmentName(m_SelectedTileEnvType);
-    std::string mapEditor = "Map Editor";
-
-    Renderer2D::BeginScene(m_UICamera);
-
-    Renderer2D::DrawTextStr(selectedEnvironment, {  halfOfWidth - 0.05f, halfOfHeight - 0.1f }, textScale, glm::vec3(0.9f), HTextAlign::RIGHT);
-    Renderer2D::DrawTextStr(mapEditor, { 0.0f, halfOfHeight - 0.1f }, textScale, glm::vec3(0.9f), HTextAlign::MIDDLE);
-
-    Renderer2D::EndScene();
 }
 
 void EditorLayer::CreateAdjacentHightlightTiles(glm::ivec2 coords)
@@ -98,8 +83,6 @@ void EditorLayer::CreateAdjacentHightlightTiles(glm::ivec2 coords)
 void EditorLayer::OnEvent(Event& event)
 {
     m_CameraController->OnEvent(event);
-    m_UICamera->SetAspectRatio(m_CameraController->GetCamera()->GetAspectRatio());
-    m_UICamera->SetScale(m_CameraController->GetCamera()->GetScale());
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));

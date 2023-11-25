@@ -7,6 +7,7 @@
 #include "ui/game/minimap.h"
 #include "ui/game/shop_panel.h"
 #include "ui/game/game_info.h"
+#include "ui/editor/editor_info.h"
 
 UILayer::UILayer()
     : Layer("UILayer")
@@ -61,6 +62,10 @@ void UILayer::PushGameLayerElements()
     m_UIElements.emplace_back(std::make_shared<GameInfo>(m_UICamera, GameLayer::Get().GetPlayerManager()));
 }
 
+void UILayer::PushEditorLayerElements()
+{
+    m_UIElements.emplace_back(std::make_shared<EditorInfo>(m_UICamera));
+}
 
 bool UILayer::OnWindowResized(WindowResizedEvent& event)
 {

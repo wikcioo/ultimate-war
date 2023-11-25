@@ -279,6 +279,10 @@ void Application::ProcessLayerStackReload()
             m_EditorLayer = std::make_shared<EditorLayer>();
             m_EditorLayer->OnAttach();
             m_LayerStack->PushLayer(m_EditorLayer);
+            m_UILayer = std::make_shared<UILayer>();
+            m_UILayer->OnAttach();
+            m_UILayer->PushEditorLayerElements();
+            m_LayerStack->PushOverlay(m_UILayer);
             break;
         }
         default:

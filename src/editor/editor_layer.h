@@ -24,6 +24,9 @@ public:
     virtual void OnEvent(Event& event) override;
 
     static EditorLayer& Get() { return *s_Instance; }
+
+    inline TileEnvironment GetSelectedTileEnvType() { return m_SelectedTileEnvType; }
+
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
@@ -37,7 +40,6 @@ private:
     void CheckForTileInRange();
 
 private:
-    std::shared_ptr<OrthographicCamera> m_UICamera;
     static EditorLayer* s_Instance;
 
     std::shared_ptr<OrthographicCameraController> m_CameraController;

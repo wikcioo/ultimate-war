@@ -20,6 +20,7 @@ public:
     virtual void OnEvent(Event& event) override;
 
     void PushGameLayerElements();
+    void PushEditorLayerElements();
 
 private:
     bool OnWindowResized(WindowResizedEvent& event);
