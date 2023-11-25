@@ -41,7 +41,7 @@ extern std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap;
 class UnitGroup
 {
 public:
-    UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats = std::nullopt);
+    UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats = std::nullopt, int movedOnIteration = 0);
     ~UnitGroup() = default;
 
     void ToggleSelected() { m_IsSelected = !m_IsSelected; }

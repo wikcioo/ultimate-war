@@ -81,11 +81,11 @@ void Tile::CreateUnitGroup(UnitGroupType type)
         if (maxRequiredBuildingLevel > 0)
         {
             UnitStats* upgradedUnitStats = new UnitStats(UnitGroupDataMap[type].Stats + maxRequiredBuildingLevel);
-            m_UnitGroups.emplace_back(new UnitGroup(type, upgradedUnitStats));
+            m_UnitGroups.emplace_back(new UnitGroup(type, upgradedUnitStats, GameLayer::Get().GetIteration()));
         }
         else
         {
-            m_UnitGroups.emplace_back(new UnitGroup(type));
+            m_UnitGroups.emplace_back(new UnitGroup(type, std::nullopt, GameLayer::Get().GetIteration()));
         }
     }
     else
