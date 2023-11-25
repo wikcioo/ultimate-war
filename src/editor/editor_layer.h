@@ -25,7 +25,10 @@ public:
 
     static EditorLayer& Get() { return *s_Instance; }
 
+    inline const std::shared_ptr<OrthographicCameraController>& GetCameraController() const { return m_CameraController; }
     inline TileEnvironment GetSelectedTileEnvType() { return m_SelectedTileEnvType; }
+
+    void SaveMap(const std::string& mapName);
 
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
@@ -34,7 +37,6 @@ private:
 
     void CreateAdjacentHightlightTiles(glm::ivec2 coords);
     void UpdateTile(Tile* tile);
-    void SaveMap();
     void RemoveTileWithNoAdjacent(Tile* tile);
     void CheckAdjacentTilesForRemoval(Tile* tile);
     void CheckForTileInRange();

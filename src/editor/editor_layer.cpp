@@ -90,7 +90,7 @@ void EditorLayer::OnEvent(Event& event)
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(EditorLayer::OnKeyPressed));
 }
 
-void EditorLayer::SaveMap()
+void EditorLayer::SaveMap(const std::string& mapName)
 {
     int minX = 0, minY = 0;
     int maxX = 0, maxY = 0;
@@ -162,7 +162,7 @@ bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
         }
         case GLFW_KEY_X:
         {
-            SaveMap();
+            SaveMap("test");
             break;
         }
         case GLFW_KEY_1:
