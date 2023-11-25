@@ -6,9 +6,12 @@
 #include "core/input.h"
 #include "graphics/renderer.h"
 
+EditorLayer* EditorLayer::s_Instance = nullptr;
+
 EditorLayer::EditorLayer()
     : Layer("EditorLayer")
 {
+    s_Instance = this;
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
     m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());

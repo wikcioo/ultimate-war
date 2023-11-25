@@ -23,6 +23,7 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
+    static EditorLayer& Get() { return *s_Instance; }
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
@@ -37,6 +38,8 @@ private:
 
 private:
     std::shared_ptr<OrthographicCamera> m_UICamera;
+    static EditorLayer* s_Instance;
+
     std::shared_ptr<OrthographicCameraController> m_CameraController;
     std::unordered_map<glm::ivec2, Tile*> m_Map;
     Tile* m_PreviousTile;
