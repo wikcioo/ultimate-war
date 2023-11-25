@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <functional>
 #include <random>
+#include <cctype>
+#include <locale>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
@@ -62,6 +64,11 @@ public:
         return result;
     }
 
+    static bool IsAlphanumericWithSpaces(const std::string& str)
+    {
+        return find_if(str.begin(), str.end(), [](char c) { return !(isalnum(c) || c == ' '); }) == str.end();
+    }
+
     static bool IsPointInRectangle(const glm::vec2& rectCenter, const glm::vec2& rectSize, const glm::vec2& point)
     {
         return (rectCenter.x - rectSize.x / 2 <= point.x && rectCenter.x + rectSize.x / 2 >= point.x &&
@@ -98,5 +105,21 @@ public:
     {
         input.erase(std::remove(input.begin(), input.end(), '\r'), input.end());
         input.erase(std::remove(input.begin(), input.end(), '\n'), input.end());
+    }
+
+    static inline void TrimStart(std::string &s)
+    {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) { return !std::isspace(ch); }));
+    }
+
+    static inline void TrimEnd(std::string &s)
+    {
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) { return !std::isspace(ch); }).base(), s.end());
+    }
+
+    static inline void Trim(std::string &s)
+    {
+        TrimEnd(s);
+        TrimStart(s);
     }
 };
