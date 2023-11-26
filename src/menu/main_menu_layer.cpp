@@ -7,6 +7,7 @@
 #include "menu/views/choose_players_view.h"
 #include "menu/views/choose_save_view.h"
 #include "menu/views/contributors_view.h"
+#include "widgets/notification.h"
 
 MainMenuLayer* MainMenuLayer::s_Instance = nullptr;
 
@@ -21,6 +22,8 @@ MainMenuLayer::MainMenuLayer()
     m_RelWindowSize = m_MainMenuCamera->CalculateRelativeWindowSize();
 
     InitViews();
+
+    Notification::Configure(m_MainMenuCamera);
 }
 
 MainMenuLayer::~MainMenuLayer()
@@ -46,6 +49,7 @@ void MainMenuLayer::OnUpdate(float dt)
     Renderer2D::DrawQuad(glm::vec2(0.0f), m_RelWindowSize, glm::vec4(0.2f, 0.5f, 0.8f, 1.0f));
 
     m_Views[m_CurrentViewName]->OnUpdate(dt);
+    Notification::OnUpdate(dt);
 
     Renderer2D::EndScene();
 }
@@ -54,6 +58,8 @@ void MainMenuLayer::OnEvent(Event& event)
 {
     if (event.GetCategory() == EventCategory::Window)
         OnWindowSizeChanged();
+
+    Notification::OnEvent(event);
 
     m_Views[m_CurrentViewName]->OnEvent(event);
 }
