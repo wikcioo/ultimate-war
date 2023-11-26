@@ -5,6 +5,7 @@
 #include "game/color_data.h"
 #include "graphics/renderer.h"
 #include "core/application.h"
+#include "widgets/notification.h"
 
 static const std::string VIEW_FONT = "rexlia";
 
@@ -157,6 +158,10 @@ void ChoosePlayersView::OnStartGameButtonPressed(ButtonCallbackData data)
     if (m_PlayersData.size() < 2)
     {
         LOG_WARN("ChoosePlayersView: At least 2 players needed to start the game");
+        Notification::Create(
+            "At least 2 players needed to start the game",
+            NotificationLevel::WARNING
+        );
         return;
     }
 
@@ -188,6 +193,7 @@ void ChoosePlayersView::AddPlayer()
     if (m_UsernameInputBox->GetText().empty())
     {
         LOG_WARN("ChoosePlayersView: Empty username");
+        Notification::Create("Empty username", NotificationLevel::WARNING);
         return;
     }
 

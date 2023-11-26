@@ -9,12 +9,15 @@
 #include "ui/game/game_info.h"
 #include "ui/editor/editor_info.h"
 #include "ui/editor/editor_save_popup.h"
+#include "widgets/notification.h"
 
 UILayer::UILayer()
     : Layer("UILayer")
 {
     auto window = Application::Get().GetWindow();
     m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
+
+    Notification::Configure(m_UICamera);
 }
 
 void UILayer::OnAttach()
@@ -30,12 +33,16 @@ void UILayer::OnUpdate(float dt)
 {
     for (auto element : m_UIElements)
         element->Draw();
+
+    Notification::OnUpdate(dt);
 }
 
 void UILayer::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(UILayer::OnWindowResized));
+
+    Notification::OnEvent(event);
 
     for (auto element : m_UIElements)
         element->OnEvent(event);
