@@ -10,6 +10,9 @@
 #include "graphics/texture.h"
 #include "graphics/vertex_array.h"
 
+// ratio of character spacing to character height
+#define FONT_Y_SPACING_RATIO 0.3f
+
 enum class HTextAlign
 {
     LEFT   = 0,

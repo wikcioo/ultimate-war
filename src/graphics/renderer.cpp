@@ -239,7 +239,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
         lines.push_back(line);
 
     float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y) * scale;
-    float relSpacing = relCharHeight * 0.3f;
+    float relSpacing = relCharHeight * FONT_Y_SPACING_RATIO;
 
     switch (vAlign)
     {
