@@ -116,6 +116,7 @@ void MainView::OnExitButtonPressed(ButtonCallbackData data)
 
 #if defined(DEBUG)
 #include <algorithm>
+#include "widgets/notification.h"
 // quick way to get into the game layer from main menu layer
 // adds two dummy players to the first available tiles on the map
 // looks for map named 'simple' to load, otherwise loads the first available
@@ -127,6 +128,7 @@ bool MainView::OnKeyPressed(KeyPressedEvent& event)
         if (availableMaps.size() < 1)
         {
             LOG_WARN("No available maps to load");
+            Notification::Create("No available maps to load", NotificationLevel::WARNING);
             return false;
         }
 
@@ -160,6 +162,7 @@ bool MainView::OnKeyPressed(KeyPressedEvent& event)
         }
 
         LOG_WARN("Not enough available tiles to place players on");
+        Notification::Create("Not enough available tiles to place players on", NotificationLevel::WARNING);
     }
 
     return false;
