@@ -115,12 +115,12 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, cons
     DrawGeometry(s_Data->QuadVertexArray, position, size, color, borderThickness);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture)
+void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, const glm::vec4& color)
 {
-    DrawQuad(glm::vec3(position, 0.0f), size, texture);
+    DrawQuad(glm::vec3(position, 0.0f), size, texture, color);
 }
 
-void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture)
+void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, const glm::vec4& color)
 {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(size.x, size.y, 1.0f));
 
@@ -128,6 +128,7 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, cons
     s_Data->TextureShader->Bind();
     s_Data->TextureShader->SetInt("u_Texture", 0);
     s_Data->TextureShader->SetMat4("u_Model", model);
+    s_Data->TextureShader->SetFloat4("u_Color", color);
 
     s_Data->QuadVertexArray->Bind();
     glDrawElements(GL_TRIANGLES, s_Data->QuadVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
@@ -217,6 +218,12 @@ void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray>& vertexArray, c
 void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color,
                              HTextAlign hAlign, VTextAlign vAlign, const std::string& fontName)
 {
+    DrawTextStr(text, position, scale, glm::vec4(color, 1.0f), hAlign, vAlign, fontName);
+}
+
+void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec4& color,
+                             HTextAlign hAlign, VTextAlign vAlign, const std::string& fontName)
+{
     glm::vec2 pos_cpy = { position.x, position.y };
 
     s_Data->FontShader->Bind();
@@ -288,7 +295,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
                 ch.Texture->Bind(0);
                 s_Data->FontShader->SetInt("u_Texture", 0);
                 s_Data->FontShader->SetMat4("u_Model", chModel);
-                s_Data->FontShader->SetFloat3("u_Color", color);
+                s_Data->FontShader->SetFloat4("u_Color", color);
 
                 s_Data->FontVertexArray->Bind();
                 s_Data->FontVertexArray->GetIndexBuffer()->Bind();
