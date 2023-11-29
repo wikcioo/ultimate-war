@@ -338,36 +338,44 @@ bool ShopPanel::OnKeyPressed(KeyPressedEvent& event)
 
 bool ShopPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
 {
-    auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
-    for (int i = 0; i < m_UnitGroupCount; i++)
+    switch (event.GetMouseButton())
     {
-        glm::vec2 unitPos = {
-            m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
-            m_Position.y + m_Size.y / 2
-        };
-
-        if (Util::IsPointInRectangle(unitPos, m_AssetSize, cursorPos))
+        case GLFW_MOUSE_BUTTON_LEFT:
         {
-            SetCursorAttachedAsset((UnitGroupType)i);
-            return true;
+            auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
+            for (int i = 0; i < m_UnitGroupCount; i++)
+            {
+                glm::vec2 unitPos = {
+                    m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
+                    m_Position.y + m_Size.y / 2
+                };
+
+                if (Util::IsPointInRectangle(unitPos, m_AssetSize, cursorPos))
+                {
+                    SetCursorAttachedAsset((UnitGroupType)i);
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < m_BuildingCount; i++)
+            {
+                glm::vec2 buildingPos = {
+                    m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
+                    m_Position.y + m_Size.y / 2 + m_Size.y
+                };
+
+                if (Util::IsPointInRectangle(buildingPos, m_AssetSize, cursorPos))
+                {
+                    SetCursorAttachedAsset((BuildingType)i);
+                    return true;
+                }
+            }
+            return false;
         }
+        default:
+            return false;
     }
 
-    for (int i = 0; i < m_BuildingCount; i++)
-    {
-        glm::vec2 buildingPos = {
-            m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
-            m_Position.y + m_Size.y / 2 + m_Size.y
-        };
-
-        if (Util::IsPointInRectangle(buildingPos, m_AssetSize, cursorPos))
-        {
-            SetCursorAttachedAsset((BuildingType)i);
-            return true;
-        }
-    }
-
-    return false;
 }
 
 bool ShopPanel::OnMouseButtonShopPanelIconPressed(MouseButtonPressedEvent& event)
@@ -420,7 +428,15 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType>
 {
     if (std::holds_alternative<UnitGroupType>(type))
     {
-        m_CursorAttachedAsset.UnitGroupType = std::get<UnitGroupType>(type);
+        auto unitGroupType = std::get<UnitGroupType>(type);
+        if (unitGroupType == m_CursorAttachedAsset.UnitGroupType)
+        {
+            m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
+            m_CursorAttachedAsset.Texture.reset();
+            return;
+        }
+
+        m_CursorAttachedAsset.UnitGroupType = unitGroupType;
         if (m_CursorAttachedAsset.UnitGroupType == UnitGroupType::NONE)
             m_CursorAttachedAsset.Texture.reset();
         else
@@ -431,7 +447,16 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType>
     }
     else if (std::holds_alternative<BuildingType>(type))
     {
-        m_CursorAttachedAsset.BuildingType = std::get<BuildingType>(type);
+        auto buildingType = std::get<BuildingType>(type);
+        if (buildingType == m_CursorAttachedAsset.BuildingType)
+        {
+            m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
+            m_CursorAttachedAsset.Texture.reset();
+            return;
+        }
+
+        m_CursorAttachedAsset.BuildingType = buildingType;
+
         if (m_CursorAttachedAsset.BuildingType == BuildingType::NONE)
             m_CursorAttachedAsset.Texture.reset();
         else

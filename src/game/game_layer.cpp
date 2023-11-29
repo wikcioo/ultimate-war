@@ -37,13 +37,14 @@ void GameLayer::OnDetach()
 void GameLayer::OnUpdate(float dt)
 {
     m_CameraController->OnUpdate(dt);
+    static auto camera = m_CameraController->GetCamera();
 
     Renderer2D::ClearColor({0.2f, 0.2f, 0.2f, 1.0f});
 
-    Renderer2D::BeginScene(m_CameraController->GetCamera());
+    Renderer2D::BeginScene(camera);
 
     auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
-    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
+    auto relMousePos = camera->CalculateRelativeMousePosition();
     bool isCursorOnAdjacentTile = false;
 
     struct
@@ -119,7 +120,7 @@ void GameLayer::OnUpdate(float dt)
         Renderer2D::DrawTextStr(
             "Not enough space",
             notEnoughSpaceInfo.Position,
-            1.0f / m_CameraController->GetCamera()->GetZoom(),
+            1.0f / camera->GetZoom(),
             glm::vec3(1.0f),
             HTextAlign::MIDDLE
         );
@@ -225,29 +226,39 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     if (!m_GameActive) return true;
 
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
-    auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
 
-    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    switch (event.GetMouseButton())
     {
-        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        case GLFW_MOUSE_BUTTON_LEFT:
         {
-            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
 
-            if (!tile->InRange(relMousePos))
-                continue;
+            for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+            {
+                for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+                {
+                    auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
-            ProcessTileInRange(tile, currentPlayer, relMousePos);
-            m_Arrow->SetActivated(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
+                    if (!tile->InRange(relMousePos))
+                        continue;
+
+                    ProcessTileInRange(tile, currentPlayer, relMousePos);
+                    m_Arrow->SetActivated(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
+                    return true;
+                }
+            }
+
+            // If no tile in range then deselect all unit groups
+            if (m_Arrow->GetStartTile())
+                m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+
+            m_Arrow->SetActivated(false);
             return true;
         }
+        default:
+            return false;
     }
 
-    // If no tile in range then deselect all unit groups
-    if (m_Arrow->GetStartTile())
-        m_Arrow->GetStartTile()->DeselectAllUnitGroups();
-
-    m_Arrow->SetActivated(false);
-    return true;
 }
 
 void GameLayer::ProcessTileInRange(const std::shared_ptr<Tile>& tile, const std::shared_ptr<Player>& currentPlayer, const glm::vec2& relMousePos)

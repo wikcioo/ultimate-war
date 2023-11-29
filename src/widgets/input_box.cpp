@@ -9,7 +9,7 @@
 InputBox::InputBox(const std::shared_ptr<OrthographicCamera>& camera, InputBoxConfig config)
     : m_Camera(camera), m_Id(GetNextId()), m_Text(""), m_Position(config.Position), m_Size(config.Size),
       m_TextColor(config.TextColor), m_BackgroundColor(config.BackgroundColor), m_BorderColor(config.BorderColor),
-      m_FontName(config.FontName), m_TextLength(0.0f), m_TextHOffset(0.02f), m_CharacterLimit(-1)
+      m_FontName(config.FontName), m_TextLength(0.0f), m_TextHOffset(0.02f), m_CharacterLimit(-1), m_Focused(false)
 {
     glm::vec2 textSize = Renderer2D::GetTextSize(m_Camera, "A", m_FontName);
     m_TextScale = (m_Size.y * 0.45f) / textSize.y;
@@ -129,6 +129,8 @@ bool InputBox::OnKeyPressed(KeyPressedEvent& event)
 
         if (m_KeyChangedCallback)
             m_KeyChangedCallback({ m_Id, m_Text });
+
+        return true;
     }
     else
     {
