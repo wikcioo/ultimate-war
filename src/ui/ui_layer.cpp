@@ -7,6 +7,7 @@
 #include "ui/game/minimap.h"
 #include "ui/game/shop_panel.h"
 #include "ui/game/game_info.h"
+#include "ui/game/game_save_popup.h"
 #include "ui/editor/editor_info.h"
 #include "ui/editor/editor_save_popup.h"
 #include "widgets/notification.h"
@@ -50,6 +51,8 @@ void UILayer::OnEvent(Event& event)
 
 void UILayer::PushGameLayerElements()
 {
+    m_UIElements.emplace_back(std::make_shared<GameSavePopup>(m_UICamera));
+
     auto gameCamera = GameLayer::Get().GetCameraController()->GetCamera();
     float minimapHeight = 0.5f;
     m_UIElements.emplace_back(
