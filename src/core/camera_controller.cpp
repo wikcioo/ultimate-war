@@ -5,7 +5,7 @@
 #include "core/input.h"
 
 OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotate)
-    : m_Rotate(rotate)
+    : m_Rotate(rotate), m_IsMousePanning(false)
 {
     m_Camera = std::make_shared<OrthographicCamera>(aspectRatio);
 }
@@ -57,6 +57,12 @@ void OrthographicCameraController::OnUpdate(float dt)
 
         m_Camera->SetRotation(cameraRotation);
     }
+
+    if (m_IsMousePanning)
+    {
+        auto position = cameraPosition + glm::vec3(m_PanningStartRelMousePos - m_Camera->CalculateRelativeMousePosition(), 0.0f);
+        m_Camera->SetPosition(position);
+    }
 }
 
 void OrthographicCameraController::OnEvent(Event& event)
@@ -65,6 +71,8 @@ void OrthographicCameraController::OnEvent(Event& event)
     dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(OrthographicCameraController::OnWindowResize));
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(OrthographicCameraController::OnKeyPressed));
     dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(OrthographicCameraController::OnKeyReleased));
+    dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(OrthographicCameraController::OnMouseButtonPressed));
+    dispatcher.Dispatch<MouseButtonReleasedEvent>(BIND_EVENT_FN(OrthographicCameraController::OnMouseButtonReleased));
     dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(OrthographicCameraController::OnMouseScrolled));
 }
 
@@ -85,6 +93,37 @@ bool OrthographicCameraController::OnKeyReleased(KeyReleasedEvent& event)
 {
     m_Keys[event.GetKeyCode()] = false;
     return false;
+}
+
+bool OrthographicCameraController::OnMouseButtonPressed(MouseButtonPressedEvent& event)
+{
+    switch (event.GetMouseButton())
+    {
+        case GLFW_MOUSE_BUTTON_RIGHT:
+        {
+            m_IsMousePanning = true;
+            m_PanningStartRelMousePos = m_Camera->CalculateRelativeMousePosition();
+            return true;
+        }
+        default:
+            return false;
+    }
+
+    return false;
+}
+
+bool OrthographicCameraController::OnMouseButtonReleased(MouseButtonReleasedEvent& event)
+{
+    switch (event.GetMouseButton())
+    {
+        case GLFW_MOUSE_BUTTON_RIGHT:
+        {
+            m_IsMousePanning = false;
+            return true;
+        }
+        default:
+            return false;
+    }
 }
 
 bool OrthographicCameraController::OnMouseScrolled(MouseScrolledEvent& event)

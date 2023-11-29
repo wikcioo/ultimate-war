@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "core/camera.h"
 #include "event/event.h"
 #include "event/mouse_event.h"
@@ -27,6 +29,8 @@ private:
     bool OnWindowResize(WindowResizedEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
     bool OnKeyReleased(KeyReleasedEvent& event);
+    bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
+    bool OnMouseButtonReleased(MouseButtonReleasedEvent& event);
     bool OnMouseScrolled(MouseScrolledEvent& event);
 
 private:
@@ -35,4 +39,6 @@ private:
     float m_CameraRotationSpeed = 90.0f;
     bool m_Keys[1024] = {0};
     bool m_Rotate;
+    bool m_IsMousePanning;
+    glm::vec2 m_PanningStartRelMousePos;
 };
