@@ -420,7 +420,15 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType>
 {
     if (std::holds_alternative<UnitGroupType>(type))
     {
-        m_CursorAttachedAsset.UnitGroupType = std::get<UnitGroupType>(type);
+        auto unitGroupType = std::get<UnitGroupType>(type);
+        if (unitGroupType == m_CursorAttachedAsset.UnitGroupType)
+        {
+            m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
+            m_CursorAttachedAsset.Texture.reset();
+            return;
+        }
+
+        m_CursorAttachedAsset.UnitGroupType = unitGroupType;
         if (m_CursorAttachedAsset.UnitGroupType == UnitGroupType::NONE)
             m_CursorAttachedAsset.Texture.reset();
         else
@@ -431,7 +439,16 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType>
     }
     else if (std::holds_alternative<BuildingType>(type))
     {
-        m_CursorAttachedAsset.BuildingType = std::get<BuildingType>(type);
+        auto buildingType = std::get<BuildingType>(type);
+        if (buildingType == m_CursorAttachedAsset.BuildingType)
+        {
+            m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
+            m_CursorAttachedAsset.Texture.reset();
+            return;
+        }
+
+        m_CursorAttachedAsset.BuildingType = buildingType;
+
         if (m_CursorAttachedAsset.BuildingType == BuildingType::NONE)
             m_CursorAttachedAsset.Texture.reset();
         else
