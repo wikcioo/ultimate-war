@@ -37,10 +37,19 @@ Minimap::Minimap(const std::shared_ptr<OrthographicCamera>& UICamera,
     m_Framebuffer = std::make_unique<FrameBuffer>((unsigned int)pixelSize.x, (unsigned int)pixelSize.y);
 
     m_MapSize = m_MinimapCamera->CalculateRelativeWindowSize();
+
+    ButtonConfig nextTurnButtonConfig = {
+        "Next Turn",
+        {m_MinimapPos.x, m_MinimapPos.y + (m_Size.y + m_NextTurnButtonHeight) / 2},
+        {m_Size.x, m_NextTurnButtonHeight}
+    };
+    m_NextTurnButton = std::make_unique<Button>(m_UICamera, nextTurnButtonConfig);
+    m_NextTurnButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(Minimap::OnNextTurnButtonPressed));
 }
 
 void Minimap::OnEvent(Event& event)
 {
+    m_NextTurnButton->OnEvent(event);
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(Minimap::OnWindowResized));
 
@@ -109,6 +118,7 @@ void Minimap::Draw()
 
     Renderer2D::BeginScene(m_UICamera);
 
+    m_NextTurnButton->OnUpdate();
     Renderer2D::DrawQuad(m_MinimapPos, m_Size, m_Framebuffer->GetTexture());
 
     Renderer2D::EndScene();
@@ -118,6 +128,7 @@ bool Minimap::OnWindowResized(WindowResizedEvent& event)
 {
     m_Position = m_UICamera->CalculateRelativeBottomLeftPosition() + m_Offset;
     m_MinimapPos = m_Position + m_Size * 0.5f;
+    m_NextTurnButton->SetPosition({m_MinimapPos.x, m_MinimapPos.y + (m_Size.y + m_NextTurnButtonHeight) / 2});
     return false;
 }
 
@@ -151,4 +162,9 @@ void Minimap::MoveCameraToClickLocation()
     );
 
     m_GameCamera->SetPosition({result, 0.0f});
+}
+
+void Minimap::OnNextTurnButtonPressed(ButtonCallbackData data)
+{
+    GameLayer::Get().GetPlayerManager()->NextTurn();
 }
