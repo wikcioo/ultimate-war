@@ -203,8 +203,17 @@ bool EditorLayer::OnMouseMoved(MouseMovedEvent& event)
 
 bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
-    CheckForTileInRange();
-    return true;
+    switch (event.GetMouseButton())
+    {
+        case GLFW_MOUSE_BUTTON_LEFT:
+        {
+            CheckForTileInRange();
+            return true;
+        }
+        default:
+            return false;
+    }
+
 }
 
 // Remove a tile if it has no adjacent environment tile

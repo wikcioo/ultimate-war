@@ -144,9 +144,18 @@ bool Minimap::OnMouseScrolled(MouseScrolledEvent& event)
 
 bool Minimap::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
-    m_MouseWasPressed = true;
-    MoveCameraToClickLocation();
-    return true;
+    switch (event.GetMouseButton())
+    {
+        case GLFW_MOUSE_BUTTON_LEFT:
+        {
+            m_MouseWasPressed = true;
+            MoveCameraToClickLocation();
+            return true;
+        }
+        default:
+            return true;
+    }
+
 }
 
 void Minimap::MoveCameraToClickLocation()

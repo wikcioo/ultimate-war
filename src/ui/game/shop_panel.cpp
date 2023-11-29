@@ -338,36 +338,44 @@ bool ShopPanel::OnKeyPressed(KeyPressedEvent& event)
 
 bool ShopPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
 {
-    auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
-    for (int i = 0; i < m_UnitGroupCount; i++)
+    switch (event.GetMouseButton())
     {
-        glm::vec2 unitPos = {
-            m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
-            m_Position.y + m_Size.y / 2
-        };
-
-        if (Util::IsPointInRectangle(unitPos, m_AssetSize, cursorPos))
+        case GLFW_MOUSE_BUTTON_LEFT:
         {
-            SetCursorAttachedAsset((UnitGroupType)i);
-            return true;
+            auto cursorPos = m_UICamera->CalculateRelativeMousePosition();
+            for (int i = 0; i < m_UnitGroupCount; i++)
+            {
+                glm::vec2 unitPos = {
+                    m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
+                    m_Position.y + m_Size.y / 2
+                };
+
+                if (Util::IsPointInRectangle(unitPos, m_AssetSize, cursorPos))
+                {
+                    SetCursorAttachedAsset((UnitGroupType)i);
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < m_BuildingCount; i++)
+            {
+                glm::vec2 buildingPos = {
+                    m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
+                    m_Position.y + m_Size.y / 2 + m_Size.y
+                };
+
+                if (Util::IsPointInRectangle(buildingPos, m_AssetSize, cursorPos))
+                {
+                    SetCursorAttachedAsset((BuildingType)i);
+                    return true;
+                }
+            }
+            return false;
         }
+        default:
+            return false;
     }
 
-    for (int i = 0; i < m_BuildingCount; i++)
-    {
-        glm::vec2 buildingPos = {
-            m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
-            m_Position.y + m_Size.y / 2 + m_Size.y
-        };
-
-        if (Util::IsPointInRectangle(buildingPos, m_AssetSize, cursorPos))
-        {
-            SetCursorAttachedAsset((BuildingType)i);
-            return true;
-        }
-    }
-
-    return false;
 }
 
 bool ShopPanel::OnMouseButtonShopPanelIconPressed(MouseButtonPressedEvent& event)

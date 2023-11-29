@@ -117,39 +117,45 @@ bool ChoosePlayersView::OnKeyPressed(KeyPressedEvent& event)
 
 bool ChoosePlayersView::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
-    glm::vec2 relMousePos = m_Camera->CalculateRelativeMousePosition();
-    if (!Util::IsPointInRectangle(m_MapDrawData.Position, m_MapDrawData.Size, relMousePos))
-        return false;
-
-    glm::vec2 mapMousePos = CalculateMousePositionOnMap();
-
-    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    switch (event.GetMouseButton())
     {
-        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        case GLFW_MOUSE_BUTTON_LEFT:
         {
-            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            glm::vec2 relMousePos = m_Camera->CalculateRelativeMousePosition();
+            if (!Util::IsPointInRectangle(m_MapDrawData.Position, m_MapDrawData.Size, relMousePos))
+                return false;
 
-            if (tile->InRange(mapMousePos) && tile->AssetsCanExist())
+            glm::vec2 mapMousePos = CalculateMousePositionOnMap();
+
+            for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
             {
-                m_SelectedTile.Selected = true;
-                m_SelectedTile.TileRef = tile;
-                m_NextPlayerInfo.Color = Util::GetRandomColor();
-                m_UsernameInputBox->SetFocused(true);
-                for (auto player : m_PlayersData)
+                for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
                 {
-                    if (player.first == tile->GetPosition())
-                        m_UsernameInputBox->SetText(player.second.Player.Name);
+                    auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+
+                    if (tile->InRange(mapMousePos) && tile->AssetsCanExist())
+                    {
+                        m_SelectedTile.Selected = true;
+                        m_SelectedTile.TileRef = tile;
+                        m_NextPlayerInfo.Color = Util::GetRandomColor();
+                        m_UsernameInputBox->SetFocused(true);
+                        for (auto player : m_PlayersData)
+                        {
+                            if (player.first == tile->GetPosition())
+                                m_UsernameInputBox->SetText(player.second.Player.Name);
+                        }
+
+                        return true;
+                    }
                 }
-
-                return true;
             }
+
+            m_SelectedTile.Selected = false;
+            m_SelectedTile.TileRef = nullptr;
         }
+        default:
+            return false;
     }
-
-    m_SelectedTile.Selected = false;
-    m_SelectedTile.TileRef = nullptr;
-
-    return false;
 }
 
 void ChoosePlayersView::OnStartGameButtonPressed(ButtonCallbackData data)
