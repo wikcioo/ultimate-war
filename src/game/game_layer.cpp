@@ -37,13 +37,14 @@ void GameLayer::OnDetach()
 void GameLayer::OnUpdate(float dt)
 {
     m_CameraController->OnUpdate(dt);
+    static auto camera = m_CameraController->GetCamera();
 
     Renderer2D::ClearColor({0.2f, 0.2f, 0.2f, 1.0f});
 
-    Renderer2D::BeginScene(m_CameraController->GetCamera());
+    Renderer2D::BeginScene(camera);
 
     auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
-    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
+    auto relMousePos = camera->CalculateRelativeMousePosition();
     bool isCursorOnAdjacentTile = false;
 
     struct
@@ -119,7 +120,7 @@ void GameLayer::OnUpdate(float dt)
         Renderer2D::DrawTextStr(
             "Not enough space",
             notEnoughSpaceInfo.Position,
-            1.0f / m_CameraController->GetCamera()->GetZoom(),
+            1.0f / camera->GetZoom(),
             glm::vec3(1.0f),
             HTextAlign::MIDDLE
         );
