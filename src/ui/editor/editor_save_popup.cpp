@@ -97,6 +97,7 @@ void EditorSavePopup::ClosePopup()
 {
     m_DisplaySavingPopup = false;
     m_MapNameInputBox->Clear();
+    m_MapNameInputBox->SetFocused(false);
 }
 
 void EditorSavePopup::OnCancelSaveButtonPressed(ButtonCallbackData data)

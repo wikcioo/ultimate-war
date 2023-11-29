@@ -56,7 +56,8 @@ public:
     {
         if (m_Event.GetType() == T::GetStaticType())
         {
-            m_Event.Handled = callbackFunc(*(T*)&m_Event);
+            if (!m_Event.Handled)
+                m_Event.Handled = callbackFunc(*(T*)&m_Event);
             return true;
         }
 
