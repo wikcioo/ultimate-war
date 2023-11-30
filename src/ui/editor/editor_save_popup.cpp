@@ -3,6 +3,7 @@
 #include "editor/editor_layer.h"
 #include "core/logger.h"
 #include "util/util.h"
+#include "widgets/notification.h"
 
 #include <GLFW/glfw3.h>
 
@@ -29,12 +30,14 @@ bool EditorSavePopup::OnSave()
     if (mapName.empty())
     {
         LOG_WARN("EditorSavePopup: Empty map name");
+        Notification::Create("Empty map name", NotificationLevel::WARNING);
         return false;
     }
 
     if (!Util::IsAlphanumericWithSpaces(mapName))
     {
         LOG_WARN("EditorSavePopup: Map name is not alphanumeric");
+        Notification::Create("Map name is not alphanumeric", NotificationLevel::WARNING);
         return false;
     }
 
