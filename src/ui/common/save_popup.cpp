@@ -55,6 +55,7 @@ void SavePopup::Draw()
     Renderer2D::BeginScene(m_UICamera);
     if (m_DisplaySavingPopup)
     {
+        DrawDimmedBackground();
         DrawSavingPopup();
     }
     Renderer2D::EndScene();
@@ -73,6 +74,15 @@ void SavePopup::OnEvent(Event& event)
     // Ignore non window events if saving popup is open
     if (event.GetCategory() != EventCategory::Window)
         event.Handled = isDisplayed;
+}
+
+void SavePopup::DrawDimmedBackground()
+{
+    Renderer2D::DrawQuad(
+        glm::vec2(0.0f),
+        { m_UICamera->GetHalfOfRelativeWidth() * 2, m_UICamera->GetHalfOfRelativeHeight() * 2 },
+        glm::vec4(0.0f, 0.0f, 0.0f, 0.8f)
+    );
 }
 
 void SavePopup::DrawSavingPopup()

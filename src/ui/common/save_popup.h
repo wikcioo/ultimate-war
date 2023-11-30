@@ -22,6 +22,7 @@ private:
     virtual void Draw() override;
     virtual void OnEvent(Event& event) override;
 
+    void DrawDimmedBackground();
     void DrawSavingPopup();
 
     void OnSaveButtonPressed(ButtonCallbackData data);
