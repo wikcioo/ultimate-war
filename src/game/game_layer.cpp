@@ -135,21 +135,7 @@ void GameLayer::OnEvent(Event& event)
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(GameLayer::OnMouseButtonPressed));
-    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(GameLayer::OnKeyReleased));
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(GameLayer::OnKeyPressed));
-}
-
-bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
-{
-    if(!m_GameActive) return true;
-
-    if(event.GetKeyCode() == GLFW_KEY_ENTER)
-    {
-        m_PlayerManager->NextTurn();
-        return true;
-    }
-
-    return false;
 }
 
 bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
@@ -157,6 +143,12 @@ bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
     if (event.GetKeyCode() == GLFW_KEY_TAB && Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
     {
         Application::Get().OpenMainMenu();
+        return true;
+    }
+
+    if (m_GameActive && event.GetKeyCode() == GLFW_KEY_ENTER)
+    {
+        m_PlayerManager->NextTurn();
         return true;
     }
 
