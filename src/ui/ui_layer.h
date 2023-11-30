@@ -7,6 +7,7 @@
 #include "game/map_manager.h"
 #include "event/window_event.h"
 #include "ui/ui_element.h"
+#include "ui/ui_element_stack.h"
 
 class UILayer : public Layer
 {
@@ -27,5 +28,5 @@ private:
 
 private:
     std::shared_ptr<OrthographicCamera> m_UICamera;
-    std::vector<std::shared_ptr<UIElement>> m_UIElements;
+    UIElementStack m_UIElementStack;
 };

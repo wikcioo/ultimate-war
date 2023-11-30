@@ -27,12 +27,12 @@ void UILayer::OnAttach()
 
 void UILayer::OnDetach()
 {
-    m_UIElements.clear();
+    m_UIElementStack.Clear();
 }
 
 void UILayer::OnUpdate(float dt)
 {
-    for (auto element : m_UIElements)
+    for (const auto& element : m_UIElementStack)
         element->Draw();
 
     Notification::OnUpdate(dt);
@@ -45,17 +45,15 @@ void UILayer::OnEvent(Event& event)
 
     Notification::OnEvent(event);
 
-    for (auto element : m_UIElements)
-        element->OnEvent(event);
+    for (auto it = m_UIElementStack.rbegin(); it != m_UIElementStack.rend(); it++)
+        (*it)->OnEvent(event);
 }
 
 void UILayer::PushGameLayerElements()
 {
-    m_UIElements.emplace_back(std::make_shared<GameSavePopup>(m_UICamera));
-
     auto gameCamera = GameLayer::Get().GetCameraController()->GetCamera();
     float minimapHeight = 0.5f;
-    m_UIElements.emplace_back(
+    m_UIElementStack.PushElement(
         std::make_shared<Minimap>(
             m_UICamera,
             gameCamera,
@@ -64,19 +62,20 @@ void UILayer::PushGameLayerElements()
             glm::vec2(minimapHeight * MINIMAP_ASPECT_RATIO, minimapHeight)
         ));
 
-    m_UIElements.emplace_back(
+    m_UIElementStack.PushElement(
         std::make_shared<ShopPanel>(
             m_UICamera,
             glm::vec2(m_UICamera->GetHalfOfRelativeWidth(), 0.0f)
         ));
 
-    m_UIElements.emplace_back(std::make_shared<GameInfo>(m_UICamera, GameLayer::Get().GetPlayerManager()));
+    m_UIElementStack.PushElement(std::make_shared<GameInfo>(m_UICamera, GameLayer::Get().GetPlayerManager()));
+    m_UIElementStack.PushElement(std::make_shared<GameSavePopup>(m_UICamera));
 }
 
 void UILayer::PushEditorLayerElements()
 {
-    m_UIElements.emplace_back(std::make_shared<EditorInfo>(m_UICamera));
-    m_UIElements.emplace_back(std::make_shared<EditorSavePopup>(m_UICamera));
+    m_UIElementStack.PushElement(std::make_shared<EditorInfo>(m_UICamera));
+    m_UIElementStack.PushElement(std::make_shared<EditorSavePopup>(m_UICamera));
 }
 
 bool UILayer::OnWindowResized(WindowResizedEvent& event)
