@@ -368,7 +368,7 @@ std::shared_ptr<GameLayer> SaveLoader::ConstructGameLayer(const _SaveData& data)
         );
     }
 
-    gameLayer->InitGame({ data.MapName, players, data.MapData });
+    gameLayer->InitGame({ data.MapName, players, data.MapData, true });
 
     gameLayer->SetIterationNumber(data.Iteration);
 

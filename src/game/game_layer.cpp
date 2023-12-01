@@ -175,20 +175,28 @@ void GameLayer::InitGame(NewGameDTO newGameData)
         for (const auto& tileCoords : player.TileCoords)
         {
             auto tile = GameLayer::Get().GetGameMapManager()->GetGameMap()->GetTile(tileCoords.x, tileCoords.y);
-            UnitGroup ug(UnitGroupType::SWORDSMAN);
-            ug.SetMovedOnIteration(-1);
-            tile->CreateUnitGroup(ug);
+
+            if (!newGameData.LoadedFromSave)
+            {
+                UnitGroup ug(UnitGroupType::SWORDSMAN);
+                ug.SetMovedOnIteration(-1);
+                tile->CreateUnitGroup(ug);
+            }
+
             _player->AddOwnedTile(tile);
         }
     }
 
-    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    if (!newGameData.LoadedFromSave)
     {
-        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
         {
-            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
-            if (tile->AssetsCanExist() && !tile->IsOwned())
-                tile->AddRandomUnits();
+            for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+            {
+                auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+                if (tile->AssetsCanExist() && !tile->IsOwned())
+                    tile->AddRandomUnits();
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ struct NewGameDTO
     std::string MapName;
     std::vector<PlayerDTO> Players;
     std::optional<std::vector<std::vector<std::string>>> MapData = std::nullopt;
+    bool LoadedFromSave = false;
 };
 
 class GameLayer : public Layer
