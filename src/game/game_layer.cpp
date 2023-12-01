@@ -37,7 +37,7 @@ void GameLayer::OnDetach()
 void GameLayer::OnUpdate(float dt)
 {
     m_CameraController->OnUpdate(dt);
-    static auto camera = m_CameraController->GetCamera();
+    auto camera = m_CameraController->GetCamera();
 
     Renderer2D::ClearColor({0.2f, 0.2f, 0.2f, 1.0f});
 
