@@ -57,11 +57,13 @@ void SaveLoader::Save(const std::string& saveName, const std::shared_ptr<GameLay
         for (int x = 0; x < mapManager->GetGameMap()->GetTileCountX(); x++)
         {
             auto tile = mapManager->GetGameMap()->GetTile(x, y);
-            if (tile->IsOwned())
-            {
-                std::ostringstream oss;
-                oss << "(" << tile->GetCoords().x << "," << tile->GetCoords().y << ")\n";
+            if (!tile->AssetsCanExist())
+                continue;
 
+            std::ostringstream oss;
+            oss << "(" << tile->GetCoords().x << "," << tile->GetCoords().y << ")\n";
+            if (tile->GetOwnedBy())
+            {
                 auto playerName = tile->GetOwnedBy()->GetName();
                 bool foundPlayer = false;
                 for (size_t i = 0; i < players.size(); i++)
@@ -74,42 +76,41 @@ void SaveLoader::Save(const std::string& saveName, const std::shared_ptr<GameLay
                         break;
                     }
                 }
-
                 if (!foundPlayer)
                 {
                     throw SaveLoaderException(
                         "SaveLoader: Could not find tile's owner '" + playerName + "'"
                     );
                 }
-
-                for (auto ug : tile->GetUnitGroups())
-                {
-                    auto type = (int)ug->GetType();
-                    auto moved_on_iteration = ug->GetMovedOnIteration();
-                    auto stats_vec = ug->GetUnitStats();
-
-                    if (!stats_vec.empty())
-                    {
-                        auto stats = stats_vec[0];
-                        oss << "U(" << type << "," << moved_on_iteration << ",";
-                        oss << "(" << stats->Attack << ";" << stats->Defense << ";" << stats->Health << "))\n";
-                    }
-                    else
-                    {
-                        throw SaveLoaderException("SaveLoader: Empty unit stats vector");
-                    }
-                }
-
-                for (auto b : tile->GetBuildings())
-                {
-                    auto type = (int)b->GetType();
-                    auto level = b->GetLevel();
-
-                    oss << "B(" << type << "," << level << ")\n";
-                }
-
-                tiles.emplace_back(oss.str());
             }
+
+            for (auto ug : tile->GetUnitGroups())
+            {
+                auto type = (int)ug->GetType();
+                auto moved_on_iteration = ug->GetMovedOnIteration();
+                auto stats_vec = ug->GetUnitStats();
+
+                if (!stats_vec.empty())
+                {
+                    auto stats = stats_vec[0];
+                    oss << "U(" << type << "," << moved_on_iteration << ",";
+                    oss << "(" << stats->Attack << ";" << stats->Defense << ";" << stats->Health << "))\n";
+                }
+                else
+                {
+                    throw SaveLoaderException("SaveLoader: Empty unit stats vector");
+                }
+            }
+
+            for (auto b : tile->GetBuildings())
+            {
+                auto type = (int)b->GetType();
+                auto level = b->GetLevel();
+
+                oss << "B(" << type << "," << level << ")\n";
+            }
+
+            tiles.emplace_back(oss.str());
         }
     }
 
@@ -255,6 +256,7 @@ std::shared_ptr<GameLayer> SaveLoader::Load(const std::string& saveName)
             std::stoi(tileCoordsTokens[1])
         );
 
+        tileData.OwnedByPlayerIndex = -1;
         // read player index, unit group, building data
         // while it is not the beginning of the next tile data
         while (lines[currentLineIndex].find('(') != 0)
