@@ -46,6 +46,9 @@ public:
     inline bool IsGameActive() const { return m_GameActive; }
     inline int GetIteration() { return m_IterationNumber; }
 
+    bool IsEarnedResourcesInfoVisible() { return m_ShowEarnedResourcesInfo; }
+    void SetEarnedResourcesInfoVisible(bool isVisible) { m_ShowEarnedResourcesInfo = isVisible; }
+
     void InitGame(NewGameDTO newGameData);
     void SetIterationNumber(int iterationNumber) { m_IterationNumber = iterationNumber; }
     void NextIteration() { m_IterationNumber++; }
@@ -55,6 +58,7 @@ public:
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
+    bool OnKeyReleased(KeyReleasedEvent& event);
     void ProcessTileInRange(const std::shared_ptr<Tile>& tile, const std::shared_ptr<Player>& currentPlayer, const glm::vec2& relMousePos);
 
 private:
@@ -66,4 +70,5 @@ private:
     std::shared_ptr<Arrow> m_Arrow;
     int m_IterationNumber;
     bool m_GameActive;
+    bool m_ShowEarnedResourcesInfo;
 };
