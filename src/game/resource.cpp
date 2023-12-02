@@ -60,5 +60,10 @@ ResourceData Resources::GetResourceData()
     data.ResourceTextures[2] = steelTexture;
     data.ResourceTextures[3] = goldTexture;
 
+    data.ResourceTextureScales[0] = 1.0f;
+    data.ResourceTextureScales[1] = 1.1f;
+    data.ResourceTextureScales[2] = 0.8f;
+    data.ResourceTextureScales[3] = 0.78f;
+
     return data;
 }

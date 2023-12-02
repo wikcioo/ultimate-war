@@ -541,7 +541,7 @@ void Tile::DrawEarnedResourcesInfoOverlay()
                 m_Position.x - 0.1f,
                 m_Position.y + yStartOffset - i * yOffset
             },
-            glm::vec2(0.15f),
+            glm::vec2(0.15f * resourceData.ResourceTextureScales[i]),
             resourceData.ResourceTextures[i]
         );
 
