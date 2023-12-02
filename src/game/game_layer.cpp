@@ -147,7 +147,7 @@ bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
         return true;
     }
 
-    if (m_GameActive && event.GetKeyCode() == GLFW_KEY_ENTER)
+    if (m_GameActive && event.GetKeyCode() == GLFW_KEY_ENTER && event.GetRepeatCount() != 1)
     {
         m_PlayerManager->NextTurn();
         return true;
