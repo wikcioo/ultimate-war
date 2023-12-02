@@ -64,9 +64,12 @@ void SavePopup::Draw()
 void SavePopup::OnEvent(Event& event)
 {
     bool isDisplayed = m_DisplaySavingPopup;
-    m_SaveButton->OnEvent(event);
-    m_CancelButton->OnEvent(event);
-    m_InputBox->OnEvent(event);
+    if (isDisplayed)
+    {
+        m_SaveButton->OnEvent(event);
+        m_CancelButton->OnEvent(event);
+        m_InputBox->OnEvent(event);
+    }
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(SavePopup::OnKeyPressed));
