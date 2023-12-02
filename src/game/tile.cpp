@@ -181,6 +181,12 @@ void Tile::Draw()
 
     DrawUnitGroups();
     DrawBuildings();
+
+    if (GameLayer::Get().IsEarnedResourcesInfoVisible() &&
+        GameLayer::Get().GetPlayerManager()->GetCurrentPlayer() == m_OwnedBy)
+    {
+        DrawEarnedResourcesInfoOverlay();
+    }
 }
 
 DrawData Tile::GetUnitGroupDrawData()
@@ -507,6 +513,50 @@ void Tile::DrawBuildings()
         {
             buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
         }
+    }
+}
+
+void Tile::DrawEarnedResourcesInfoOverlay()
+{
+    auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+
+    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 0.8f));
+
+    static auto resourceData = Resources::GetResourceData();
+    auto resources = GetResources();
+
+    int resourceNumbers[resourceData.NumResources] = {
+        resources.Wood,
+        resources.Rock,
+        resources.Steel,
+        resources.Gold
+    };
+
+    float yStartOffset = 0.3f;
+    float yOffset = 0.2f;
+    for (int i = 0; i < resourceData.NumResources; i++)
+    {
+        Renderer2D::DrawQuad(
+            {
+                m_Position.x - 0.1f,
+                m_Position.y + yStartOffset - i * yOffset
+            },
+            glm::vec2(0.15f * resourceData.ResourceTextureScales[i]),
+            resourceData.ResourceTextures[i]
+        );
+
+        Renderer2D::DrawTextStr(
+            std::to_string(resourceNumbers[i]),
+            {
+                m_Position.x + 0.02f,
+                m_Position.y + yStartOffset - i * yOffset
+            },
+            0.5f / camera->GetZoom(),
+            resourceData.ResourceNumberColors[i],
+            HTextAlign::LEFT,
+            VTextAlign::MIDDLE,
+            "rexlia"
+        );
     }
 }
 

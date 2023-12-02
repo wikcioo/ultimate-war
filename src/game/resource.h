@@ -10,6 +10,7 @@ struct ResourceData
     static const int NumResources = 4;
     glm::vec3 ResourceNumberColors[NumResources];
     std::shared_ptr<Texture2D> ResourceTextures[NumResources];
+    float ResourceTextureScales[NumResources];
 };
 
 struct Resources

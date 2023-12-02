@@ -15,7 +15,7 @@
 GameLayer* GameLayer::s_Instance = nullptr;
 
 GameLayer::GameLayer()
-    : Layer("GameLayer"), m_IterationNumber(0), m_GameActive(true)
+    : Layer("GameLayer"), m_IterationNumber(0), m_GameActive(true), m_ShowEarnedResourcesInfo(false)
 {
     s_Instance = this;
 
@@ -136,6 +136,7 @@ void GameLayer::OnEvent(Event& event)
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(GameLayer::OnMouseButtonPressed));
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(GameLayer::OnKeyPressed));
+    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(GameLayer::OnKeyReleased));
 }
 
 bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
@@ -146,9 +147,26 @@ bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
         return true;
     }
 
-    if (m_GameActive && event.GetKeyCode() == GLFW_KEY_ENTER)
+    if (m_GameActive && event.GetKeyCode() == GLFW_KEY_ENTER && event.GetRepeatCount() != 1)
     {
         m_PlayerManager->NextTurn();
+        return true;
+    }
+
+    if (m_GameActive && event.GetKeyCode() == GLFW_KEY_LEFT_ALT)
+    {
+        m_ShowEarnedResourcesInfo = true;
+        return true;
+    }
+
+    return false;
+}
+
+bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
+{
+    if (event.GetKeyCode() == GLFW_KEY_LEFT_ALT)
+    {
+        m_ShowEarnedResourcesInfo = false;
         return true;
     }
 

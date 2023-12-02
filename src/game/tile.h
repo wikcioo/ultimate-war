@@ -101,6 +101,7 @@ private:
     void DrawEnvironment();
     void DrawUnitGroups();
     void DrawBuildings();
+    void DrawEarnedResourcesInfoOverlay();
     void EraseSelectedUnitGroups();
     void TransferUnitGroupsToTile(const std::shared_ptr<Tile>& destTile);
     DrawData GetUnitGroupDrawData();
