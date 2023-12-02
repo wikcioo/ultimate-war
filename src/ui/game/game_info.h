@@ -19,10 +19,9 @@ public:
 private:
     std::shared_ptr<PlayerManager> m_PlayerManager;
 
-    float m_TextScale = 0.3f;
-    float m_ResourceScale = 0.08f;
-    float m_ResourceOffset = 0.1f;
-    float m_ResourceNumberOffset = 0.07f;
-    float m_ResourceStartX = 0.07f;
-    float m_ResourceStartY = 0.08f;
+    float m_BarHeight = 0.08f;
+    float m_TextScale = 0.25f;
+    float m_ResourceScale = 0.07f;
+    float m_ResourceNumberOffset = 0.008f;
+    float m_Stride = 0.27f;
 };
