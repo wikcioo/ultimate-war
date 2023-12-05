@@ -735,8 +735,7 @@ bool Tile::HandleBuildingUpgradeIconMouseClick(const glm::vec2& relMousePos)
             upgradeIconSize,
             relMousePos))
         {
-            // NOTE: Consider using non-linear function for calculating cost based on current building upgrade level
-            Resources upgradeCost = BuildingDataMap[m_Buildings[i]->GetType()].BaseUpgradeCost * (m_Buildings[i]->GetLevel() + 1);
+            Resources upgradeCost = m_Buildings[i]->GetUpgradeCost();
             if (GameLayer::Get().GetPlayerManager()->GetCurrentPlayer()->SubtractResources(upgradeCost))
             {
                 m_Buildings[i]->Upgrade();

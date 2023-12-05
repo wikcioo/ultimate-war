@@ -37,6 +37,8 @@ public:
     const BuildingType GetType() const { return m_Type; }
     const unsigned int GetLevel() const { return m_Level; }
 
+    Resources GetUpgradeCost() const;
+
 private:
     BuildingType m_Type;
     unsigned int m_Level;
