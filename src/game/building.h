@@ -43,3 +43,9 @@ private:
     BuildingType m_Type;
     unsigned int m_Level;
 };
+
+struct BuildingUpgradeInfo
+{
+    bool Show;
+    Building* _Building;
+};

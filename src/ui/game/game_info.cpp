@@ -132,5 +132,42 @@ void GameInfo::Draw()
         );
     }
 
+    DrawBuildingUpgradeInfo(halfOfWidth, halfOfHeight);
+
     Renderer2D::EndScene();
+}
+
+void GameInfo::DrawBuildingUpgradeInfo(float halfOfWidth, float halfOfHeight)
+{
+    static float offset = 0.02f;
+    static glm::vec2 size = glm::vec2(0.42f, 0.25f);
+
+    glm::vec2 position = {
+        -halfOfWidth + size.x / 2.0f + offset,
+        halfOfHeight - m_BarHeight - size.y / 2.0f - offset
+    };
+
+    auto info = GameLayer::Get().GetBuildingUpgradeInfo();
+    if (info.Show)
+    {
+        // draw background
+        Renderer2D::DrawQuad(position, size, glm::vec4(0.0f, 0.0f, 0.0f, 0.8f));
+
+        // draw text
+        Renderer2D::DrawTextStr(
+            "Upgrade cost",
+            { position.x, position.y + size.y / 2.0f - 0.03f },
+            0.2f,
+            glm::vec3(1.0f),
+            HTextAlign::MIDDLE,
+            VTextAlign::TOP,
+            "rexlia"
+        );
+
+        // draw resources
+        Resources::Draw2x2(
+            info._Building->GetUpgradeCost(),
+            { position.x, position.y + 0.02f }
+        );
+    }
 }

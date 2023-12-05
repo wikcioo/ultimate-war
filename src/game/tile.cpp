@@ -436,6 +436,7 @@ void Tile::CheckBuildingHover(const glm::vec2& relMousePos)
     auto buildingData = GetBuildingDrawData();
     float initialX = buildingData.Position.x;
     static glm::vec2 upgradeIconSize = buildingData.Size * 0.3f;
+    bool hoveredOverUpgradeIcon = false;
 
     for (int i = 0; i < m_Buildings.size(); i++)
     {
@@ -458,6 +459,9 @@ void Tile::CheckBuildingHover(const glm::vec2& relMousePos)
                     glm::vec2(upgradeIconSize * 1.1f),
                     s_UpgradeIconTexture
                 );
+
+                GameLayer::Get().SetBuildingUpgradeInfo({ true, m_Buildings[i] });
+                hoveredOverUpgradeIcon = true;
             }
         }
 
@@ -471,6 +475,9 @@ void Tile::CheckBuildingHover(const glm::vec2& relMousePos)
             buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
         }
     }
+
+    if (!hoveredOverUpgradeIcon)
+        GameLayer::Get().SetBuildingUpgradeInfo({ false });
 }
 
 void Tile::DrawBuildings()
