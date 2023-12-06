@@ -50,6 +50,7 @@ public:
     void CreateBuilding(Building building);
     void DeselectAllUnitGroups();
     void Draw();
+    void DrawEnvironment();
     bool HasSelectedUnitGroups();
     bool InRange(const glm::vec2& cursorPos);
     bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);
@@ -98,7 +99,6 @@ private:
     void InitStaticRuntimeData();
     void DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup);
     void DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[]);
-    void DrawEnvironment();
     void DrawUnitGroups();
     void DrawBuildings();
     void DrawEarnedResourcesInfoOverlay();
