@@ -48,7 +48,7 @@ void EditorLayer::OnUpdate(float dt)
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
     for (const auto& pair : m_Map) {
-        pair.second->Draw();
+        pair.second->DrawEnvironment();
     }
 
     Renderer2D::EndScene();

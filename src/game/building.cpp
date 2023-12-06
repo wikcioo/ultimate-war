@@ -12,3 +12,9 @@ Building::Building(BuildingType type)
     : m_Type(type), m_Level(0)
 {
 }
+
+Resources Building::GetUpgradeCost() const
+{
+    // NOTE: Consider using non-linear function for calculating cost based on current building upgrade level
+    return BuildingDataMap[m_Type].BaseUpgradeCost * (m_Level + 1);
+}

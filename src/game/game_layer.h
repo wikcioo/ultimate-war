@@ -49,6 +49,9 @@ public:
     bool IsEarnedResourcesInfoVisible() { return m_ShowEarnedResourcesInfo; }
     void SetEarnedResourcesInfoVisible(bool isVisible) { m_ShowEarnedResourcesInfo = isVisible; }
 
+    BuildingUpgradeInfo GetBuildingUpgradeInfo() { return m_BuildingUpgradeInfo; }
+    void SetBuildingUpgradeInfo(BuildingUpgradeInfo info) { m_BuildingUpgradeInfo = info; }
+
     void InitGame(NewGameDTO newGameData);
     void SetIterationNumber(int iterationNumber) { m_IterationNumber = iterationNumber; }
     void NextIteration() { m_IterationNumber++; }
@@ -71,4 +74,5 @@ private:
     int m_IterationNumber;
     bool m_GameActive;
     bool m_ShowEarnedResourcesInfo;
+    BuildingUpgradeInfo m_BuildingUpgradeInfo;
 };

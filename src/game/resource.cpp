@@ -2,6 +2,8 @@
 
 #include "game/color_data.h"
 #include "core/resource_manager.h"
+#include "graphics/renderer.h"
+#include "util/util.h"
 
 Resources Resources::operator*(int scalar)
 {
@@ -39,6 +41,43 @@ bool Resources::operator>=(const Resources& other)
         Steel >= other.Steel &&
         Gold  >= other.Gold
     );
+}
+
+void Resources::Draw2x2(const Resources& res, const glm::vec2& position)
+{
+    static auto resourceData = Resources::GetResourceData();
+
+    static float hOffset = 0.09f;
+    static float resSize = 0.07f;
+    static float resHOffset = 0.02f;
+    static float textScale = 0.2f;
+
+    int costValues[resourceData.NumResources] = { res.Wood, res.Rock, res.Steel, res.Gold };
+
+    for (int i = 0; i < resourceData.NumResources; i++)
+    {
+        Renderer2D::DrawQuad(
+            glm::vec2(
+                position.x - hOffset * glm::pow(-1.0, (double)(i % 2)) - hOffset / 2.0f,
+                position.y - resHOffset - resSize * Util::Clamp<int>(i - 1, 0, 1)
+            ),
+            glm::vec2(resSize),
+            resourceData.ResourceTextures[i]
+        );
+
+        Renderer2D::DrawTextStr(
+            std::to_string(costValues[i]),
+            glm::vec2(
+                position.x - resSize / 2.4f - hOffset * glm::pow(-1.0, (double)(i % 2)) + hOffset / 3.2f,
+                position.y - resHOffset - resSize * Util::Clamp<int>(i - 1, 0, 1)
+            ),
+            textScale,
+            glm::vec3(1.0f),
+            HTextAlign::LEFT, VTextAlign::MIDDLE,
+            "rexlia"
+        );
+    }
+
 }
 
 ResourceData Resources::GetResourceData()

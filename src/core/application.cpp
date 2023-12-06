@@ -174,7 +174,7 @@ void Application::InitializeColors()
     ColorData::Get().TileColors.ForestColor = { 0.133f, 0.545f, 0.133f };
     ColorData::Get().TileColors.DesertColor = { 0.898f, 0.788f, 0.643f };
     ColorData::Get().TileColors.MountainsColor = { 0.5f, 0.5f, 0.5f };
-    ColorData::Get().UITheme.ShopPanelBackgroundColor = { 0.4f, 0.4f, 0.4f, 1.0f };
+    ColorData::Get().UITheme.ShopPanelBackgroundColor = { 0.0f, 0.0f, 0.0f, 0.8f };
     ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor = { 0.5f, 0.5f, 0.5f, 1.0f };
     ColorData::Get().Resources.Wood = { 0.545f, 0.270f, 0.075f };
     ColorData::Get().Resources.Rock = { 0.5f, 0.5f, 0.5f };

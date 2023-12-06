@@ -17,6 +17,9 @@ public:
     virtual void Draw() override;
 
 private:
+    void DrawBuildingUpgradeInfo(float halfOfWidth, float halfOfHeight);
+
+private:
     std::shared_ptr<PlayerManager> m_PlayerManager;
 
     float m_BarHeight = 0.08f;

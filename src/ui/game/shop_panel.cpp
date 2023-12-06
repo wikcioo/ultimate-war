@@ -231,43 +231,7 @@ void ShopPanel::DrawAssetInfo(const std::string& name, const Resources& cost,
     );
 
     // Price
-    static auto resourceData = Resources::GetResourceData();
-
-    static float hOffset = 0.09f;
-    static float resSize = 0.07f;
-    static float resHOffset = 0.02f;
-    static float textScale = 0.2f;
-
-    int costValues[resourceData.NumResources] = {
-        cost.Wood,
-        cost.Rock,
-        cost.Steel,
-        cost.Gold,
-    };
-
-    for (int i = 0; i < resourceData.NumResources; i++)
-    {
-        Renderer2D::DrawQuad(
-            glm::vec2(
-                pos.x - hOffset * glm::pow(-1.0, (double)(i % 2)) - hOffset / 2.0f,
-                pos.y - resHOffset - resSize * Util::Clamp<int>(i - 1, 0, 1)
-            ),
-            glm::vec2(resSize),
-            resourceData.ResourceTextures[i]
-        );
-
-        Renderer2D::DrawTextStr(
-            std::to_string(costValues[i]),
-            glm::vec2(
-                pos.x - resSize / 2.4f - hOffset * glm::pow(-1.0, (double)(i % 2)) + hOffset / 3.2f,
-                pos.y - resHOffset - resSize * Util::Clamp<int>(i - 1, 0, 1)
-            ),
-            textScale,
-            glm::vec3(1.0f),
-            HTextAlign::LEFT, VTextAlign::MIDDLE,
-            "rexlia"
-        );
-    }
+    Resources::Draw2x2(cost, pos);
 
     // Draw required building if necessary
     if (requiredBuilding.has_value() && requiredBuilding.value() != BuildingType::NONE)

@@ -20,6 +20,8 @@ struct Resources
     int Steel;
     int Gold;
 
+    static void Draw2x2(const Resources& res, const glm::vec2& position);
+
     Resources operator*(int scalar);
     Resources& operator+=(const Resources& other);
     Resources& operator-=(const Resources& other);
