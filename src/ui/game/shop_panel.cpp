@@ -233,17 +233,52 @@ void ShopPanel::DrawAssetInfo(const std::string& name, const Resources& cost,
     // Price
     Resources::Draw2x2(cost, pos);
 
-    // Draw required building if necessary
+    // Draw stats if drawing unit
+    auto it = std::find_if(UnitGroupDataMap.begin(), UnitGroupDataMap.end(), [name](const auto& pair) {
+        return pair.second.TextureName == name;
+    });
+    if (it != UnitGroupDataMap.end())
+    {
+        static float statSize = 0.04f;
+        static float textScale = 0.165f;
+        glm::vec2 statPos = { pos.x - 0.115f, pos.y - (size.y / 2.0f) + 0.03f };
+        int statList[3] = {
+            it->second.Stats.Attack,
+            it->second.Stats.Defense,
+            it->second.Stats.Health
+        };
+
+        for (int i = 0; i < Tile::s_StatCount; i++)
+        {
+            Renderer2D::DrawQuad(
+                glm::vec2(statPos.x - statSize, statPos.y),
+                glm::vec2(statSize),
+                ResourceManager::GetTexture(Tile::s_StatTextures[i])
+            );
+
+            Renderer2D::DrawTextStr(
+                std::to_string(statList[i]),
+                { statPos.x - 0.01f, statPos.y },
+                textScale,
+                glm::vec3(1.0f),
+                HTextAlign::LEFT,
+                VTextAlign::MIDDLE,
+                "rexlia"
+            );
+
+            statPos.x += 0.125f;
+        }
+    }
+
+    // Draw required building icon if necessary
     if (requiredBuilding.has_value() && requiredBuilding.value() != BuildingType::NONE)
     {
-        Renderer2D::DrawTextStr(
-            std::string("Needs " + Util::ReplaceChar(BuildingDataMap[requiredBuilding.value()].TextureName, '_', ' ')).c_str(),
-            glm::vec2(pos.x, pos.y - 0.16f),
-            0.12f,
-            glm::vec3(1.0f),
-            HTextAlign::MIDDLE,
-            VTextAlign::MIDDLE,
-            "rexlia"
+        static float iconSize = 0.07f;
+
+        Renderer2D::DrawQuad(
+            { pos + (size / 2.0f) - (iconSize / 2.0f) - 0.01f },
+            glm::vec2(iconSize),
+            ResourceManager::GetTexture(BuildingDataMap[requiredBuilding.value()].TextureName)
         );
     }
 }
