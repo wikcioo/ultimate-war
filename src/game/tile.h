@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 
+#include "core/camera.h"
 #include "game/unit.h"
 #include "game/building.h"
 
@@ -50,7 +51,7 @@ public:
     void CreateBuilding(Building building);
     void DeselectAllUnitGroups();
     void Draw();
-    void DrawEnvironment();
+    void DrawEnvironment(const std::shared_ptr<OrthographicCamera>& camera);
     bool HasSelectedUnitGroups();
     bool InRange(const glm::vec2& cursorPos);
     bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);

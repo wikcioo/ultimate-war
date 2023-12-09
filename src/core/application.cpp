@@ -111,6 +111,8 @@ void Application::SaveGame(const std::string& saveName)
     try
     {
         SaveLoader::Save(saveName, m_GameLayer);
+        if (m_GameLayer->GetName().empty())
+            m_GameLayer->SetName(saveName);
         LOG_DEBUG("Saved the game");
     }
     catch (SaveLoaderException e)
@@ -249,6 +251,7 @@ void Application::ProcessLayerStackReload()
             {
                 m_GameLayer = SaveLoader::Load(m_SaveName);
                 m_GameLayer->OnAttach();
+                m_GameLayer->SetName(m_SaveName);
                 m_LayerStack->PushLayer(m_GameLayer);
 
                 m_MainMenuLayer->SetIsActive(false);

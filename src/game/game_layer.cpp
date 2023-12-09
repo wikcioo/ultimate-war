@@ -16,7 +16,7 @@ GameLayer* GameLayer::s_Instance = nullptr;
 
 GameLayer::GameLayer()
     : Layer("GameLayer"), m_IterationNumber(0), m_GameActive(true), m_ShowEarnedResourcesInfo(false),
-      m_BuildingUpgradeInfo({false})
+      m_BuildingUpgradeInfo({false}), m_Name("")
 {
     s_Instance = this;
 

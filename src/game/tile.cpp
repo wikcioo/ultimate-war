@@ -213,7 +213,7 @@ void Tile::Draw()
     }
 
 
-    DrawEnvironment();
+    DrawEnvironment(camera);
     DrawUnitGroups();
     DrawBuildings();
 
@@ -605,7 +605,7 @@ void Tile::DrawEarnedResourcesInfoOverlay()
     }
 }
 
-void Tile::DrawEnvironment()
+void Tile::DrawEnvironment(const std::shared_ptr<OrthographicCamera>& camera)
 {
     if (m_Environment != TileEnvironment::NONE)
     {
@@ -616,7 +616,6 @@ void Tile::DrawEnvironment()
         {
             case TileEnvironment::OCEAN:
             {
-                auto camera = GameLayer::Get().GetCameraController()->GetCamera();
                 auto relBtmLeft = glm::vec2(
                     m_Position.x - TILE_WIDTH / 4.0f,
                     m_Position.y - TILE_HEIGHT / 4.0f

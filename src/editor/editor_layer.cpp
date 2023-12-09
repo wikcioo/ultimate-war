@@ -9,7 +9,7 @@
 EditorLayer* EditorLayer::s_Instance = nullptr;
 
 EditorLayer::EditorLayer()
-    : Layer("EditorLayer")
+    : Layer("EditorLayer"), m_Name("")
 {
     s_Instance = this;
     auto window = Application::Get().GetWindow();
@@ -48,7 +48,7 @@ void EditorLayer::OnUpdate(float dt)
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
     for (const auto& pair : m_Map) {
-        pair.second->DrawEnvironment();
+        pair.second->DrawEnvironment(m_CameraController->GetCamera());
     }
 
     Renderer2D::EndScene();
@@ -92,6 +92,9 @@ void EditorLayer::OnEvent(Event& event)
 
 void EditorLayer::SaveMap(const std::string& mapName)
 {
+    if (m_Name.empty())
+        m_Name = mapName;
+
     int minX = 0, minY = 0;
     int maxX = 0, maxY = 0;
 
