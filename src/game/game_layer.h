@@ -52,6 +52,9 @@ public:
     BuildingUpgradeInfo GetBuildingUpgradeInfo() { return m_BuildingUpgradeInfo; }
     void SetBuildingUpgradeInfo(BuildingUpgradeInfo info) { m_BuildingUpgradeInfo = info; }
 
+    const std::string& GetName() { return m_Name; }
+    void SetName(const std::string& name) { m_Name = name; }
+
     void InitGame(NewGameDTO newGameData);
     void SetIterationNumber(int iterationNumber) { m_IterationNumber = iterationNumber; }
     void NextIteration() { m_IterationNumber++; }
@@ -75,4 +78,5 @@ private:
     bool m_GameActive;
     bool m_ShowEarnedResourcesInfo;
     BuildingUpgradeInfo m_BuildingUpgradeInfo;
+    std::string m_Name;
 };

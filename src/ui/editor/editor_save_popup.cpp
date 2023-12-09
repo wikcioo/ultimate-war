@@ -14,9 +14,19 @@ EditorSavePopup::EditorSavePopup(const std::shared_ptr<OrthographicCamera>& UICa
 
 bool EditorSavePopup::OnKeyPressed(KeyPressedEvent& event)
 {
+    auto mapName = EditorLayer::Get().GetName();
     if (event.GetKeyCode() == GLFW_KEY_X)
     {
-        EditorLayer::Get().GetCameraController()->ResetKeys();
+        if (!mapName.empty())
+        {
+            EditorLayer::Get().SaveMap(mapName);
+            Notification::Create("Saved the map", NotificationLevel::INFO);
+            return true;
+        }
+        else
+        {
+            EditorLayer::Get().GetCameraController()->ResetKeys();
+        }
     }
 
     return SavePopup::OnKeyPressed(event);
@@ -42,6 +52,7 @@ bool EditorSavePopup::OnSave()
     }
 
     EditorLayer::Get().SaveMap(mapName);
+    Notification::Create("Saved the map", NotificationLevel::INFO);
 
     return true;
 }

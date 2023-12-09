@@ -31,6 +31,9 @@ public:
 
     void SaveMap(const std::string& mapName);
 
+    const std::string& GetName() { return m_Name; }
+    void SetName(const std::string& name) { m_Name = name; }
+
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
@@ -49,4 +52,5 @@ private:
     std::unordered_map<glm::ivec2, Tile*> m_Map;
     Tile* m_PreviousTile;
     TileEnvironment m_SelectedTileEnvType;
+    std::string m_Name;
 };

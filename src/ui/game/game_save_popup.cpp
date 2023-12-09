@@ -11,6 +11,19 @@ GameSavePopup::GameSavePopup(const std::shared_ptr<OrthographicCamera>& UICamera
 {
 }
 
+bool GameSavePopup::OnKeyPressed(KeyPressedEvent& event)
+{
+    auto gameName = GameLayer::Get().GetName();
+    if (event.GetKeyCode() == GLFW_KEY_X && !gameName.empty())
+    {
+        Application::Get().SaveGame(gameName);
+        Notification::Create("Saved the game", NotificationLevel::INFO);
+        return true;
+    }
+
+    return SavePopup::OnKeyPressed(event);
+}
+
 bool GameSavePopup::OnSave()
 {
     auto saveName = m_InputBox->GetText();
@@ -31,5 +44,6 @@ bool GameSavePopup::OnSave()
     }
 
     Application::Get().SaveGame(saveName);
+    Notification::Create("Saved the game", NotificationLevel::INFO);
     return true;
 }
