@@ -134,6 +134,7 @@ void Application::LoadResources()
     ResourceManager::LoadShader("color", "assets/shaders/color.glsl");
     ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
     ResourceManager::LoadShader("water", "assets/shaders/water.glsl");
+    ResourceManager::LoadShader("hue", "assets/shaders/hue.glsl");
 
     ResourceManager::LoadTexture("swordsman", "assets/textures/units/swordsman.png");
     ResourceManager::LoadTexture("archer", "assets/textures/units/archer.png");
