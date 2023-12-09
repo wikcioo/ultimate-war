@@ -195,3 +195,29 @@ void Shader::SetMat4(const std::string& name, const glm::mat4& value)
     int location = glGetUniformLocation(m_ProgramID, name.c_str());
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
+
+void ShaderData::Apply(const std::shared_ptr<Shader>& shader)
+{
+    for (const auto& pair : UniformMap)
+    {
+        const std::string& key = pair.first;
+        const UniformValue& value = pair.second;
+
+        if (std::holds_alternative<bool>(value))
+            shader->SetBool(key, std::get<bool>(value));
+        else if (std::holds_alternative<int>(value))
+            shader->SetInt(key, std::get<int>(value));
+        else if (std::holds_alternative<float>(value))
+            shader->SetFloat(key, std::get<float>(value));
+        else if (std::holds_alternative<glm::vec2>(value))
+            shader->SetFloat2(key, std::get<glm::vec2>(value));
+        else if (std::holds_alternative<glm::vec3>(value))
+            shader->SetFloat3(key, std::get<glm::vec3>(value));
+        else if (std::holds_alternative<glm::vec4>(value))
+            shader->SetFloat4(key, std::get<glm::vec4>(value));
+        else if (std::holds_alternative<glm::mat4>(value))
+            shader->SetMat4(key, std::get<glm::mat4>(value));
+        else
+            LOG_WARN("Cannot apply uniform to shader - unknown type");
+    }
+}

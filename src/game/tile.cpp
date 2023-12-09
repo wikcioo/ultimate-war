@@ -13,6 +13,8 @@
 #include "game/game_layer.h"
 #include "game/battle.h"
 
+#include <GLFW/glfw3.h>
+
 float Tile::s_BackgroundHeightRatio = 0.8f;
 
 int Tile::s_UnitGroupRows = 3;
@@ -171,16 +173,52 @@ void Tile::CreateBuilding(Building building)
 
 void Tile::Draw()
 {
-    DrawEnvironment();
+    auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+    auto relBtmLeft = glm::vec2(
+        m_Position.x - TILE_WIDTH / 4.0f,
+        m_Position.y - TILE_HEIGHT / 4.0f
+    ) - camera->CalculateRelativeBottomLeftPosition();
+    auto pxBtmLeft = camera->ConvertRelativeSizeToPixel(relBtmLeft);
+    auto pxSize = camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT});
+
+    static auto hueShader = ResourceManager::GetShader("hue");
+    auto hueShaderData = ShaderData();
+    hueShaderData.UniformMap["u_BottomLeftPx"] = pxBtmLeft;
+    hueShaderData.UniformMap["u_SizePx"] = pxSize;
 
     if (m_OwnedBy)
     {
-        // If tile owned by player, draw border around the tile with player's color
-        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(m_OwnedBy->GetColor(), 1.0f), 3.0f);
+        static float t = 1.3f;
+        hueShaderData.UniformMap["u_Color"] = m_OwnedBy->GetColor();
+        hueShaderData.UniformMap["u_Time"] = t;
+
+        if (m_OwnedBy == GameLayer::Get().GetPlayerManager()->GetCurrentPlayer())
+        {
+            int iteration = GameLayer::Get().GetIteration();
+            bool hasNotMovedUnits = false;
+            for (auto ug : m_UnitGroups)
+            {
+                if (ug->GetMovedOnIteration() != iteration)
+                {
+                    hasNotMovedUnits = true;
+                    break;
+                }
+            }
+
+            if (hasNotMovedUnits)
+                hueShaderData.UniformMap["u_Time"] = (float)glfwGetTime();
+        }
+
+        Renderer2D::DrawHexagon(m_Position, glm::vec2(2.0f), hueShader, hueShaderData);
     }
 
+
+    DrawEnvironment();
     DrawUnitGroups();
     DrawBuildings();
+
+    if (m_OwnedBy)
+        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(m_OwnedBy->GetColor(), 1.0f), 3.0f);
 
     if (GameLayer::Get().IsEarnedResourcesInfoVisible() &&
         GameLayer::Get().GetPlayerManager()->GetCurrentPlayer() == m_OwnedBy)
@@ -578,8 +616,21 @@ void Tile::DrawEnvironment()
         {
             case TileEnvironment::OCEAN:
             {
+                auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+                auto relBtmLeft = glm::vec2(
+                    m_Position.x - TILE_WIDTH / 4.0f,
+                    m_Position.y - TILE_HEIGHT / 4.0f
+                ) - camera->CalculateRelativeBottomLeftPosition();
+                auto pxBtmLeft = camera->ConvertRelativeSizeToPixel(relBtmLeft);
+                auto pxSize = camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT});
+
                 static auto waterShader = ResourceManager::GetShader("water");
-                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), waterShader);
+                auto waterShaderData = ShaderData();
+                waterShaderData.UniformMap["u_Time"] = (float)glfwGetTime();
+                waterShaderData.UniformMap["u_BottomLeftPx"] = pxBtmLeft;
+                waterShaderData.UniformMap["u_SizePx"] = pxSize;
+
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), waterShader, waterShaderData);
                 return;
             }
             case TileEnvironment::FOREST:

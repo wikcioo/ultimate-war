@@ -50,8 +50,10 @@ public:
                             std::optional<float> borderThickness = std::nullopt);
     static void DrawHexagon(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color,
                             std::optional<float> borderThickness = std::nullopt);
-    static void DrawHexagon(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader);
-    static void DrawHexagon(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader);
+    static void DrawHexagon(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader,
+                            ShaderData& shaderData);
+    static void DrawHexagon(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader,
+                            ShaderData& shaderData);
 
     static void DrawGeometry(const std::shared_ptr<VertexArray>& vertexArray, const glm::vec3& position, const glm::vec2& size,
                              const glm::vec4& color, std::optional<float> borderThickness = std::nullopt);
