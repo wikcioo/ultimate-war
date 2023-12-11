@@ -6,6 +6,18 @@
 #include "core/input.h"
 #include "graphics/renderer.h"
 
+static std::size_t HashMap(const std::unordered_map<glm::ivec2, Tile*>& m)
+{
+    size_t hash = 0;
+    for (const auto& pair : m)
+    {
+        const glm::ivec2& key = pair.first;
+        hash ^= std::hash<int>{}(key.x) ^ std::hash<int>{}(key.y);
+    }
+
+    return hash;
+}
+
 EditorLayer* EditorLayer::s_Instance = nullptr;
 
 EditorLayer::EditorLayer()
@@ -22,6 +34,7 @@ void EditorLayer::OnAttach()
     Tile* baseTile = new Tile(TileEnvironment::HIGHLIGHT, coords);
     m_PreviousTile = baseTile;
     m_Map.insert({ coords, baseTile });
+    m_SavedMapHash = HashMap(m_Map);
     m_SelectedTileEnvType = TileEnvironment::FOREST;
 
     m_CameraController->GetCamera()->SetPosition({ baseTile->GetPosition(), 0.0f });
@@ -95,6 +108,8 @@ void EditorLayer::SaveMap(const std::string& mapName)
     if (m_Name.empty())
         m_Name = mapName;
 
+    m_SavedMapHash = HashMap(m_Map);
+
     int minX = 0, minY = 0;
     int maxX = 0, maxY = 0;
 
@@ -160,8 +175,39 @@ bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
         case GLFW_KEY_TAB:
         {
             if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
-                Application::Get().OpenMainMenu();
-            break;
+            {
+                size_t currentMapHash = HashMap(m_Map);
+
+                if (m_SavedMapHash != currentMapHash)
+                {
+                    bool hasOneHighlighTile = false;
+                    if (m_Map.size() == 1)
+                    {
+                        for (const auto& pair : m_Map)
+                        {
+                            if (pair.second->GetEnvironment() == TileEnvironment::HIGHLIGHT)
+                                hasOneHighlighTile = true;
+                        }
+                    }
+                    if (hasOneHighlighTile)
+                    {
+                        Application::Get().OpenMainMenu();
+                    }
+                    else
+                    {
+                        UILayer::s_ConfirmPopup->Open(
+                            "You have unsaved changes\nExit without saving?",
+                            [](){ Application::Get().OpenMainMenu(); },
+                            [](){ UILayer::s_ConfirmPopup->Close(); }
+                        );
+                    }
+                }
+                else
+                {
+                    Application::Get().OpenMainMenu();
+                }
+                break;
+            }
         }
         case GLFW_KEY_1:
         {
