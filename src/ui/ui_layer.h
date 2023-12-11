@@ -6,6 +6,7 @@
 #include "layer/layer.h"
 #include "game/map_manager.h"
 #include "event/window_event.h"
+#include "ui/common/confirm_popup.h"
 #include "ui/ui_element.h"
 #include "ui/ui_element_stack.h"
 
@@ -22,6 +23,8 @@ public:
 
     void PushGameLayerElements();
     void PushEditorLayerElements();
+
+    static std::shared_ptr<ConfirmPopup> s_ConfirmPopup;
 
 private:
     bool OnWindowResized(WindowResizedEvent& event);

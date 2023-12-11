@@ -50,6 +50,7 @@ private:
 
     std::shared_ptr<OrthographicCameraController> m_CameraController;
     std::unordered_map<glm::ivec2, Tile*> m_Map;
+    size_t m_SavedMapHash;
     Tile* m_PreviousTile;
     TileEnvironment m_SelectedTileEnvType;
     std::string m_Name;

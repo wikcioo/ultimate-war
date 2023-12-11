@@ -12,11 +12,15 @@
 #include "ui/editor/editor_save_popup.h"
 #include "widgets/notification.h"
 
+std::shared_ptr<ConfirmPopup> UILayer::s_ConfirmPopup = nullptr;
+
 UILayer::UILayer()
     : Layer("UILayer")
 {
     auto window = Application::Get().GetWindow();
     m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
+
+    UILayer::s_ConfirmPopup = std::make_shared<ConfirmPopup>(m_UICamera);
 
     Notification::Configure(m_UICamera);
 }
@@ -76,6 +80,7 @@ void UILayer::PushEditorLayerElements()
 {
     m_UIElementStack.PushElement(std::make_shared<EditorInfo>(m_UICamera));
     m_UIElementStack.PushElement(std::make_shared<EditorSavePopup>(m_UICamera));
+    m_UIElementStack.PushElement(UILayer::s_ConfirmPopup);
 }
 
 bool UILayer::OnWindowResized(WindowResizedEvent& event)
