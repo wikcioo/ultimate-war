@@ -309,12 +309,12 @@ void Tile::DrawUnitGroups()
             for (auto unitStats : unitStatsVector)
             {
                 selectedStats[0] += unitStats->Attack;
-                selectedStats[1] += unitStats->Health;
-                selectedStats[2] += unitStats->Defense;
+                selectedStats[1] += unitStats->Defense;
+                selectedStats[2] += unitStats->Health;
 
                 totalStats[0] += unitStats->Attack;
-                totalStats[1] += unitStats->Health;
-                totalStats[2] += unitStats->Defense;
+                totalStats[1] += unitStats->Defense;
+                totalStats[2] += unitStats->Health;
             }
         }
         else
@@ -322,8 +322,8 @@ void Tile::DrawUnitGroups()
             for (auto unitStats : unitStatsVector)
             {
                 totalStats[0] += unitStats->Attack;
-                totalStats[1] += unitStats->Health;
-                totalStats[2] += unitStats->Defense;
+                totalStats[1] += unitStats->Defense;
+                totalStats[2] += unitStats->Health;
             }
         }
 
