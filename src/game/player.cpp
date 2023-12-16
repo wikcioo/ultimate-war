@@ -3,7 +3,7 @@
 #include <algorithm>
 
 Player::Player(PlayerDTO playerData)
-    :  m_Name(playerData.Name), m_Color(playerData.Color), m_Resources(playerData.ResourceData)
+    :  m_Name(playerData.Name), m_Color(playerData.Color), m_Resources(playerData.ResourceData), m_IsAI(playerData.IsAI)
 {
 }
 

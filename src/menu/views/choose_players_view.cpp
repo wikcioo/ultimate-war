@@ -22,9 +22,13 @@ ChoosePlayersView::ChoosePlayersView()
 
     m_NextPlayerInfo.Color = Util::GetRandomColor();
 
-    ButtonConfig addPlayerButtonConfig = { "Add", glm::vec2(0.0f), glm::vec2(0.15f, 0.06f) };
+    ButtonConfig addPlayerButtonConfig = { "Add Player", glm::vec2(0.0f), glm::vec2(0.25f, 0.06f) };
     m_AddPlayerButton = std::make_unique<Button>(m_Camera, addPlayerButtonConfig);
     m_AddPlayerButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(ChoosePlayersView::OnAddPlayerButtonPressed));
+
+    ButtonConfig addComputerPlayerButtonConfig = { "Add AI", glm::vec2(0.0f), glm::vec2(0.25f, 0.06f) };
+    m_AddComputerPlayerButton = std::make_unique<Button>(m_Camera, addComputerPlayerButtonConfig);
+    m_AddComputerPlayerButton->SetPressedCallback(BIND_BTN_CALLBACK_FN(ChoosePlayersView::OnAddComputerPlayerButtonPressed));
 
     ButtonConfig startGameButtonConfig = { "Start", CalculateStartGameButtonPosition(), m_StartGameButtonSize };
     m_StartGameButton = std::make_unique<Button>(m_Camera, startGameButtonConfig);
@@ -93,6 +97,7 @@ void ChoosePlayersView::OnEvent(Event& event)
     if (m_SelectedTile.Selected)
     {
         m_AddPlayerButton->OnEvent(event);
+        m_AddComputerPlayerButton->OnEvent(event);
         m_UsernameInputBox->OnEvent(event);
     }
 
@@ -170,15 +175,34 @@ void ChoosePlayersView::OnStartGameButtonPressed(ButtonCallbackData data)
         );
         return;
     }
+    else
+    {
+        bool normalPlayerExists = false;
+        for (const auto& player : m_PlayersData)
+        {
+            if (!player.second.Player.IsAI)
+            {
+                normalPlayerExists = true;
+                break;
+            }
+        }
+
+        if (!normalPlayerExists)
+        {
+            LOG_WARN("ChoosePlayersView: At least 1 human player required");
+            Notification::Create(
+                "At least 1 human player required",
+                NotificationLevel::WARNING
+            );
+            return;
+        }
+    }
 
     std::string mapName = MainMenuLayer::Get().GetSelectedMap();
     std::vector<PlayerDTO> players;
     for (auto it = m_PlayersData.begin(); it != m_PlayersData.end(); it++)
     {
-        std::string name = it->second.Player.Name;
-        glm::vec3 color = it->second.Player.Color;
-        std::vector<glm::vec2> tileCoords = it->second.Player.TileCoords;
-        players.emplace_back(PlayerDTO(name, color, tileCoords));
+        players.emplace_back(it->second.Player);
     }
 
     Application::Get().StartNewGame({ mapName, players });
@@ -189,12 +213,17 @@ void ChoosePlayersView::OnAddPlayerButtonPressed(ButtonCallbackData data)
     AddPlayer();
 }
 
+void ChoosePlayersView::OnAddComputerPlayerButtonPressed(ButtonCallbackData data)
+{
+    AddPlayer(true);
+}
+
 void ChoosePlayersView::OnUsernameInputBoxAccepted(InputBoxCallbackData data)
 {
     AddPlayer();
 }
 
-void ChoosePlayersView::AddPlayer()
+void ChoosePlayersView::AddPlayer(bool computerPlayer)
 {
     if (m_UsernameInputBox->GetText().empty())
     {
@@ -215,7 +244,7 @@ void ChoosePlayersView::AddPlayer()
         m_PlayersData.insert(std::make_pair(
             m_SelectedTile.TileRef->GetPosition(),
             PlayerData(
-                PlayerDTO(m_UsernameInputBox->GetText(), m_NextPlayerInfo.Color, { m_SelectedTile.TileRef->GetCoords() }),
+                PlayerDTO(m_UsernameInputBox->GetText(), m_NextPlayerInfo.Color, { m_SelectedTile.TileRef->GetCoords() }, {0}, computerPlayer),
                 m_SelectedTile.TileRef->GetEnvironmentName(m_SelectedTile.TileRef->GetEnvironment())
             )
         ));
@@ -365,9 +394,15 @@ void ChoosePlayersView::DrawAddPlayerInfo()
     // TODO: Optimize to only update position if window resized
     m_AddPlayerButton->SetPosition(glm::vec2(
         tileInfoPosition.x + tileInfoSize.x / 2.0f + m_AddPlayerButton->GetSize().x / 2.0f + margin,
-        tileInfoPosition.y
+        tileInfoPosition.y + 0.05f
     ));
     m_AddPlayerButton->OnUpdate();
+
+    m_AddComputerPlayerButton->SetPosition(glm::vec2(
+        tileInfoPosition.x + tileInfoSize.x / 2.0f + m_AddComputerPlayerButton->GetSize().x / 2.0f + margin,
+        tileInfoPosition.y - 0.05f
+    ));
+    m_AddComputerPlayerButton->OnUpdate();
 }
 
 void ChoosePlayersView::DrawPlayerListInfo()

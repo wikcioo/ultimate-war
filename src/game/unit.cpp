@@ -19,6 +19,20 @@ UnitStats UnitStats::operator+(int scalar)
     };
 }
 
+UnitStats UnitStats::operator+(UnitStats stats)
+{
+    return {
+        this->Attack  + stats.Attack,
+        this->Defense + stats.Defense,
+        this->Health  + stats.Health
+    };
+}
+
+bool UnitStats::operator>(UnitStats stats)
+{
+    return this->Attack + this->Defense + this->Health > stats.Attack + stats.Defense + stats.Health;
+}
+
 UnitGroup::UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats, int movedOnIteration)
     : m_Type(type), m_IsSelected(false), m_MovedOnIteration(movedOnIteration)
 {
