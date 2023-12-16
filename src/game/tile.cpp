@@ -518,6 +518,14 @@ void Tile::CheckBuildingHover(const glm::vec2& relMousePos)
         GameLayer::Get().SetBuildingUpgradeInfo({ false });
 }
 
+void Tile::SelectAllUnitGroups()
+{
+    for (auto unitGroup : m_UnitGroups)
+    {
+        unitGroup->SetSelected(true);
+    }
+}
+
 void Tile::DrawBuildings()
 {
     if (m_Buildings.empty()) return;
@@ -687,6 +695,16 @@ int Tile::GetNumSelectedUnitGroups()
             return sum + 1;
         return sum;
     });
+}
+
+UnitStats Tile::GetTotalUnitStats() const
+{
+    UnitStats stats{};
+
+    for (auto unitGroup : m_UnitGroups)
+        stats = stats + *unitGroup->GetUnitStats()[0];
+
+    return stats;
 }
 
 void Tile::SetOwnership(const std::shared_ptr<Player>& player)

@@ -60,6 +60,7 @@ public:
     bool AssetsCanExist() { return m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN; }
     void CheckUnitGroupHover(const glm::vec2& relMousePos);
     void CheckBuildingHover(const glm::vec2& relMousePos);
+    void SelectAllUnitGroups();
 
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
     inline const void SetEnvironment(TileEnvironment environment) { m_Environment = environment; }
@@ -71,6 +72,7 @@ public:
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
     const Resources GetResources() const;
     int GetNumSelectedUnitGroups();
+    UnitStats GetTotalUnitStats() const;
 
     void SetOwnership(const std::shared_ptr<Player>& player);
     void ChangeOwnership(const std::shared_ptr<Player>& player);
