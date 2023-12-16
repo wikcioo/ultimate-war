@@ -387,40 +387,47 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
 {
     if (!m_CursorAttachedAsset.Texture.get() || !GameLayer::Get().IsGameActive()) return false;
 
-    auto relMousePos = GameLayer::Get().GetCameraController()->GetCamera()->CalculateRelativeMousePosition();
-    auto currentPlayer = GameLayer::Get().GetPlayerManager()->GetCurrentPlayer();
-    auto gameMap = GameLayer::Get().GetGameMapManager()->GetGameMap();
-
-    for (int y = 0; y < gameMap->GetTileCountY(); y++)
+    switch (event.GetMouseButton())
     {
-        for (int x = 0; x < gameMap->GetTileCountX(); x++)
+        case GLFW_MOUSE_BUTTON_LEFT:
         {
-            auto tile = gameMap->GetTile(x, y);
-            if (tile->InRange(relMousePos))
+            auto relMousePos = GameLayer::Get().GetCameraController()->GetCamera()->CalculateRelativeMousePosition();
+            auto currentPlayer = GameLayer::Get().GetPlayerManager()->GetCurrentPlayer();
+            auto gameMap = GameLayer::Get().GetGameMapManager()->GetGameMap();
+
+            for (int y = 0; y < gameMap->GetTileCountY(); y++)
             {
-                if (tile->GetOwnedBy() == currentPlayer)
+                for (int x = 0; x < gameMap->GetTileCountX(); x++)
                 {
-                    if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE &&
-                        tile->CanRecruitUnitGroup(m_CursorAttachedAsset.UnitGroupType) &&
-                        tile->HasSpaceForUnitGroups(1) &&
-                        currentPlayer->SubtractResources(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].Cost))
+                    auto tile = gameMap->GetTile(x, y);
+                    if (tile->InRange(relMousePos))
                     {
-                        tile->CreateUnitGroup(m_CursorAttachedAsset.UnitGroupType);
-                        return true;
-                    }
-                    else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE &&
-                             tile->HasSpaceForBuildings(1) &&
-                             currentPlayer->SubtractResources(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
-                    {
-                        tile->CreateBuilding(m_CursorAttachedAsset.BuildingType);
-                        return true;
+                        if (tile->GetOwnedBy() == currentPlayer)
+                        {
+                            if (m_CursorAttachedAsset.UnitGroupType != UnitGroupType::NONE &&
+                                tile->CanRecruitUnitGroup(m_CursorAttachedAsset.UnitGroupType) &&
+                                tile->HasSpaceForUnitGroups(1) &&
+                                currentPlayer->SubtractResources(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].Cost))
+                            {
+                                tile->CreateUnitGroup(m_CursorAttachedAsset.UnitGroupType);
+                                return true;
+                            }
+                            else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE &&
+                                    tile->HasSpaceForBuildings(1) &&
+                                    currentPlayer->SubtractResources(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
+                            {
+                                tile->CreateBuilding(m_CursorAttachedAsset.BuildingType);
+                                return true;
+                            }
+                        }
                     }
                 }
             }
+            return false;
         }
+        default:
+            return false;
     }
-
-    return false;
 }
 
 void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType> type)
