@@ -3,11 +3,11 @@
 #include "core/logger.h"
 
 std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap = {
-    { UnitGroupType::SWORDSMAN, { { 3, 2, 1, 3 }, { 3,  4,  6 }, "swordsman", BuildingType::NONE         } },
+    { UnitGroupType::SWORDSMAN, { { 2, 2, 2, 3 }, { 3,  4,  6 }, "swordsman", BuildingType::NONE         } },
     { UnitGroupType::ARCHER,    { { 4, 3, 2, 4 }, { 5,  2,  4 },    "archer", BuildingType::TARGET       } },
-    { UnitGroupType::DWARF,     { { 2, 4, 6, 3 }, { 4,  6,  8 },     "dwarf", BuildingType::BLACKSMITH   } },
-    { UnitGroupType::DEMON,     { { 0, 0, 3, 8 }, { 8,  3,  7 },     "demon", BuildingType::DEMON_CASTLE } },
-    { UnitGroupType::HARPY,     { { 3, 3, 3, 5 }, { 6,  1,  5 },     "harpy", BuildingType::HARPY_TOWER  } }
+    { UnitGroupType::DWARF,     { { 2, 4, 6, 3 }, { 3,  5,  6 },     "dwarf", BuildingType::BLACKSMITH   } },
+    { UnitGroupType::DEMON,     { { 5, 4, 3, 6 }, { 8,  3,  7 },     "demon", BuildingType::DEMON_CASTLE } },
+    { UnitGroupType::HARPY,     { { 3, 3, 3, 5 }, { 6,  3,  5 },     "harpy", BuildingType::HARPY_TOWER  } }
 };
 
 UnitStats UnitStats::operator+(int scalar)

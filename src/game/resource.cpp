@@ -5,13 +5,13 @@
 #include "graphics/renderer.h"
 #include "util/util.h"
 
-Resources Resources::operator*(int scalar)
+Resources Resources::operator*(double scalar)
 {
     return {
-        this->Wood  * scalar,
-        this->Rock  * scalar,
-        this->Steel * scalar,
-        this->Gold  * scalar
+        (int)((double) this->Wood  * scalar),
+        (int)((double) this->Rock  * scalar),
+        (int)((double) this->Steel * scalar),
+        (int)((double) this->Gold  * scalar)
     };
 }
 
