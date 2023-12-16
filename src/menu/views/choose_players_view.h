@@ -59,9 +59,10 @@ private:
 
     void OnStartGameButtonPressed(ButtonCallbackData data);
     void OnAddPlayerButtonPressed(ButtonCallbackData data);
+    void OnAddComputerPlayerButtonPressed(ButtonCallbackData data);
     void OnUsernameInputBoxAccepted(InputBoxCallbackData data);
 
-    void AddPlayer();
+    void AddPlayer(bool computerPlayer = false);
 
     void DrawInfoColumn();
     void DrawAddPlayerInfo();
@@ -100,6 +101,7 @@ private:
 
     std::unique_ptr<InputBox> m_UsernameInputBox;
     std::unique_ptr<Button> m_AddPlayerButton;
+    std::unique_ptr<Button> m_AddComputerPlayerButton;
     std::unique_ptr<Button> m_StartGameButton;
     glm::vec2 m_StartGameButtonSize;
 

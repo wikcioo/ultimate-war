@@ -150,10 +150,11 @@ bool MainView::OnKeyPressed(KeyPressedEvent& event)
                 if (tile->AssetsCanExist())
                 {
                     tileCoords.emplace_back(tile->GetCoords());
-                    if (tileCoords.size() == 2)
+                    if (tileCoords.size() == 3)
                     {
                         players.emplace_back(PlayerDTO("Foo", glm::vec3(1.0f, 0.0f, 0.0f), { tileCoords[0] }));
                         players.emplace_back(PlayerDTO("Bar", glm::vec3(0.0f, 0.0f, 1.0f), { tileCoords[1] }));
+                        players.emplace_back(PlayerDTO("Stockfish", glm::vec3(0.0f, 1.0f, 0.0f), { tileCoords[2] }, {0}, true));
                         Application::Get().StartNewGame({ mapName, players });
                         return true;
                     }
