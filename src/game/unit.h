@@ -26,6 +26,8 @@ struct UnitStats
     int Health;
 
     UnitStats operator+(int scalar);
+    UnitStats operator+(UnitStats stats);
+    bool operator>(UnitStats stats);
 };
 
 struct UnitGroupData
