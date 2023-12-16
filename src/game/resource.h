@@ -22,7 +22,7 @@ struct Resources
 
     static void Draw2x2(const Resources& res, const glm::vec2& position);
 
-    Resources operator*(int scalar);
+    Resources operator*(double scalar);
     Resources& operator+=(const Resources& other);
     Resources& operator-=(const Resources& other);
     bool operator>=(const Resources& other);
