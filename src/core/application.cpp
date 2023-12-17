@@ -241,6 +241,7 @@ void Application::ProcessLayerStackReload()
             m_GameLayer->SetIsActive(true);
             m_UILayer->PushGameLayerElements();
             m_UILayer->SetIsActive(true);
+            m_UILayer->OnAttach();
 #if defined(DEBUG)
             m_DebugLayer->SetIsActive(true);
 #endif

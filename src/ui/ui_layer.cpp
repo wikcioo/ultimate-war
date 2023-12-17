@@ -21,12 +21,11 @@ UILayer::UILayer()
     m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
 
     UILayer::s_ConfirmPopup = std::make_shared<ConfirmPopup>(m_UICamera);
-
-    Notification::Configure(m_UICamera);
 }
 
 void UILayer::OnAttach()
 {
+    ConfigureNotification();
 }
 
 void UILayer::OnDetach()
@@ -88,4 +87,11 @@ bool UILayer::OnWindowResized(WindowResizedEvent& event)
     m_UICamera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
     m_UICamera->SetScale(event.GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS);
     return false;
+}
+
+void UILayer::ConfigureNotification()
+{
+    NotificationConfig config;
+    config.WindowOffset = { 0.05f, 0.1f };
+    Notification::Configure(m_UICamera, config);
 }
