@@ -28,6 +28,7 @@ public:
 
 private:
     bool OnWindowResized(WindowResizedEvent& event);
+    void ConfigureNotification();
 
 private:
     std::shared_ptr<OrthographicCamera> m_UICamera;

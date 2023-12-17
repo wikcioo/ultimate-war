@@ -24,6 +24,7 @@ private:
         std::string Name;
         glm::vec3 Color;
         Resources ResourceData;
+        bool IsAI;
     };
 
     struct _UnitGroupData

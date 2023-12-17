@@ -42,11 +42,13 @@ void SaveLoader::Save(const std::string& saveName, const std::shared_ptr<GameLay
         auto name = player->GetName();
         auto color = player->GetColor();
         auto res = player->GetResources();
+        auto isAI = player->IsAIPlayer();
 
         std::ostringstream oss;
         oss << "\"" << name << "\" ";
         oss << "(" << color.r << "," << color.g << "," << color.b << ") ";
-        oss << "(" << res.Wood << "," << res.Rock << "," << res.Steel << "," << res.Gold << ")";
+        oss << "(" << res.Wood << "," << res.Rock << "," << res.Steel << "," << res.Gold << ") ";
+        oss << isAI;
 
         players.emplace_back(oss.str());
     }
@@ -192,9 +194,9 @@ std::shared_ptr<GameLayer> SaveLoader::Load(const std::string& saveName)
             throw SaveLoaderException("SaveLoader: Could not find player name in quotes");
         }
 
-        // tokenize the rest of player data e.g. (1.0,0.0,0.0) (1,1,1,1)
+        // tokenize the rest of player data e.g. (1.0,0.0,0.0) (1,1,1,1) 0
         auto playerTokens = Tokenize(line.substr(end + 2), ' ');
-        if (playerTokens.size() < 2)
+        if (playerTokens.size() < 3)
         {
             throw SaveLoaderException(
                 "SaveLoader: Incorrent number of player tokens: '" + std::to_string(playerTokens.size()) + "'"
@@ -229,6 +231,9 @@ std::shared_ptr<GameLayer> SaveLoader::Load(const std::string& saveName)
         playerData.ResourceData.Rock  = std::stoi(resourceTokens[1]);
         playerData.ResourceData.Steel = std::stoi(resourceTokens[2]);
         playerData.ResourceData.Gold  = std::stoi(resourceTokens[3]);
+
+        Util::RemoveCRLF(playerTokens[2]);
+        playerData.IsAI = playerTokens[2] == "1";
 
         data.PlayersData.push_back(playerData);
     }
@@ -363,7 +368,8 @@ std::shared_ptr<GameLayer> SaveLoader::ConstructGameLayer(const _SaveData& data)
                 playerData.Name,
                 playerData.Color,
                 ownedTileCoords,
-                playerData.ResourceData
+                playerData.ResourceData,
+                playerData.IsAI
             )
         );
     }

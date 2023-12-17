@@ -44,6 +44,7 @@ private:
     void InitViews();
     void OnWindowSizeChanged();
     void RecalculateCamera();
+    void ConfigureNotification();
 
 private:
     static MainMenuLayer* s_Instance;

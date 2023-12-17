@@ -22,8 +22,6 @@ MainMenuLayer::MainMenuLayer()
     m_RelWindowSize = m_MainMenuCamera->CalculateRelativeWindowSize();
 
     InitViews();
-
-    Notification::Configure(m_MainMenuCamera);
 }
 
 MainMenuLayer::~MainMenuLayer()
@@ -34,6 +32,7 @@ MainMenuLayer::~MainMenuLayer()
 
 void MainMenuLayer::OnAttach()
 {
+    ConfigureNotification();
     RecalculateCamera();
     SetView(ViewName::MAIN);
 }
@@ -97,4 +96,11 @@ void MainMenuLayer::RecalculateCamera()
     m_MainMenuCamera->SetWindowAspectRatio();
     m_MainMenuCamera->SetScale(window->GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS);
     m_RelWindowSize = m_MainMenuCamera->CalculateRelativeWindowSize();
+}
+
+void MainMenuLayer::ConfigureNotification()
+{
+    NotificationConfig config;
+    config.WindowOffset = { 0.05f, 0.05f };
+    Notification::Configure(m_MainMenuCamera, config);
 }
