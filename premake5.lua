@@ -16,6 +16,9 @@ workspace "UltimateWar"
         }
         optimize "On"
 
+    filter "system:windows"
+        flags { "MultiProcessorCompile" }
+
 project "UltimateWar"
     kind "ConsoleApp"
     language "C++"
