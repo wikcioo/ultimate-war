@@ -4,6 +4,7 @@
 #include "graphics/renderer.h"
 #include "loader/save_loader.h"
 #include "loader/save_loader_exception.h"
+#include "widgets/notification.h"
 
 Application* Application::s_Instance = nullptr;
 
@@ -258,8 +259,10 @@ void Application::ProcessLayerStackReload()
             }
             catch (SaveLoaderException e)
             {
-                // TODO: Add UI notification
                 LOG_ERROR("Corrupted .war file: {0}", e.what());
+                std::ostringstream oss;
+                oss << "\"" << m_SaveName << "\"" << " file is corrupted";
+                Notification::Create(oss.str(), NotificationLevel::ERR);
                 break;
             }
 
