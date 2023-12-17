@@ -522,7 +522,8 @@ void Tile::SelectAllUnitGroups()
 {
     for (auto unitGroup : m_UnitGroups)
     {
-        unitGroup->SetSelected(true);
+        if (!unitGroup->UnitWasMovedInIteration(GameLayer::Get().GetIteration()))
+            unitGroup->SetSelected(true);
     }
 }
 
