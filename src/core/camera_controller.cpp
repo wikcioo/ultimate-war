@@ -19,32 +19,35 @@ void OrthographicCameraController::OnUpdate(float dt)
 
     glm::vec2 movementVector = { 0.0f, 0.0f };
     float compensatedMovementSpeed = m_CameraMovementSpeed * dt;
-    if (m_Keys[GLFW_KEY_W])
+    if (!Input::IsKeyPressed(GLFW_KEY_LEFT_CONTROL))
     {
-        movementVector.x -= compensatedMovementSpeed * sin(r);
-        movementVector.y += compensatedMovementSpeed * cos(r);
-    }
-    if (m_Keys[GLFW_KEY_S])
-    {
-        movementVector.x += compensatedMovementSpeed * sin(r);
-        movementVector.y -= compensatedMovementSpeed * cos(r);
-    }
+        if (m_Keys[GLFW_KEY_W])
+        {
+            movementVector.x -= compensatedMovementSpeed * sin(r);
+            movementVector.y += compensatedMovementSpeed * cos(r);
+        }
+        if (m_Keys[GLFW_KEY_S])
+        {
+            movementVector.x += compensatedMovementSpeed * sin(r);
+            movementVector.y -= compensatedMovementSpeed * cos(r);
+        }
 
-    if (m_Keys[GLFW_KEY_A])
-    {
-        movementVector.x -= compensatedMovementSpeed * cos(r);
-        movementVector.y -= compensatedMovementSpeed * sin(r);
-    }
-    if (m_Keys[GLFW_KEY_D])
-    {
-        movementVector.x += compensatedMovementSpeed * cos(r);
-        movementVector.y += compensatedMovementSpeed * sin(r);
-    }
+        if (m_Keys[GLFW_KEY_A])
+        {
+            movementVector.x -= compensatedMovementSpeed * cos(r);
+            movementVector.y -= compensatedMovementSpeed * sin(r);
+        }
+        if (m_Keys[GLFW_KEY_D])
+        {
+            movementVector.x += compensatedMovementSpeed * cos(r);
+            movementVector.y += compensatedMovementSpeed * sin(r);
+        }
 
-    if (movementVector.x != 0.0f || movementVector.y != 0.0f)
-    {
-        cameraPosition += glm::vec3(glm::normalize(movementVector) * compensatedMovementSpeed, 0.0f);
-        m_Camera->SetPosition(cameraPosition);
+        if (movementVector.x != 0.0f || movementVector.y != 0.0f)
+        {
+            cameraPosition += glm::vec3(glm::normalize(movementVector) * compensatedMovementSpeed, 0.0f);
+            m_Camera->SetPosition(cameraPosition);
+        }
     }
 
     if (m_Rotate)

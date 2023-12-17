@@ -148,6 +148,12 @@ bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
         return true;
     }
 
+    if (event.GetKeyCode() == GLFW_KEY_A && Input::IsKeyPressed(GLFW_KEY_LEFT_CONTROL))
+    {
+        SelectAllIfInRange();
+        return true;
+    }
+
     if (m_GameActive && event.GetKeyCode() == GLFW_KEY_ENTER && event.GetRepeatCount() != 1)
     {
         m_PlayerManager->NextTurn();
@@ -161,6 +167,34 @@ bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
     }
 
     return false;
+}
+
+void GameLayer::SelectAllIfInRange()
+{
+    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
+
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    {
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        {
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+
+            if (!tile->InRange(relMousePos))
+                continue;
+
+            if (tile->GetOwnedBy() != m_PlayerManager->GetCurrentPlayer())
+                continue;
+
+            if (m_Arrow->GetStartTile())
+                m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+
+            tile->SelectAllUnitGroups();
+            m_Arrow->SetStartTile(tile);
+            m_Arrow->SetActivated(tile && tile->HasSelectedUnitGroups());
+
+            return;
+        }
+    }
 }
 
 bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
