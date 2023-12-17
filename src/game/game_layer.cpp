@@ -21,7 +21,11 @@ GameLayer::GameLayer()
     s_Instance = this;
 
     auto window = Application::Get().GetWindow();
-    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
+    bool enableCameraRotation = false;
+#if defined(DEBUG)
+    enableCameraRotation = true;
+#endif
+    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), enableCameraRotation);
     m_GameMapManager = std::make_shared<GameMapManager>("");
     m_PlayerManager = std::make_shared<PlayerManager>();
     m_Arrow = std::make_shared<Arrow>();
