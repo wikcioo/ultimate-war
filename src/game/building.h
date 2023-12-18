@@ -7,9 +7,9 @@
 
 enum class BuildingType
 {
+    GOLD_MINE,
     TARGET,
     BLACKSMITH,
-    GOLD_MINE,
     HARPY_TOWER,
     DEMON_CASTLE,
     COUNT,
