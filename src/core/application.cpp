@@ -174,6 +174,7 @@ void Application::InitializeColors()
 {
     ColorData::Get().TileColors.MiniMapColor = { 0.2f, 0.2f, 0.2f, 1.0f };
     ColorData::Get().TileColors.TileHoverBorderColor = { 0.95f, 0.8f, 0.2f, 1.0f };
+    ColorData::Get().TileColors.AssetBackgroundColor = { 0.0f, 0.0f, 0.0f, 0.2f };
     ColorData::Get().TileColors.OceanColor = { 0.2f, 0.5f, 0.8f };
     ColorData::Get().TileColors.ForestColor = { 0.133f, 0.545f, 0.133f };
     ColorData::Get().TileColors.DesertColor = { 0.898f, 0.788f, 0.643f };

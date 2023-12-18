@@ -292,7 +292,11 @@ void Tile::DrawUnitGroups()
     int totalStats[s_StatCount] = { 0, 0, 0 };
     int selectedStats[s_StatCount] = { 0, 0, 0 };
 
-    Renderer2D::DrawQuad(unitData.BackgroundPosition, unitData.BackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
+    Renderer2D::DrawQuad(
+        unitData.BackgroundPosition,
+        unitData.BackgroundSize,
+        ColorData::Get().TileColors.AssetBackgroundColor
+    );
 
     for (int i = 0; i < m_UnitGroups.size(); i++)
     {
@@ -535,7 +539,11 @@ void Tile::DrawBuildings()
     float initialX = buildingData.Position.x;
     auto camera = GameLayer::Get().GetCameraController()->GetCamera();
 
-    Renderer2D::DrawQuad(buildingData.BackgroundPosition, buildingData.BackgroundSize, {0.4f, 0.4f, 0.4f, 1.0f});
+    Renderer2D::DrawQuad(
+        buildingData.BackgroundPosition,
+        buildingData.BackgroundSize,
+        ColorData::Get().TileColors.AssetBackgroundColor
+    );
 
     for (int i = 0; i < m_Buildings.size(); i++)
     {
