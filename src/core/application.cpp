@@ -159,6 +159,12 @@ void Application::LoadResources()
     ResourceManager::LoadTexture("chest_open", "assets/textures/icons/chest_open.png");
     ResourceManager::LoadTexture("chest_closed", "assets/textures/icons/chest_closed.png");
 
+    ResourceManager::LoadTexture("healing", "assets/textures/potions/healing.png");
+    ResourceManager::LoadTexture("immunity", "assets/textures/potions/immunity.png");
+    ResourceManager::LoadTexture("reduce_damage", "assets/textures/potions/reduce_damage.png");
+    ResourceManager::LoadTexture("deal_damage", "assets/textures/potions/deal_damage.png");
+    ResourceManager::LoadTexture("increase_yield", "assets/textures/potions/increase_yield.png");
+
     ResourceManager::LoadTexture("target", "assets/textures/buildings/target.png");
     ResourceManager::LoadTexture("blacksmith", "assets/textures/buildings/blacksmith.png");
     ResourceManager::LoadTexture("gold_mine", "assets/textures/buildings/gold_mine.png");
