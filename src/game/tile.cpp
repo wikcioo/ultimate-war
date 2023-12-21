@@ -213,7 +213,6 @@ void Tile::Draw()
         Renderer2D::DrawHexagon(m_Position, glm::vec2(2.0f), hueShader, hueShaderData);
     }
 
-
     DrawEnvironment(camera);
     DrawUnitGroups();
     DrawBuildings();
@@ -582,6 +581,11 @@ void Tile::DrawBuildings()
             buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
         }
     }
+}
+
+void Tile::TickPotion()
+{
+    m_Potion->Tick();
 }
 
 void Tile::DrawPotionEffect()

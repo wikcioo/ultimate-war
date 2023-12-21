@@ -57,7 +57,7 @@ public:
 
     void InitGame(NewGameDTO newGameData);
     void SetIterationNumber(int iterationNumber) { m_IterationNumber = iterationNumber; }
-    void NextIteration() { m_IterationNumber++; }
+    void NextIteration();
     void ResetArrow();
     void EndGame();
 

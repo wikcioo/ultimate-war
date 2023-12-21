@@ -62,7 +62,7 @@ public:
     void CheckUnitGroupHover(const glm::vec2& relMousePos);
     void CheckBuildingHover(const glm::vec2& relMousePos);
     void SelectAllUnitGroups();
-
+    void TickPotion();
     std::shared_ptr<Potion> GetPotion() { return m_Potion; }
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
     inline const void SetEnvironment(TileEnvironment environment) { m_Environment = environment; }

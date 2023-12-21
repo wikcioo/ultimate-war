@@ -258,6 +258,20 @@ void GameLayer::InitGame(NewGameDTO newGameData)
     }
 }
 
+void GameLayer::NextIteration()
+{
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    {
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        {
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            tile->TickPotion();
+        }
+    }
+
+    m_IterationNumber++;
+}
+
 void GameLayer::ResetArrow()
 {
     for (auto tile : m_PlayerManager->GetCurrentPlayer()->GetOwnedTiles())
