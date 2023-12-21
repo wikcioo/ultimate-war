@@ -46,6 +46,7 @@ Tile::Tile(TileEnvironment environment, const glm::ivec2& coords)
     : m_Environment(environment), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
 {
     m_Resources = EnvironmentResourcesMap[m_Environment];
+    m_Potion = std::make_shared<Potion>();
     InitStaticRuntimeData();
 }
 
@@ -219,6 +220,11 @@ void Tile::Draw()
 
     if (m_OwnedBy)
         Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(m_OwnedBy->GetColor(), 1.0f), 3.0f);
+
+    if (m_Potion->IsApplied())
+    {
+        DrawPotionEffect();
+    }
 
     if (GameLayer::Get().IsEarnedResourcesInfoVisible() &&
         GameLayer::Get().GetPlayerManager()->GetCurrentPlayer() == m_OwnedBy)
@@ -576,6 +582,74 @@ void Tile::DrawBuildings()
             buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
         }
     }
+}
+
+void Tile::DrawPotionEffect()
+{
+    auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+    auto relBtmLeft = glm::vec2(
+        m_Position.x - TILE_WIDTH / 4.0f,
+        m_Position.y - TILE_HEIGHT / 4.0f
+    ) - camera->CalculateRelativeBottomLeftPosition();
+    auto pxBtmLeft = camera->ConvertRelativeSizeToPixel(relBtmLeft);
+    auto pxSize = camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT});
+
+    static auto potionShader = ResourceManager::GetShader("potion");
+    ShaderData potionShaderData{};
+    potionShaderData.UniformMap["u_Time"] = (float)glfwGetTime();
+    potionShaderData.UniformMap["u_BottomLeftPx"] = pxBtmLeft;
+    potionShaderData.UniformMap["u_SizePx"] = pxSize;
+
+    glm::vec3 effectColor = glm::vec3(1.0f);
+    switch (m_Potion->GetType())
+    {
+        case PotionType::HEALING:
+        {
+            effectColor = glm::vec3(0.95f, 0.3f, 0.2f);
+            break;
+        }
+        case PotionType::IMMUNITY:
+        {
+            effectColor = glm::vec3(0.25f, 0.6f, 0.95f);
+            break;
+        }
+        case PotionType::REDUCE_DAMAGE:
+        {
+            effectColor = glm::vec3(0.25f, 0.9f, 0.2f);
+            break;
+        }
+        case PotionType::INCREASE_YIELD:
+        {
+            effectColor = glm::vec3(0.9f, 0.9f, 0.2f);
+            break;
+        }
+        case PotionType::DEAL_DAMAGE:
+        {
+            effectColor = glm::vec3(0.1f, 0.1f, 0.1f);
+            break;
+        }
+        default:
+        {
+            LOG_WARN("Tile: Unknow potion type");
+            return;
+        }
+    }
+
+    potionShaderData.UniformMap["u_Color"] = effectColor;
+    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), potionShader, potionShaderData);
+
+    Renderer2D::DrawTextStr(
+        Util::ReplaceChar(PotionDataMap[m_Potion->GetType()].TextureName, '_', ' '),
+        {
+            m_Position.x,
+            m_Position.y + TILE_HEIGHT / 2.0f - 0.07f
+        },
+        0.4f / camera->GetZoom(),
+        glm::vec3(0.9f),
+        HTextAlign::MIDDLE,
+        VTextAlign::TOP,
+        "rexlia"
+    );
 }
 
 void Tile::DrawEarnedResourcesInfoOverlay()
