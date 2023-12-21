@@ -6,6 +6,7 @@
 #include "game/color_data.h"
 #include "core/resource_manager.h"
 #include "game/game_layer.h"
+#include "widgets/notification.h"
 
 #include <GLFW/glfw3.h>
 
@@ -22,7 +23,7 @@ ShopPanel::ShopPanel(const std::shared_ptr<OrthographicCamera>& UICamera, const 
         GetShopPanelSize(assetSize, assetOffset)
       ),
       m_AssetSize(assetSize), m_AssetOffset(assetOffset), m_Offset(offset),
-      m_UnitGroupCount((int)UnitGroupType::COUNT), m_BuildingCount((int)BuildingType::COUNT),
+      m_UnitGroupCount((int)UnitGroupType::COUNT), m_BuildingCount((int)BuildingType::COUNT), m_PotionCount((int)PotionType::COUNT),
       m_AssetBorderMargin(0.015f), m_AssetBorderThickness(10.0f), m_AssetPriceSize(0.125f),
       m_AssetPriceFontName("rexlia"), m_Hidden(true)
 {
@@ -75,10 +76,11 @@ void ShopPanel::Draw()
     {
         DrawBuildings(cursorPos);
         DrawUnitGroups(cursorPos);
+        DrawPotions(cursorPos);
 
         if (IsAssetAttachedToCursor())
         {
-            Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.5f, m_CursorAttachedAsset.Texture);
+            Renderer2D::DrawQuad(cursorPos, m_AssetSize * 0.6f, m_CursorAttachedAsset.Texture);
             ProcessInvalidAssetPlacement(cursorPos);
         }
     }
@@ -113,11 +115,25 @@ void ShopPanel::ProcessInvalidAssetPlacement(const glm::vec2& cursorPos)
                 }
                 else
                 {
-                    Renderer2D::DrawQuad(cursorPos, glm::vec2(m_AssetPriceSize * 0.5f), crossTexture);
+                    if (m_CursorAttachedAsset.PotionType != PotionType::NONE)
+                    {
+                        if (!tile->AssetsCanExist())
+                        {
+                            Renderer2D::DrawQuad(cursorPos, glm::vec2(m_AssetPriceSize * 0.5f), crossTexture);
+                        }
+                    }
+                    else
+                    {
+                        Renderer2D::DrawQuad(cursorPos, glm::vec2(m_AssetPriceSize * 0.5f), crossTexture);
+                    }
                 }
+
+                return;
             }
         }
     }
+
+    Renderer2D::DrawQuad(cursorPos, glm::vec2(m_AssetPriceSize * 0.5f), crossTexture);
 }
 
 void ShopPanel::DrawShopPanelIcon(const glm::vec2& cursorPos)
@@ -136,7 +152,7 @@ void ShopPanel::DrawShopPanelIcon(const glm::vec2& cursorPos)
 void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
 {
     Renderer2D::DrawQuad(
-        m_Position + m_Size * 0.5f,
+        glm::vec2(m_Position.x + m_Size.x * 0.5f, m_Position.y + m_Size.y * 1.5f),
         m_Size,
         ColorData::Get().UITheme.ShopPanelBackgroundColor
     );
@@ -145,7 +161,7 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
     {
         glm::vec2 unitPos = {
             m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
-            m_Position.y + m_Size.y / 2
+            m_Position.y + m_Size.y * 1.5f
         };
 
         auto unitData = UnitGroupDataMap[(UnitGroupType)i];
@@ -169,7 +185,7 @@ void ShopPanel::DrawUnitGroups(const glm::vec2& cursorPos)
 void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
 {
     Renderer2D::DrawQuad(
-        glm::vec2(m_Position.x + m_Size.x * 0.5f, m_Position.y + m_Size.y * 1.5f),
+        glm::vec2(m_Position.x + m_Size.x * 0.5f, m_Position.y + m_Size.y * 2.5f),
         m_Size,
         ColorData::Get().UITheme.ShopPanelBackgroundColor
     );
@@ -178,7 +194,7 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
     {
         glm::vec2 buildingPos = {
             m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
-            m_Position.y + m_Size.y / 2 + m_Size.y
+            m_Position.y + m_Size.y * 2.5f
         };
 
         auto buildingData = BuildingDataMap[(BuildingType)i];
@@ -199,14 +215,47 @@ void ShopPanel::DrawBuildings(const glm::vec2& cursorPos)
     }
 }
 
-void ShopPanel::DrawAssetInfo(const std::string& name, const Resources& cost,
+void ShopPanel::DrawPotions(const glm::vec2& cursorPos)
+{
+    Renderer2D::DrawQuad(
+        glm::vec2(m_Position + m_Size * 0.5f),
+        m_Size,
+        ColorData::Get().UITheme.ShopPanelBackgroundColor
+    );
+
+    for (int i = 0; i < m_PotionCount; i++)
+    {
+        glm::vec2 potionPos = {
+            m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
+            m_Position.y + m_Size.y * 0.5f
+        };
+
+        auto potionData = PotionDataMap[(PotionType)i];
+
+        Renderer2D::DrawQuad(potionPos, m_AssetSize, ResourceManager::GetTexture(potionData.TextureName));
+
+        if (Util::IsPointInRectangle(potionPos, m_AssetSize, cursorPos) || (PotionType)i == m_CursorAttachedAsset.PotionType)
+        {
+            Renderer2D::DrawQuad(
+                potionPos,
+                m_AssetSize + m_AssetBorderMargin,
+                ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor,
+                m_AssetBorderThickness
+            );
+
+            DrawAssetInfo(potionData.TextureName, potionData.Cost);
+        }
+    }
+}
+
+void ShopPanel::DrawAssetInfo(const std::string& textureName, const Resources& cost,
                               std::optional<BuildingType> requiredBuilding)
 {
     glm::vec2 pos = {
-        m_Position.x + m_Size.x + m_Size.y + 0.05f,
-        m_Position.y + m_Size.y
+        m_Position.x + m_Size.x + m_Size.y * 1.8f,
+        m_Position.y + m_Size.y * 1.5f
     };
-    glm::vec2 size = glm::vec2(m_Size.y * 2);
+    glm::vec2 size = glm::vec2(m_Size.y * 3.0f);
     glm::vec4 color = ColorData::Get().UITheme.ShopPanelBackgroundColor;
 
     // Background
@@ -214,9 +263,9 @@ void ShopPanel::DrawAssetInfo(const std::string& name, const Resources& cost,
 
     // Asset name
     Renderer2D::DrawTextStr(
-        Util::ReplaceChar(name, '_', ' '),
-        { pos.x, pos.y + 0.16f },
-        0.15f,
+        Util::ReplaceChar(textureName, '_', ' '),
+        { pos.x, pos.y + 0.18f },
+        0.16f,
         glm::vec3(1.0f),
         HTextAlign::MIDDLE,
         VTextAlign::MIDDLE,
@@ -225,23 +274,23 @@ void ShopPanel::DrawAssetInfo(const std::string& name, const Resources& cost,
 
     // Asset texture
     Renderer2D::DrawQuad(
-        { pos.x, pos.y + 0.08f },
-        m_AssetSize * 0.7f,
-        ResourceManager::GetTexture(name)
+        { pos.x, pos.y + 0.09f },
+        m_AssetSize * 0.9f,
+        ResourceManager::GetTexture(textureName)
     );
 
     // Price
     Resources::Draw2x2(cost, pos);
 
     // Draw stats if drawing unit
-    auto it = std::find_if(UnitGroupDataMap.begin(), UnitGroupDataMap.end(), [name](const auto& pair) {
-        return pair.second.TextureName == name;
+    auto it = std::find_if(UnitGroupDataMap.begin(), UnitGroupDataMap.end(), [textureName](const auto& pair) {
+        return pair.second.TextureName == textureName;
     });
     if (it != UnitGroupDataMap.end())
     {
         static float statSize = 0.04f;
         static float textScale = 0.165f;
-        glm::vec2 statPos = { pos.x - 0.115f, pos.y - (size.y / 2.0f) + 0.03f };
+        glm::vec2 statPos = { pos.x - 0.115f, pos.y - (size.y / 2.0f) + 0.045f };
         int statList[3] = {
             it->second.Stats.Attack,
             it->second.Stats.Defense,
@@ -295,6 +344,7 @@ void ShopPanel::ToggleShopPanelVisibility()
     m_Hidden = !m_Hidden;
     m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
     m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
+    m_CursorAttachedAsset.PotionType = PotionType::NONE;
     m_CursorAttachedAsset.Texture = nullptr;
 }
 
@@ -323,6 +373,7 @@ bool ShopPanel::OnKeyPressed(KeyPressedEvent& event)
     {
         m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
         m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
+        m_CursorAttachedAsset.PotionType = PotionType::NONE;
         m_CursorAttachedAsset.Texture.reset();
         return true;
     }
@@ -346,7 +397,7 @@ bool ShopPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
             {
                 glm::vec2 unitPos = {
                     m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
-                    m_Position.y + m_Size.y / 2
+                    m_Position.y + m_Size.y * 1.5f
                 };
 
                 if (Util::IsPointInRectangle(unitPos, m_AssetSize, cursorPos))
@@ -360,12 +411,26 @@ bool ShopPanel::OnMouseButtonPressedPanel(MouseButtonPressedEvent& event)
             {
                 glm::vec2 buildingPos = {
                     m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
-                    m_Position.y + m_Size.y / 2 + m_Size.y
+                    m_Position.y + m_Size.y * 2.5f
                 };
 
                 if (Util::IsPointInRectangle(buildingPos, m_AssetSize, cursorPos))
                 {
                     SetCursorAttachedAsset((BuildingType)i);
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < m_PotionCount; i++)
+            {
+                glm::vec2 potionPos = {
+                    m_Position.x + m_AssetSize.x / 2 + m_AssetOffset + (m_AssetSize.x + m_AssetOffset) * i,
+                    m_Position.y + m_Size.y * 0.5f
+                };
+
+                if (Util::IsPointInRectangle(potionPos, m_AssetSize, cursorPos))
+                {
+                    SetCursorAttachedAsset((PotionType)i);
                     return true;
                 }
             }
@@ -413,13 +478,15 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
                                 return true;
                             }
                             else if (m_CursorAttachedAsset.BuildingType != BuildingType::NONE &&
-                                    tile->HasSpaceForBuildings(1) &&
-                                    currentPlayer->SubtractResources(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
+                                     tile->HasSpaceForBuildings(1) &&
+                                     currentPlayer->SubtractResources(BuildingDataMap[m_CursorAttachedAsset.BuildingType].Cost))
                             {
                                 tile->CreateBuilding(m_CursorAttachedAsset.BuildingType);
                                 return true;
                             }
                         }
+
+                        return HandlePotionPurchase(tile, currentPlayer);
                     }
                 }
             }
@@ -430,7 +497,40 @@ bool ShopPanel::OnMouseButtonPressedGame(MouseButtonPressedEvent& event)
     }
 }
 
-void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType> type)
+bool ShopPanel::HandlePotionPurchase(std::shared_ptr<Tile>& tile, std::shared_ptr<Player>& currentPlayer)
+{
+    if (m_CursorAttachedAsset.PotionType == PotionType::NONE || !tile->AssetsCanExist())
+        return false;
+
+    auto potion = tile->GetPotion();
+    if (potion->IsApplied())
+    {
+        Notification::Create("Tile already has applied potion", NotificationLevel::INFO);
+    }
+    else
+    {
+        if (currentPlayer->SubtractResources(PotionDataMap[m_CursorAttachedAsset.PotionType].Cost))
+        {
+            if (potion->Apply(m_CursorAttachedAsset.PotionType))
+            {
+                return true;
+            }
+            else
+            {
+                int value = potion->GetCooldown(m_CursorAttachedAsset.PotionType);
+                std::ostringstream oss;
+                oss << Util::ReplaceChar(PotionDataMap[m_CursorAttachedAsset.PotionType].TextureName, '_', ' ');
+                oss << " potion has cooldown value " << value;
+                Notification::Create(oss.str(), NotificationLevel::INFO);
+                return false;
+            }
+        }
+    }
+
+    return false;
+}
+
+void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType, PotionType> type)
 {
     if (std::holds_alternative<UnitGroupType>(type))
     {
@@ -443,12 +543,14 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType>
         }
 
         m_CursorAttachedAsset.UnitGroupType = unitGroupType;
+
         if (m_CursorAttachedAsset.UnitGroupType == UnitGroupType::NONE)
             m_CursorAttachedAsset.Texture.reset();
         else
         {
             m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(UnitGroupDataMap[m_CursorAttachedAsset.UnitGroupType].TextureName);
             m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
+            m_CursorAttachedAsset.PotionType = PotionType::NONE;
         }
     }
     else if (std::holds_alternative<BuildingType>(type))
@@ -468,6 +570,28 @@ void ShopPanel::SetCursorAttachedAsset(std::variant<UnitGroupType, BuildingType>
         else
         {
             m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(BuildingDataMap[m_CursorAttachedAsset.BuildingType].TextureName);
+            m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
+            m_CursorAttachedAsset.PotionType = PotionType::NONE;
+        }
+    }
+    else if (std::holds_alternative<PotionType>(type))
+    {
+        auto potionType = std::get<PotionType>(type);
+        if (potionType == m_CursorAttachedAsset.PotionType)
+        {
+            m_CursorAttachedAsset.PotionType = PotionType::NONE;
+            m_CursorAttachedAsset.Texture.reset();
+            return;
+        }
+
+        m_CursorAttachedAsset.PotionType = potionType;
+
+        if (m_CursorAttachedAsset.PotionType == PotionType::NONE)
+            m_CursorAttachedAsset.Texture.reset();
+        else
+        {
+            m_CursorAttachedAsset.Texture = ResourceManager::GetTexture(PotionDataMap[m_CursorAttachedAsset.PotionType].TextureName);
+            m_CursorAttachedAsset.BuildingType = BuildingType::NONE;
             m_CursorAttachedAsset.UnitGroupType = UnitGroupType::NONE;
         }
     }
