@@ -45,8 +45,9 @@ void ShopPanel::OnEvent(Event& event)
 
     auto mousePos = m_UICamera->CalculateRelativeMousePosition();
 
-    if (mousePos.x > m_Position.x && mousePos.x < m_Position.x + m_Size.x &&
-        mousePos.y > m_Position.y && mousePos.y < m_Position.y + m_Size.y * 2)
+    if (!m_Hidden &&
+        mousePos.x > m_Position.x && mousePos.x < m_Position.x + m_Size.x &&
+        mousePos.y > m_Position.y && mousePos.y < m_Position.y + m_Size.y * 3)
     {
         dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(ShopPanel::OnMouseScrolled));
         dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(ShopPanel::OnMouseButtonPressedPanel));
