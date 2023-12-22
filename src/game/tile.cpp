@@ -12,6 +12,7 @@
 #include "util/util.h"
 #include "game/game_layer.h"
 #include "game/battle.h"
+#include "widgets/notification.h"
 
 #include <GLFW/glfw3.h>
 
@@ -585,6 +586,40 @@ void Tile::DrawBuildings()
 
 void Tile::TickPotion()
 {
+    if (m_Potion->IsApplied())
+    {
+        switch (m_Potion->GetType())
+        {
+            case PotionType::HEALING:
+            {
+                for (auto ug : m_UnitGroups)
+                {
+                    auto stats = ug->GetUnitStats()[0];
+                    if (stats->Health < UnitGroupDataMap[ug->GetType()].Stats.Health)
+                        stats->Health = stats->Health + 1;
+                }
+                break;
+            }
+            case PotionType::DEAL_DAMAGE:
+            {
+                for (auto ug : m_UnitGroups)
+                {
+                    auto stats = ug->GetUnitStats()[0];
+                    stats->Health = stats->Health + (-1);
+                }
+
+                Util::RemoveElementsFromContainerWithCondition<std::vector<UnitGroup*>, UnitGroup*>(
+                    m_UnitGroups, [](UnitGroup* ug) {
+                        return ug->GetUnitStats()[0]->Health <= 0;
+                    }
+                );
+                break;
+            }
+            default:
+                break; // the rest of potions are handled elsewhere
+        };
+    }
+
     m_Potion->Tick();
 }
 
@@ -760,17 +795,29 @@ void Tile::DrawEnvironment(const std::shared_ptr<OrthographicCamera>& camera)
 
 const Resources Tile::GetResources() const
 {
+    int extraWood = 0;
+    int extraRock = 0;
+    int extraSteel = 0;
     int extraGold = 0;
+
     for (auto building : m_Buildings)
     {
         if (building->GetType() == BuildingType::GOLD_MINE)
             extraGold += building->GetLevel() * 2 + 2;
     }
 
+    if (m_Potion->IsApplied() && m_Potion->GetType() == PotionType::INCREASE_YIELD)
+    {
+        extraWood = (int)(m_Resources.Wood / 2.0f + 0.5f);
+        extraRock = (int)(m_Resources.Rock / 2.0f + 0.5f);
+        extraSteel = (int)(m_Resources.Steel / 2.0f + 0.5f);
+        extraGold = (int)(m_Resources.Gold / 2.0f + 0.5f);
+    }
+
     return {
-        m_Resources.Wood,
-        m_Resources.Rock,
-        m_Resources.Steel,
+        m_Resources.Wood + extraWood,
+        m_Resources.Rock + extraRock,
+        m_Resources.Steel + extraSteel,
         m_Resources.Gold + extraGold
     };
 }
@@ -812,6 +859,12 @@ void Tile::MoveToTile(const std::shared_ptr<Tile>& destTile)
     if(destTile->m_OwnedBy == m_OwnedBy)
     {
         TransferUnitGroupsToTile(destTile);
+        return;
+    }
+
+    if (destTile->GetPotion()->IsApplied() && destTile->GetPotion()->GetType() == PotionType::IMMUNITY)
+    {
+        Notification::Create("Cannot attack because the tile has immunity potion applied", NotificationLevel::INFO);
         return;
     }
 
