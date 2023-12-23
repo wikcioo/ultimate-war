@@ -9,6 +9,7 @@
 #include "core/camera.h"
 #include "game/unit.h"
 #include "game/building.h"
+#include "game/potion.h"
 
 #define TILE_WIDTH   2.0f
 #define TILE_HEIGHT (glm::sqrt(3))
@@ -61,7 +62,8 @@ public:
     void CheckUnitGroupHover(const glm::vec2& relMousePos);
     void CheckBuildingHover(const glm::vec2& relMousePos);
     void SelectAllUnitGroups();
-
+    void TickPotion();
+    std::shared_ptr<Potion> GetPotion() { return m_Potion; }
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
     inline const void SetEnvironment(TileEnvironment environment) { m_Environment = environment; }
     inline const std::shared_ptr<Player>& GetOwnedBy() const { return m_OwnedBy; }
@@ -104,6 +106,7 @@ private:
     void DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[]);
     void DrawUnitGroups();
     void DrawBuildings();
+    void DrawPotionEffect();
     void DrawEarnedResourcesInfoOverlay();
     void EraseSelectedUnitGroups();
     void TransferUnitGroupsToTile(const std::shared_ptr<Tile>& destTile);
@@ -121,4 +124,5 @@ private:
     std::shared_ptr<Player> m_OwnedBy;
     std::vector<UnitGroup*> m_UnitGroups;
     std::vector<Building*> m_Buildings;
+    std::shared_ptr<Potion> m_Potion;
 };

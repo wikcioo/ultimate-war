@@ -138,6 +138,7 @@ void Application::LoadResources()
     ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
     ResourceManager::LoadShader("water", "assets/shaders/water.glsl");
     ResourceManager::LoadShader("hue", "assets/shaders/hue.glsl");
+    ResourceManager::LoadShader("potion", "assets/shaders/potion.glsl");
 
     ResourceManager::LoadTexture("swordsman", "assets/textures/units/swordsman.png");
     ResourceManager::LoadTexture("archer", "assets/textures/units/archer.png");
@@ -159,6 +160,12 @@ void Application::LoadResources()
     ResourceManager::LoadTexture("chest_open", "assets/textures/icons/chest_open.png");
     ResourceManager::LoadTexture("chest_closed", "assets/textures/icons/chest_closed.png");
 
+    ResourceManager::LoadTexture("healing", "assets/textures/potions/healing.png");
+    ResourceManager::LoadTexture("immunity", "assets/textures/potions/immunity.png");
+    ResourceManager::LoadTexture("reduce_damage", "assets/textures/potions/reduce_damage.png");
+    ResourceManager::LoadTexture("deal_damage", "assets/textures/potions/deal_damage.png");
+    ResourceManager::LoadTexture("increase_yield", "assets/textures/potions/increase_yield.png");
+
     ResourceManager::LoadTexture("target", "assets/textures/buildings/target.png");
     ResourceManager::LoadTexture("blacksmith", "assets/textures/buildings/blacksmith.png");
     ResourceManager::LoadTexture("gold_mine", "assets/textures/buildings/gold_mine.png");
@@ -174,6 +181,7 @@ void Application::InitializeColors()
 {
     ColorData::Get().TileColors.MiniMapColor = { 0.2f, 0.2f, 0.2f, 1.0f };
     ColorData::Get().TileColors.TileHoverBorderColor = { 0.95f, 0.8f, 0.2f, 1.0f };
+    ColorData::Get().TileColors.AssetBackgroundColor = { 0.0f, 0.0f, 0.0f, 0.2f };
     ColorData::Get().TileColors.OceanColor = { 0.2f, 0.5f, 0.8f };
     ColorData::Get().TileColors.ForestColor = { 0.133f, 0.545f, 0.133f };
     ColorData::Get().TileColors.DesertColor = { 0.898f, 0.788f, 0.643f };

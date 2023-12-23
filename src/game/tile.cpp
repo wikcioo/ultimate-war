@@ -12,6 +12,7 @@
 #include "util/util.h"
 #include "game/game_layer.h"
 #include "game/battle.h"
+#include "widgets/notification.h"
 
 #include <GLFW/glfw3.h>
 
@@ -46,6 +47,7 @@ Tile::Tile(TileEnvironment environment, const glm::ivec2& coords)
     : m_Environment(environment), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
 {
     m_Resources = EnvironmentResourcesMap[m_Environment];
+    m_Potion = std::make_shared<Potion>();
     InitStaticRuntimeData();
 }
 
@@ -212,13 +214,17 @@ void Tile::Draw()
         Renderer2D::DrawHexagon(m_Position, glm::vec2(2.0f), hueShader, hueShaderData);
     }
 
-
     DrawEnvironment(camera);
     DrawUnitGroups();
     DrawBuildings();
 
     if (m_OwnedBy)
         Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(m_OwnedBy->GetColor(), 1.0f), 3.0f);
+
+    if (m_Potion->IsApplied())
+    {
+        DrawPotionEffect();
+    }
 
     if (GameLayer::Get().IsEarnedResourcesInfoVisible() &&
         GameLayer::Get().GetPlayerManager()->GetCurrentPlayer() == m_OwnedBy)
@@ -292,7 +298,11 @@ void Tile::DrawUnitGroups()
     int totalStats[s_StatCount] = { 0, 0, 0 };
     int selectedStats[s_StatCount] = { 0, 0, 0 };
 
-    Renderer2D::DrawQuad(unitData.BackgroundPosition, unitData.BackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
+    Renderer2D::DrawQuad(
+        unitData.BackgroundPosition,
+        unitData.BackgroundSize,
+        ColorData::Get().TileColors.AssetBackgroundColor
+    );
 
     for (int i = 0; i < m_UnitGroups.size(); i++)
     {
@@ -535,7 +545,11 @@ void Tile::DrawBuildings()
     float initialX = buildingData.Position.x;
     auto camera = GameLayer::Get().GetCameraController()->GetCamera();
 
-    Renderer2D::DrawQuad(buildingData.BackgroundPosition, buildingData.BackgroundSize, {0.4f, 0.4f, 0.4f, 1.0f});
+    Renderer2D::DrawQuad(
+        buildingData.BackgroundPosition,
+        buildingData.BackgroundSize,
+        ColorData::Get().TileColors.AssetBackgroundColor
+    );
 
     for (int i = 0; i < m_Buildings.size(); i++)
     {
@@ -568,6 +582,113 @@ void Tile::DrawBuildings()
             buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
         }
     }
+}
+
+void Tile::TickPotion()
+{
+    if (m_Potion->IsApplied())
+    {
+        switch (m_Potion->GetType())
+        {
+            case PotionType::HEALING:
+            {
+                for (auto ug : m_UnitGroups)
+                {
+                    auto stats = ug->GetUnitStats()[0];
+                    if (stats->Health < UnitGroupDataMap[ug->GetType()].Stats.Health)
+                        stats->Health = stats->Health + 1;
+                }
+                break;
+            }
+            case PotionType::DEAL_DAMAGE:
+            {
+                for (auto ug : m_UnitGroups)
+                {
+                    auto stats = ug->GetUnitStats()[0];
+                    stats->Health = stats->Health + (-1);
+                }
+
+                Util::RemoveElementsFromContainerWithCondition<std::vector<UnitGroup*>, UnitGroup*>(
+                    m_UnitGroups, [](UnitGroup* ug) {
+                        return ug->GetUnitStats()[0]->Health <= 0;
+                    }
+                );
+                break;
+            }
+            default:
+                break; // the rest of potions are handled elsewhere
+        };
+    }
+
+    m_Potion->Tick();
+}
+
+void Tile::DrawPotionEffect()
+{
+    auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+    auto relBtmLeft = glm::vec2(
+        m_Position.x - TILE_WIDTH / 4.0f,
+        m_Position.y - TILE_HEIGHT / 4.0f
+    ) - camera->CalculateRelativeBottomLeftPosition();
+    auto pxBtmLeft = camera->ConvertRelativeSizeToPixel(relBtmLeft);
+    auto pxSize = camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT});
+
+    static auto potionShader = ResourceManager::GetShader("potion");
+    ShaderData potionShaderData{};
+    potionShaderData.UniformMap["u_Time"] = (float)glfwGetTime();
+    potionShaderData.UniformMap["u_BottomLeftPx"] = pxBtmLeft;
+    potionShaderData.UniformMap["u_SizePx"] = pxSize;
+
+    glm::vec3 effectColor = glm::vec3(1.0f);
+    switch (m_Potion->GetType())
+    {
+        case PotionType::HEALING:
+        {
+            effectColor = glm::vec3(0.95f, 0.3f, 0.2f);
+            break;
+        }
+        case PotionType::IMMUNITY:
+        {
+            effectColor = glm::vec3(0.25f, 0.6f, 0.95f);
+            break;
+        }
+        case PotionType::REDUCE_DAMAGE:
+        {
+            effectColor = glm::vec3(0.25f, 0.9f, 0.2f);
+            break;
+        }
+        case PotionType::INCREASE_YIELD:
+        {
+            effectColor = glm::vec3(0.9f, 0.9f, 0.2f);
+            break;
+        }
+        case PotionType::DEAL_DAMAGE:
+        {
+            effectColor = glm::vec3(0.1f, 0.1f, 0.1f);
+            break;
+        }
+        default:
+        {
+            LOG_WARN("Tile: Unknow potion type");
+            return;
+        }
+    }
+
+    potionShaderData.UniformMap["u_Color"] = effectColor;
+    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), potionShader, potionShaderData);
+
+    Renderer2D::DrawTextStr(
+        Util::ReplaceChar(PotionDataMap[m_Potion->GetType()].TextureName, '_', ' '),
+        {
+            m_Position.x,
+            m_Position.y + TILE_HEIGHT / 2.0f - 0.07f
+        },
+        0.4f / camera->GetZoom(),
+        glm::vec3(0.9f),
+        HTextAlign::MIDDLE,
+        VTextAlign::TOP,
+        "rexlia"
+    );
 }
 
 void Tile::DrawEarnedResourcesInfoOverlay()
@@ -674,17 +795,29 @@ void Tile::DrawEnvironment(const std::shared_ptr<OrthographicCamera>& camera)
 
 const Resources Tile::GetResources() const
 {
+    int extraWood = 0;
+    int extraRock = 0;
+    int extraSteel = 0;
     int extraGold = 0;
+
     for (auto building : m_Buildings)
     {
         if (building->GetType() == BuildingType::GOLD_MINE)
             extraGold += building->GetLevel() * 2 + 2;
     }
 
+    if (m_Potion->IsApplied() && m_Potion->GetType() == PotionType::INCREASE_YIELD)
+    {
+        extraWood = (int)(m_Resources.Wood / 2.0f + 0.5f);
+        extraRock = (int)(m_Resources.Rock / 2.0f + 0.5f);
+        extraSteel = (int)(m_Resources.Steel / 2.0f + 0.5f);
+        extraGold = (int)(m_Resources.Gold / 2.0f + 0.5f);
+    }
+
     return {
-        m_Resources.Wood,
-        m_Resources.Rock,
-        m_Resources.Steel,
+        m_Resources.Wood + extraWood,
+        m_Resources.Rock + extraRock,
+        m_Resources.Steel + extraSteel,
         m_Resources.Gold + extraGold
     };
 }
@@ -726,6 +859,12 @@ void Tile::MoveToTile(const std::shared_ptr<Tile>& destTile)
     if(destTile->m_OwnedBy == m_OwnedBy)
     {
         TransferUnitGroupsToTile(destTile);
+        return;
+    }
+
+    if (destTile->GetPotion()->IsApplied() && destTile->GetPotion()->GetType() == PotionType::IMMUNITY)
+    {
+        Notification::Create("Cannot attack because the tile has immunity potion applied", NotificationLevel::INFO);
         return;
     }
 

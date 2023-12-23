@@ -13,8 +13,8 @@ enum class UnitGroupType
     SWORDSMAN,
     ARCHER,
     DWARF,
-    DEMON,
     HARPY,
+    DEMON,
     COUNT,
     NONE
 };
