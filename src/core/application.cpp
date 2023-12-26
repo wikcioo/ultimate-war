@@ -159,6 +159,7 @@ void Application::LoadResources()
     ResourceManager::LoadTexture("up_arrow", "assets/textures/icons/up_arrow.png");
     ResourceManager::LoadTexture("chest_open", "assets/textures/icons/chest_open.png");
     ResourceManager::LoadTexture("chest_closed", "assets/textures/icons/chest_closed.png");
+    ResourceManager::LoadTexture("confetti", "assets/textures/icons/confetti.png");
 
     ResourceManager::LoadTexture("healing", "assets/textures/potions/healing.png");
     ResourceManager::LoadTexture("immunity", "assets/textures/potions/immunity.png");
