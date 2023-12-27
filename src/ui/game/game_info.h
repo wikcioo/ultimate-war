@@ -17,7 +17,9 @@ public:
     virtual void Draw() override;
 
 private:
-    void DrawBuildingUpgradeInfo(float halfOfWidth, float halfOfHeight);
+    void DrawTopBar();
+    void DrawGameOverAndLeaderboard();
+    void DrawBuildingUpgradeInfo();
 
 private:
     std::shared_ptr<PlayerManager> m_PlayerManager;
