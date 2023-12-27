@@ -1,9 +1,13 @@
 #include "player.h"
 
+#include <numeric>
 #include <algorithm>
 
+const int MAX_INT = std::numeric_limits<int>::max();
+
 Player::Player(PlayerDTO playerData)
-    :  m_Name(playerData.Name), m_Color(playerData.Color), m_Resources(playerData.ResourceData), m_IsAI(playerData.IsAI)
+    :  m_Name(playerData.Name), m_Color(playerData.Color), m_Resources(playerData.ResourceData),
+       m_IsAI(playerData.IsAI), m_TurnDeactivated(MAX_INT)
 {
 }
 

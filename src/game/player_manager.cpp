@@ -73,6 +73,7 @@ void PlayerManager::UpdatePlayerStatus(const std::shared_ptr<Player>& player)
 {
     if (IsInactivePlayer(player))
     {
+        player->SetDeactivatedTurn(GameLayer::Get().GetIteration() * m_TotalPlayerCount + m_CurrentPlayerIndex);
         m_ActivePlayerCount--;
 
         if (m_ActivePlayerCount == 1)

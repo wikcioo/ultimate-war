@@ -37,7 +37,9 @@ public:
     inline Resources GetResources() { return m_Resources; }
     inline std::vector<std::shared_ptr<Tile>>& GetOwnedTiles() { return m_OwnedTiles; }
     inline bool IsAIPlayer() { return m_IsAI; }
+    inline int GetDeactivatedTurn() { return m_TurnDeactivated; }
 
+    void SetDeactivatedTurn(int turn) { m_TurnDeactivated = turn; }
     void AddResources(Resources& resources);
     bool SubtractResources(Resources& resources);
     void AddOwnedTile(const std::shared_ptr<Tile>& tile);
@@ -47,6 +49,7 @@ public:
 private:
     std::string m_Name;
     bool m_IsAI;
+    int m_TurnDeactivated;
     glm::vec3 m_Color;
     Resources m_Resources;
     std::vector<std::shared_ptr<Tile>> m_OwnedTiles;
