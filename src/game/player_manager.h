@@ -25,6 +25,7 @@ public:
 
     int GetCurrentPlayerIndex() { return m_CurrentPlayerIndex; }
     int GetActivePlayerCount() { return m_ActivePlayerCount; }
+    int GetTotalPlayerCount() { return m_TotalPlayerCount; }
 
 private:
     bool IsInactivePlayer(const std::shared_ptr<Player>& player);
@@ -32,5 +33,6 @@ private:
 private:
     int m_CurrentPlayerIndex;
     int m_ActivePlayerCount;
+    int m_TotalPlayerCount;
     std::vector<std::shared_ptr<Player>> m_Players;
 };
