@@ -4,7 +4,7 @@
 #include "game/game_layer.h"
 
 PlayerManager::PlayerManager()
-    : m_CurrentPlayerIndex(0), m_ActivePlayerCount(0)
+    : m_CurrentPlayerIndex(0), m_ActivePlayerCount(0), m_TotalPlayerCount(0)
 {
 }
 
@@ -13,6 +13,7 @@ std::shared_ptr<Player> PlayerManager::AddPlayer(PlayerDTO playerData)
     auto player = std::make_shared<Player>(playerData);
     m_Players.emplace_back(player);
     m_ActivePlayerCount++;
+    m_TotalPlayerCount++;
 
     return player;
 }
