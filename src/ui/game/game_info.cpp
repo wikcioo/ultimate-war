@@ -1,6 +1,7 @@
 #include "game_info.h"
 
 #include <string>
+#include <algorithm>
 
 #include "graphics/renderer.h"
 #include "game/game_layer.h"
@@ -19,6 +20,19 @@ void GameInfo::Draw()
 {
     Renderer2D::BeginScene(m_UICamera);
 
+    DrawTopBar();
+    DrawBuildingUpgradeInfo();
+
+    if(!GameLayer::Get().IsGameActive())
+    {
+        DrawGameOverAndLeaderboard();
+    }
+
+    Renderer2D::EndScene();
+}
+
+void GameInfo::DrawTopBar()
+{
     auto currPlayer = m_PlayerManager->GetCurrentPlayer();
     auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
     auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
@@ -118,29 +132,119 @@ void GameInfo::Draw()
         VTextAlign::MIDDLE,
         INFO_FONT
     );
+}
 
-    if(!GameLayer::Get().IsGameActive())
+void GameInfo::DrawGameOverAndLeaderboard()
+{
+    auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
+    auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
+
+    // Draw dimmed background
+    Renderer2D::DrawQuad(
+        glm::vec2(0.0f),
+        { halfOfWidth * 2.0f, halfOfHeight * 2.0f },
+        glm::vec4(0.0f, 0.0f, 0.0f, 0.8f)
+    );
+
+    Renderer2D::DrawTextStr(
+        "Game Over",
+        { 0.0f, halfOfHeight - 0.18f },
+        0.7f,
+        { 0.95f, 0.7f, 0.5f },
+        HTextAlign::MIDDLE,
+        VTextAlign::TOP,
+        INFO_FONT
+    );
+
+    glm::vec2 leaderboardPosition = { 0.0f, -0.2f };
+    glm::vec2 leaderboardSize = { 1.2f, halfOfHeight * 2.0f - 0.6f };
+
+    glm::vec2 leaderboardTextPosition = {
+        leaderboardPosition.x,
+        leaderboardPosition.y + leaderboardSize.y / 2.0f - 0.05f
+    };
+
+    static auto confettiTexture = ResourceManager::GetTexture("confetti");
+    static float confettiSize = 0.1f;
+    static float confettiXOffset = 0.5f;
+
+    Renderer2D::DrawQuad(
+        {
+            leaderboardTextPosition.x - confettiXOffset,
+            leaderboardTextPosition.y
+        },
+        glm::vec2(confettiSize),
+        confettiTexture
+    );
+
+    Renderer2D::DrawQuad(
+        {
+            leaderboardTextPosition.x + confettiXOffset,
+            leaderboardTextPosition.y
+        },
+        glm::vec2(confettiSize),
+        confettiTexture
+    );
+
+    Renderer2D::DrawTextStr(
+        "Leaderboard",
+        leaderboardTextPosition,
+        0.45f,
+        glm::vec3(1.0f),
+        HTextAlign::MIDDLE,
+        VTextAlign::MIDDLE,
+        INFO_FONT
+    );
+
+    auto playerManager = GameLayer::Get().GetPlayerManager();
+    auto defeatOrder = playerManager->GetDefeatOrder();
+    auto players = playerManager->GetAllPlayers();
+
+    glm::vec2 pos = {
+        leaderboardPosition.x - leaderboardSize.x / 2.0f + 0.1f,
+        leaderboardPosition.y + leaderboardSize.y / 2.0f - 0.3f
+    };
+
+
+    for (int i = defeatOrder.size() - 1; i >= 0; i--)
     {
         Renderer2D::DrawTextStr(
-            "Game Over",
-            { 0.0f, 0.0f },
-            1.0f,
-            { 0.95f, 0.7f, 0.5f },
-            HTextAlign::MIDDLE,
+            std::to_string(defeatOrder.size() - i) + ".",
+            {
+                pos.x + 0.1f,
+                pos.y
+            },
+            0.3f,
+            glm::vec3(1.0f),
+            HTextAlign::RIGHT,
             VTextAlign::MIDDLE,
             INFO_FONT
         );
+
+        Renderer2D::DrawTextStr(
+            defeatOrder[i]->GetName(),
+            {
+                pos.x + 0.13f,
+                pos.y
+            },
+            0.3f,
+            glm::vec3(1.0f),
+            HTextAlign::LEFT,
+            VTextAlign::MIDDLE,
+            INFO_FONT
+        );
+
+        pos.y -= 0.1f;
     }
-
-    DrawBuildingUpgradeInfo(halfOfWidth, halfOfHeight);
-
-    Renderer2D::EndScene();
 }
 
-void GameInfo::DrawBuildingUpgradeInfo(float halfOfWidth, float halfOfHeight)
+void GameInfo::DrawBuildingUpgradeInfo()
 {
     static float offset = 0.02f;
     static glm::vec2 size = glm::vec2(0.42f, 0.25f);
+
+    auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
+    auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
 
     glm::vec2 position = {
         -halfOfWidth + size.x / 2.0f + offset,

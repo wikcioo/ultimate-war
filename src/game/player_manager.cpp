@@ -72,9 +72,13 @@ void PlayerManager::UpdatePlayerStatus(const std::shared_ptr<Player>& player)
 {
     if (IsInactivePlayer(player))
     {
+        m_DefeatOrder.push_back(player);
         m_ActivePlayerCount--;
 
         if (m_ActivePlayerCount == 1)
+        {
+            m_DefeatOrder.push_back(GetCurrentPlayer());
             GameLayer::Get().EndGame();
+        }
     }
 }

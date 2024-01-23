@@ -17,6 +17,7 @@ public:
 
     const std::shared_ptr<Player>& GetCurrentPlayer() { return m_Players[m_CurrentPlayerIndex]; }
     std::vector<std::shared_ptr<Player>>& GetAllPlayers() { return m_Players; }
+    std::vector<std::shared_ptr<Player>>& GetDefeatOrder() { return m_DefeatOrder; }
 
     std::shared_ptr<Player> AddPlayer(PlayerDTO playerData);
     void UpdatePlayerStatus(const std::shared_ptr<Player>& player);
@@ -33,4 +34,5 @@ private:
     int m_CurrentPlayerIndex;
     int m_ActivePlayerCount;
     std::vector<std::shared_ptr<Player>> m_Players;
+    std::vector<std::shared_ptr<Player>> m_DefeatOrder;
 };
