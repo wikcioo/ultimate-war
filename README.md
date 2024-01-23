@@ -50,6 +50,7 @@ make -j && ./bin/Debug-linux/UltimateWar
 
 # Screenshots
 
-![Main Menu UI screenshot](docs/screenshots/main-menu-ui-milestone4.png?raw=true)
-![Gameplay UI screenshot](docs/screenshots/game-ui-milestone4.png?raw=true)
-![Map Editor UI screenshot](docs/screenshots/map-editor-ui-milestone4.png?raw=true)
+![Main Menu UI screenshot](docs/screenshots/main-menu-ui-milestone5.png?raw=true)
+![Choose Players UI screenshot](docs/screenshots/choose-players-ui-milestone5.png?raw=true)
+![Gameplay UI screenshot](docs/screenshots/game-ui-milestone5.png?raw=true)
+![Map Editor UI screenshot](docs/screenshots/map-editor-ui-milestone5.png?raw=true)
