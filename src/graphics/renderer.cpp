@@ -115,12 +115,12 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, cons
     DrawGeometry(s_Data->QuadVertexArray, position, size, color, borderThickness);
 }
 
-void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture)
+void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, const glm::vec4& color)
 {
-    DrawQuad(glm::vec3(position, 0.0f), size, texture);
+    DrawQuad(glm::vec3(position, 0.0f), size, texture, color);
 }
 
-void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture)
+void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Texture2D>& texture, const glm::vec4& color)
 {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(size.x, size.y, 1.0f));
 
@@ -128,6 +128,7 @@ void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, cons
     s_Data->TextureShader->Bind();
     s_Data->TextureShader->SetInt("u_Texture", 0);
     s_Data->TextureShader->SetMat4("u_Model", model);
+    s_Data->TextureShader->SetFloat4("u_Color", color);
 
     s_Data->QuadVertexArray->Bind();
     glDrawElements(GL_TRIANGLES, s_Data->QuadVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
@@ -143,25 +144,20 @@ void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, c
     DrawGeometry(s_Data->HexagonVertexArray, position, size, color, borderThickness);
 }
 
-void Renderer2D::DrawHexagon(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader)
+void Renderer2D::DrawHexagon(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader, ShaderData& shaderData)
 {
-    DrawHexagon(glm::vec3(position, 0.0f), size, shader);
+    DrawHexagon(glm::vec3(position, 0.0f), size, shader, shaderData);
 }
 
-void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader)
+void Renderer2D::DrawHexagon(const glm::vec3& position, const glm::vec2& size, const std::shared_ptr<Shader>& shader, ShaderData& shaderData)
 {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(position)) * glm::scale(glm::mat4(1.0f), glm::vec3(size.x, size.y, 1.0f));
-    auto relBtmLeft = glm::vec2(position.x - TILE_WIDTH / 4.0f, position.y - TILE_HEIGHT / 4.0f) - s_Data->Camera->CalculateRelativeBottomLeftPosition();
-    auto pxBtmLeft = s_Data->Camera->ConvertRelativeSizeToPixel(relBtmLeft);
-
     s_Data->HexagonVertexArray->Bind();
 
     shader->Bind();
     shader->SetMat4("u_ProjectionView", s_Data->Camera->GetProjectionViewMatrix());
     shader->SetMat4("u_Model", model);
-    shader->SetFloat("u_Time", (float)glfwGetTime());
-    shader->SetFloat2("u_BottomLeftPx", pxBtmLeft);
-    shader->SetFloat2("u_SizePx", s_Data->Camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT}));
+    shaderData.Apply(shader);
 
     glDrawElements(GL_TRIANGLES, s_Data->HexagonVertexArray->GetIndexBuffer()->GetIndexCount(), GL_UNSIGNED_INT, nullptr);
 }
@@ -217,6 +213,12 @@ void Renderer2D::DrawGeometry(const std::shared_ptr<VertexArray>& vertexArray, c
 void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec3& color,
                              HTextAlign hAlign, VTextAlign vAlign, const std::string& fontName)
 {
+    DrawTextStr(text, position, scale, glm::vec4(color, 1.0f), hAlign, vAlign, fontName);
+}
+
+void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position, float scale, const glm::vec4& color,
+                             HTextAlign hAlign, VTextAlign vAlign, const std::string& fontName)
+{
     glm::vec2 pos_cpy = { position.x, position.y };
 
     s_Data->FontShader->Bind();
@@ -232,7 +234,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
         lines.push_back(line);
 
     float relCharHeight = s_Data->Camera->ConvertPixelSizeToRelative(characters['A'].Size.y) * scale;
-    float relSpacing = relCharHeight * 0.3f;
+    float relSpacing = relCharHeight * FONT_Y_SPACING_RATIO;
 
     switch (vAlign)
     {
@@ -254,7 +256,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
         for (std::string::const_iterator it = line.begin(); it != line.end(); it++)
         {
             auto c = characters[*it];
-            lineLength += s_Data->Camera->ConvertPixelSizeToRelative((c.Size.x + c.Advance) >> 6) * scale;
+            lineLength += s_Data->Camera->ConvertPixelSizeToRelative(c.Advance >> 6) * scale;
         }
 
         switch (hAlign)
@@ -288,7 +290,7 @@ void Renderer2D::DrawTextStr(const std::string& text, const glm::vec2& position,
                 ch.Texture->Bind(0);
                 s_Data->FontShader->SetInt("u_Texture", 0);
                 s_Data->FontShader->SetMat4("u_Model", chModel);
-                s_Data->FontShader->SetFloat3("u_Color", color);
+                s_Data->FontShader->SetFloat4("u_Color", color);
 
                 s_Data->FontVertexArray->Bind();
                 s_Data->FontVertexArray->GetIndexBuffer()->Bind();
@@ -317,7 +319,7 @@ glm::vec2 Renderer2D::GetTextSize(const std::shared_ptr<OrthographicCamera>& cam
         if (charHeightPx > maxCharHeightPx)
             maxCharHeightPx = charHeightPx;
 
-        textWidth += camera->ConvertPixelSizeToRelative(characters[*c].Size.x + characters[*c].Bearing.x);
+        textWidth += camera->ConvertPixelSizeToRelative(characters[*c].Advance >> 6);
     }
 
     return { textWidth, camera->ConvertPixelSizeToRelative(maxCharHeightPx, false) };

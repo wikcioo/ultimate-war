@@ -4,7 +4,10 @@
 #include "graphics/renderer.h"
 #include "menu/views/main_view.h"
 #include "menu/views/choose_map_view.h"
+#include "menu/views/choose_players_view.h"
+#include "menu/views/choose_save_view.h"
 #include "menu/views/contributors_view.h"
+#include "widgets/notification.h"
 
 MainMenuLayer* MainMenuLayer::s_Instance = nullptr;
 
@@ -18,14 +21,7 @@ MainMenuLayer::MainMenuLayer()
     m_MainMenuCamera = std::make_shared<OrthographicCamera>(aspectRatio);
     m_RelWindowSize = m_MainMenuCamera->CalculateRelativeWindowSize();
 
-    m_Views[ViewName::MAIN] = new MainView();
-    m_Views[ViewName::MAIN]->OnAttach();
-    m_Views[ViewName::CHOOSE_MAP] = new ChooseMapView();
-    m_Views[ViewName::CHOOSE_MAP]->OnAttach();
-    m_Views[ViewName::CONTRIBUTORS] = new ContributorsView();
-    m_Views[ViewName::CONTRIBUTORS]->OnAttach();
-
-    m_CurrentViewName = ViewName::MAIN;
+    InitViews();
 }
 
 MainMenuLayer::~MainMenuLayer()
@@ -36,6 +32,7 @@ MainMenuLayer::~MainMenuLayer()
 
 void MainMenuLayer::OnAttach()
 {
+    ConfigureNotification();
     RecalculateCamera();
     SetView(ViewName::MAIN);
 }
@@ -50,7 +47,8 @@ void MainMenuLayer::OnUpdate(float dt)
 
     Renderer2D::DrawQuad(glm::vec2(0.0f), m_RelWindowSize, glm::vec4(0.2f, 0.5f, 0.8f, 1.0f));
 
-    m_Views[m_CurrentViewName]->OnUpdate();
+    m_Views[m_CurrentViewName]->OnUpdate(dt);
+    Notification::OnUpdate(dt);
 
     Renderer2D::EndScene();
 }
@@ -59,6 +57,8 @@ void MainMenuLayer::OnEvent(Event& event)
 {
     if (event.GetCategory() == EventCategory::Window)
         OnWindowSizeChanged();
+
+    Notification::OnEvent(event);
 
     m_Views[m_CurrentViewName]->OnEvent(event);
 }
@@ -74,6 +74,17 @@ const std::string& MainMenuLayer::GetSelectedMap()
     return ((ChooseMapView*)m_Views[ViewName::CHOOSE_MAP])->GetSelectedMap();
 }
 
+void MainMenuLayer::InitViews()
+{
+    m_Views[ViewName::MAIN] = new MainView();
+    m_Views[ViewName::CHOOSE_MAP] = new ChooseMapView();
+    m_Views[ViewName::CHOOSE_PLAYERS] = new ChoosePlayersView();
+    m_Views[ViewName::CHOOSE_SAVE] = new ChooseSaveView();
+    m_Views[ViewName::CONTRIBUTORS] = new ContributorsView();
+
+    SetView(ViewName::MAIN);
+}
+
 void MainMenuLayer::OnWindowSizeChanged()
 {
     RecalculateCamera();
@@ -85,4 +96,11 @@ void MainMenuLayer::RecalculateCamera()
     m_MainMenuCamera->SetWindowAspectRatio();
     m_MainMenuCamera->SetScale(window->GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS);
     m_RelWindowSize = m_MainMenuCamera->CalculateRelativeWindowSize();
+}
+
+void MainMenuLayer::ConfigureNotification()
+{
+    NotificationConfig config;
+    config.WindowOffset = { 0.05f, 0.05f };
+    Notification::Configure(m_MainMenuCamera, config);
 }

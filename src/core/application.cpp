@@ -2,6 +2,9 @@
 
 #include "core/resource_manager.h"
 #include "graphics/renderer.h"
+#include "loader/save_loader.h"
+#include "loader/save_loader_exception.h"
+#include "widgets/notification.h"
 
 Application* Application::s_Instance = nullptr;
 
@@ -104,6 +107,27 @@ void Application::ContinueLastGame()
     m_LayerStackReload = LayerStackReload::CONTINUE_LAST_GAME;
 }
 
+void Application::SaveGame(const std::string& saveName)
+{
+    try
+    {
+        SaveLoader::Save(saveName, m_GameLayer);
+        if (m_GameLayer->GetName().empty())
+            m_GameLayer->SetName(saveName);
+        LOG_DEBUG("Saved the game");
+    }
+    catch (SaveLoaderException e)
+    {
+        LOG_ERROR("Failed to save the game: {0}", e.what());
+    }
+}
+
+void Application::LoadSave(const std::string& saveName)
+{
+    m_SaveName = saveName;
+    m_LayerStackReload = LayerStackReload::LOAD_SAVE;
+}
+
 void Application::LoadResources()
 {
     ResourceManager::LoadFont("vinque", "assets/fonts/vinque/vinque.otf");
@@ -113,6 +137,8 @@ void Application::LoadResources()
     ResourceManager::LoadShader("color", "assets/shaders/color.glsl");
     ResourceManager::LoadShader("texture", "assets/shaders/texture.glsl");
     ResourceManager::LoadShader("water", "assets/shaders/water.glsl");
+    ResourceManager::LoadShader("hue", "assets/shaders/hue.glsl");
+    ResourceManager::LoadShader("potion", "assets/shaders/potion.glsl");
 
     ResourceManager::LoadTexture("swordsman", "assets/textures/units/swordsman.png");
     ResourceManager::LoadTexture("archer", "assets/textures/units/archer.png");
@@ -131,6 +157,15 @@ void Application::LoadResources()
 
     ResourceManager::LoadTexture("cross", "assets/textures/icons/cross.png");
     ResourceManager::LoadTexture("up_arrow", "assets/textures/icons/up_arrow.png");
+    ResourceManager::LoadTexture("chest_open", "assets/textures/icons/chest_open.png");
+    ResourceManager::LoadTexture("chest_closed", "assets/textures/icons/chest_closed.png");
+    ResourceManager::LoadTexture("confetti", "assets/textures/icons/confetti.png");
+
+    ResourceManager::LoadTexture("healing", "assets/textures/potions/healing.png");
+    ResourceManager::LoadTexture("immunity", "assets/textures/potions/immunity.png");
+    ResourceManager::LoadTexture("reduce_damage", "assets/textures/potions/reduce_damage.png");
+    ResourceManager::LoadTexture("deal_damage", "assets/textures/potions/deal_damage.png");
+    ResourceManager::LoadTexture("increase_yield", "assets/textures/potions/increase_yield.png");
 
     ResourceManager::LoadTexture("target", "assets/textures/buildings/target.png");
     ResourceManager::LoadTexture("blacksmith", "assets/textures/buildings/blacksmith.png");
@@ -147,7 +182,12 @@ void Application::InitializeColors()
 {
     ColorData::Get().TileColors.MiniMapColor = { 0.2f, 0.2f, 0.2f, 1.0f };
     ColorData::Get().TileColors.TileHoverBorderColor = { 0.95f, 0.8f, 0.2f, 1.0f };
-    ColorData::Get().UITheme.ShopPanelBackgroundColor = { 0.4f, 0.4f, 0.4f, 1.0f };
+    ColorData::Get().TileColors.AssetBackgroundColor = { 0.0f, 0.0f, 0.0f, 0.2f };
+    ColorData::Get().TileColors.OceanColor = { 0.2f, 0.5f, 0.8f };
+    ColorData::Get().TileColors.ForestColor = { 0.133f, 0.545f, 0.133f };
+    ColorData::Get().TileColors.DesertColor = { 0.898f, 0.788f, 0.643f };
+    ColorData::Get().TileColors.MountainsColor = { 0.5f, 0.5f, 0.5f };
+    ColorData::Get().UITheme.ShopPanelBackgroundColor = { 0.0f, 0.0f, 0.0f, 0.8f };
     ColorData::Get().UITheme.ShopPanelHighlighUnitGroupColor = { 0.5f, 0.5f, 0.5f, 1.0f };
     ColorData::Get().Resources.Wood = { 0.545f, 0.270f, 0.075f };
     ColorData::Get().Resources.Rock = { 0.5f, 0.5f, 0.5f };
@@ -166,7 +206,10 @@ void Application::ProcessLayerStackReload()
             if (m_GameLayer)
                 m_GameLayer->SetIsActive(false);
             if (m_UILayer)
+            {
                 m_UILayer->SetIsActive(false);
+                m_UILayer->OnDetach();
+            }
             if (m_EditorLayer)
                 m_EditorLayer->SetIsActive(false);
 #if defined(DEBUG)
@@ -186,6 +229,7 @@ void Application::ProcessLayerStackReload()
 
             m_UILayer = std::make_shared<UILayer>();
             m_UILayer->OnAttach();
+            m_UILayer->PushGameLayerElements();
             m_LayerStack->PushOverlay(m_UILayer);
 
 #if defined(DEBUG)
@@ -204,10 +248,46 @@ void Application::ProcessLayerStackReload()
 
             m_MainMenuLayer->SetIsActive(false);
             m_GameLayer->SetIsActive(true);
+            m_UILayer->PushGameLayerElements();
             m_UILayer->SetIsActive(true);
+            m_UILayer->OnAttach();
 #if defined(DEBUG)
             m_DebugLayer->SetIsActive(true);
 #endif
+            break;
+        }
+        case LayerStackReload::LOAD_SAVE:
+        {
+            try
+            {
+                m_GameLayer = SaveLoader::Load(m_SaveName);
+                m_GameLayer->OnAttach();
+                m_GameLayer->SetName(m_SaveName);
+                m_LayerStack->PushLayer(m_GameLayer);
+
+                m_MainMenuLayer->SetIsActive(false);
+            }
+            catch (SaveLoaderException e)
+            {
+                LOG_ERROR("Corrupted .war file: {0}", e.what());
+                std::ostringstream oss;
+                oss << "\"" << m_SaveName << "\"" << " file is corrupted";
+                Notification::Create(oss.str(), NotificationLevel::ERR);
+                break;
+            }
+
+            m_UILayer = std::make_shared<UILayer>();
+            m_UILayer->OnAttach();
+            m_UILayer->PushGameLayerElements();
+            m_LayerStack->PushOverlay(m_UILayer);
+
+#if defined(DEBUG)
+            m_DebugLayer = std::make_shared<DebugLayer>();
+            m_DebugLayer->OnAttach();
+            m_LayerStack->PushOverlay(m_DebugLayer);
+#endif
+
+            m_LastGameLayer = m_GameLayer;
             break;
         }
         case LayerStackReload::OPEN_MAP_EDITOR:
@@ -216,6 +296,10 @@ void Application::ProcessLayerStackReload()
             m_EditorLayer = std::make_shared<EditorLayer>();
             m_EditorLayer->OnAttach();
             m_LayerStack->PushLayer(m_EditorLayer);
+            m_UILayer = std::make_shared<UILayer>();
+            m_UILayer->OnAttach();
+            m_UILayer->PushEditorLayerElements();
+            m_LayerStack->PushOverlay(m_UILayer);
             break;
         }
         default:

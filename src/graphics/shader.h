@@ -1,6 +1,8 @@
 #pragma once
 
+#include <memory>
 #include <string>
+#include <variant>
 #include <unordered_map>
 
 #include <glm/glm.hpp>
@@ -34,4 +36,11 @@ private:
     std::string m_Name;
     std::string m_FilePath;
     unsigned int m_ProgramID;
+};
+
+using UniformValue = std::variant<bool, int, float, glm::vec2, glm::vec3, glm::vec4, glm::mat4>;
+struct ShaderData
+{
+    std::unordered_map<std::string, UniformValue> UniformMap;
+    void Apply(const std::shared_ptr<Shader>& shader);
 };

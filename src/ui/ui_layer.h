@@ -6,7 +6,9 @@
 #include "layer/layer.h"
 #include "game/map_manager.h"
 #include "event/window_event.h"
+#include "ui/common/confirm_popup.h"
 #include "ui/ui_element.h"
+#include "ui/ui_element_stack.h"
 
 class UILayer : public Layer
 {
@@ -19,11 +21,16 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
+    void PushGameLayerElements();
+    void PushEditorLayerElements();
+
+    static std::shared_ptr<ConfirmPopup> s_ConfirmPopup;
+
 private:
     bool OnWindowResized(WindowResizedEvent& event);
+    void ConfigureNotification();
 
 private:
     std::shared_ptr<OrthographicCamera> m_UICamera;
-    std::shared_ptr<OrthographicCamera> m_GameCamera;
-    std::vector<std::shared_ptr<UIElement>> m_UIElements;
+    UIElementStack m_UIElementStack;
 };

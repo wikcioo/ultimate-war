@@ -18,3 +18,4 @@ libs/Makefile
 imgui.ini
 
 assets/maps/test*.map
+saves/test*.war

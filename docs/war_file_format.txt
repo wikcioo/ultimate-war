@@ -1,0 +1,28 @@
+simple                          // map name
+9                               // number of rows
+0 0 0 0 0 0 0 0 0 0 0           // map tile data
+0 0 0 0 0 0 1 1 1 0 0
+0 0 0 1 1 1 2 2 2 1 0
+0 0 0 1 2 2 2 2 1 1 0
+0 0 1 1 2 2 2 1 1 0 0
+0 0 0 1 2 1 1 1 1 0 0
+0 0 0 1 1 1 1 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0
+3                               // iteration number
+0                               // current player's index
+3                               // number of players
+"name" (1.0,0.0,0.0) (1,1,1,1) 1 // player named "name", red color, resources (1 wood, 1 rock, 1 steel, 1 gold), is AI
+"josh" (0.0,0.0,1.0) (1,2,3,4) 0 // player named "josh", blue color, resources (1 wood, 2 rock, 3 steel, 4 gold), is not AI
+(4,3)                           // start of tile data at position x=4, y=3
+P0                              // owned by player index 0
+U(0,3,(4;3;2))                  // unit(type,moved_on_iteration,stats)
+U(1,3,(5;5;1))                  // unit(archer,moved on 3rd iteration,(5 attack, 5 defense, 1 health))
+B(2,0)                          // building(type,level)
+B(0,1)                          // building(target, 1st level)
+(6,4)                           // start of tile data at  position x=6, y=4
+P1                              // owned by player index 0
+U(1,2,(9;9;9))                  // ...
+U(1,3,(7;7;7))
+B(2,0)
+B(0,4)

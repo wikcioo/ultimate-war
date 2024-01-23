@@ -21,6 +21,11 @@ public:
     {
         glm::vec4 MiniMapColor;
         glm::vec4 TileHoverBorderColor;
+        glm::vec4 AssetBackgroundColor;
+        glm::vec3 OceanColor;
+        glm::vec3 ForestColor;
+        glm::vec3 DesertColor;
+        glm::vec3 MountainsColor;
     } TileColors;
 
     struct

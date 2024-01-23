@@ -1,6 +1,6 @@
 #include "player_manager.h"
 
-#include "util/util.h"
+#include "game/ai.h"
 #include "game/game_layer.h"
 
 PlayerManager::PlayerManager()
@@ -8,14 +8,18 @@ PlayerManager::PlayerManager()
 {
 }
 
-void PlayerManager::AddPlayer(PlayerDTO playerData)
+std::shared_ptr<Player> PlayerManager::AddPlayer(PlayerDTO playerData)
 {
-    m_Players.emplace_back(std::make_shared<Player>(playerData));
+    auto player = std::make_shared<Player>(playerData);
+    m_Players.emplace_back(player);
     m_ActivePlayerCount++;
+
+    return player;
 }
 
 void PlayerManager::NextTurn()
 {
+    auto prevPlayer = GetCurrentPlayer();
     GameLayer::Get().ResetArrow();
 
     m_CurrentPlayerIndex++;
@@ -26,11 +30,37 @@ void PlayerManager::NextTurn()
         GameLayer::Get().NextIteration();
     }
 
-    if(IsInactivePlayer(GetCurrentPlayer()))
-        NextTurn();
+    auto currPlayer = GetCurrentPlayer();
+    int currPlayerIndex = m_CurrentPlayerIndex;
+    while (IsInactivePlayer(currPlayer))
+    {
+        m_CurrentPlayerIndex++;
+
+        if (m_CurrentPlayerIndex == currPlayerIndex)
+            break;
+
+        if (m_CurrentPlayerIndex % m_Players.size() == 0)
+        {
+            m_CurrentPlayerIndex = 0;
+            GameLayer::Get().NextIteration();
+        }
+
+        currPlayer = GetCurrentPlayer();
+    }
+
+    if (currPlayer == prevPlayer)
+    {
+        return;
+    }
 
     if (GameLayer::Get().GetIteration() != 0)
         m_Players[m_CurrentPlayerIndex]->CollectResourcesFromOwnedTiles();
+
+    if (currPlayer->IsAIPlayer())
+    {
+        AI::Get().MakeMove(currPlayer);
+        NextTurn();
+    }
 }
 
 bool PlayerManager::IsInactivePlayer(const std::shared_ptr<Player>& player)
@@ -40,11 +70,15 @@ bool PlayerManager::IsInactivePlayer(const std::shared_ptr<Player>& player)
 
 void PlayerManager::UpdatePlayerStatus(const std::shared_ptr<Player>& player)
 {
-    if(IsInactivePlayer(player))
+    if (IsInactivePlayer(player))
     {
+        m_DefeatOrder.push_back(player);
         m_ActivePlayerCount--;
 
         if (m_ActivePlayerCount == 1)
+        {
+            m_DefeatOrder.push_back(GetCurrentPlayer());
             GameLayer::Get().EndGame();
+        }
     }
 }

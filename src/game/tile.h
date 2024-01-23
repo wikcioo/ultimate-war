@@ -6,8 +6,10 @@
 
 #include <glm/glm.hpp>
 
+#include "core/camera.h"
 #include "game/unit.h"
 #include "game/building.h"
+#include "game/potion.h"
 
 #define TILE_WIDTH   2.0f
 #define TILE_HEIGHT (glm::sqrt(3))
@@ -42,12 +44,15 @@ public:
 
     void MoveToTile(const std::shared_ptr<Tile>& destTile);
     void CreateUnitGroup(UnitGroupType type);
+    void CreateUnitGroup(UnitGroup unitGroup);
     bool CanRecruitUnitGroup(UnitGroupType type);
     bool HasSpaceForUnitGroups(int num);
     bool HasSpaceForBuildings(int num);
     void CreateBuilding(BuildingType type);
+    void CreateBuilding(Building building);
     void DeselectAllUnitGroups();
     void Draw();
+    void DrawEnvironment(const std::shared_ptr<OrthographicCamera>& camera);
     bool HasSelectedUnitGroups();
     bool InRange(const glm::vec2& cursorPos);
     bool HandleUnitGroupMouseClick(const glm::vec2& relMousePos);
@@ -56,19 +61,24 @@ public:
     bool AssetsCanExist() { return m_Environment != TileEnvironment::NONE && m_Environment != TileEnvironment::OCEAN; }
     void CheckUnitGroupHover(const glm::vec2& relMousePos);
     void CheckBuildingHover(const glm::vec2& relMousePos);
-
+    void SelectAllUnitGroups();
+    void TickPotion();
+    std::shared_ptr<Potion> GetPotion() { return m_Potion; }
     inline const TileEnvironment GetEnvironment() const { return m_Environment; }
     inline const void SetEnvironment(TileEnvironment environment) { m_Environment = environment; }
     inline const std::shared_ptr<Player>& GetOwnedBy() const { return m_OwnedBy; }
     std::vector<UnitGroup*>& GetUnitGroups() { return m_UnitGroups; }
+    std::vector<Building*>& GetBuildings() { return m_Buildings; }
     inline const bool IsOwned() const { return m_OwnedBy.get() != nullptr; }
     inline const glm::vec2& GetPosition() const { return m_Position; }
     inline const glm::ivec2& GetCoords() const { return m_Coords; }
     const Resources GetResources() const;
     int GetNumSelectedUnitGroups();
+    UnitStats GetTotalUnitStats() const;
 
     void SetOwnership(const std::shared_ptr<Player>& player);
     void ChangeOwnership(const std::shared_ptr<Player>& player);
+    void AddRandomUnits();
 
 public:
     static bool IsAdjacent(const glm::ivec2& tile1, const glm::ivec2& tile2);
@@ -88,15 +98,16 @@ public:
 
     static const int s_StatCount;
     static const char* s_StatTextures[];
-    static const std::array<glm::ivec2, 6> s_AdjacentTileOffsets;
+    static const std::vector<glm::ivec2> s_AdjacentTileOffsets;
 
 private:
     void InitStaticRuntimeData();
     void DrawUnitGroupStats(DrawData& unitData, UnitGroup* unitGroup);
     void DrawCountedStats(DrawData& unitData, int totalStats[], int selectedStats[]);
-    void DrawEnvironment();
     void DrawUnitGroups();
     void DrawBuildings();
+    void DrawPotionEffect();
+    void DrawEarnedResourcesInfoOverlay();
     void EraseSelectedUnitGroups();
     void TransferUnitGroupsToTile(const std::shared_ptr<Tile>& destTile);
     DrawData GetUnitGroupDrawData();
@@ -113,4 +124,5 @@ private:
     std::shared_ptr<Player> m_OwnedBy;
     std::vector<UnitGroup*> m_UnitGroups;
     std::vector<Building*> m_Buildings;
+    std::shared_ptr<Potion> m_Potion;
 };

@@ -5,6 +5,7 @@
 #include <functional>
 
 #define BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+#define BIND_EVENT_STATIC_FN(fn) std::bind(&fn, std::placeholders::_1)
 
 enum class EventType
 {
@@ -56,7 +57,8 @@ public:
     {
         if (m_Event.GetType() == T::GetStaticType())
         {
-            m_Event.Handled = callbackFunc(*(T*)&m_Event);
+            if (!m_Event.Handled)
+                m_Event.Handled = callbackFunc(*(T*)&m_Event);
             return true;
         }
 

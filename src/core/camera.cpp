@@ -152,3 +152,24 @@ void OrthographicCamera::RecalculateProjectionViewMatrix()
 {
     m_ProjectionView = m_Projection * m_View;
 }
+
+/**
+* @param uiObjBottomLeft object bottom left position from ui camera perspective
+* @param uiObjSize object size from ui camera perspective
+* @param relObjSize object size from object camera perspective
+* @param relObjCenterPos object center position from object camera perspective
+* @return mouse position in game objects relative position
+*/
+glm::vec2 OrthographicCamera::CalculateMousePositionInGameObjectInUI(const glm::vec2& uiObjBottomLeft, const glm::vec2& uiObjSize, const glm::vec2& relObjSize, const glm::vec2& relObjCenterPos)
+{
+    auto mouseClickPos = CalculateRelativeMousePosition();
+    // Calculates distance in relative size from bottom left side to cursor position
+    auto distance = mouseClickPos - uiObjBottomLeft;
+    // Gets proportion from -0.5 to 0.5 for where in the minimap mouse was clicked
+    auto normalizedCursorPosition = glm::vec2(distance.x / uiObjSize.x - 0.5f, distance.y / uiObjSize.y - 0.5f);
+    // calculates final relative mouse position in object
+    return {
+        relObjCenterPos.x + relObjSize.x * normalizedCursorPosition.x,
+        relObjCenterPos.y + relObjSize.y * normalizedCursorPosition.y
+    };
+}

@@ -22,7 +22,7 @@
                 "command": "make -j",
             },
             "windows": {
-                "command": "msbuild .\\UltimateWar.sln"
+                "command": "msbuild .\\UltimateWar.sln -m"
             },
             "group": {
                 "kind": "build",
@@ -40,7 +40,7 @@
                 "command": "make -j; if [ $? -eq 0 ] ; then ./bin/Debug-linux/UltimateWar ; fi",
             },
             "windows": {
-                "command": "msbuild .\\UltimateWar.sln; if (!$LastExitCode) { .\\bin\\Debug-windows\\UltimateWar.exe }"
+                "command": "msbuild .\\UltimateWar.sln -m; if (!$LastExitCode) { .\\bin\\Debug-windows\\UltimateWar.exe }"
             }
         }
     ]

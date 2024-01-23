@@ -24,30 +24,32 @@ void Battle::SimulateBattleTick(const std::shared_ptr<Tile>& attacker, const std
     std::vector<UnitStats*> attackerUnitStats = GatherUnits(attacker, true);
     std::vector<UnitStats*> defenderUnitStats = GatherUnits(defender, false);
 
-    BattleUnits(attackerUnitStats, defenderUnitStats);
+    bool defenderTakesReducedDamage = defender->GetPotion()->IsApplied() && defender->GetPotion()->GetType() == PotionType::REDUCE_DAMAGE;
+    BattleUnits(attackerUnitStats, defenderUnitStats, defenderTakesReducedDamage);
 }
 
-void Battle::BattleUnits(const std::vector<UnitStats*>& attacker, const std::vector<UnitStats*>& defender)
+void Battle::BattleUnits(const std::vector<UnitStats*>& attacker, const std::vector<UnitStats*>& defender, bool defenderTakesReducedDamage)
 {
     size_t minUnitStatsCount = glm::min(attacker.size(), defender.size());
 
+    int reducedDefenderDamageValue = defenderTakesReducedDamage ? 1 : 0;
     for (size_t i = 0; i < minUnitStatsCount; i++)
     {
-        OneVOne(attacker[i], defender[i]);
+        OneVOne(attacker[i], defender[i], reducedDefenderDamageValue);
     }
 
     if (attacker.size() > defender.size())
     {
         for (size_t i = minUnitStatsCount; i < attacker.size(); i++)
         {
-            OneVOne(attacker[i], defender[i % minUnitStatsCount]);
+            OneVOne(attacker[i], defender[i % minUnitStatsCount], reducedDefenderDamageValue);
         }
     }
     else
     {
         for (size_t i = minUnitStatsCount; i < defender.size(); i++)
         {
-            OneVOne(defender[i], attacker[i % minUnitStatsCount]);
+            OneVOne(defender[i], attacker[i % minUnitStatsCount], reducedDefenderDamageValue);
         }
     }
 }
@@ -67,11 +69,11 @@ std::vector<UnitStats*> Battle::GatherUnits(const std::shared_ptr<Tile>& tile, b
     return unitStats;
 }
 
-void Battle::OneVOne(UnitStats* us1, UnitStats* us2)
+void Battle::OneVOne(UnitStats* us1, UnitStats* us2, int reducedDefenderDamageValue)
 {
     if (us1->Health <= 0 || us2->Health <= 0) return;
 
-    us2->Health -= glm::max(us1->Attack - us2->Defense, 1);
+    us2->Health -= glm::max(us1->Attack - us2->Defense - reducedDefenderDamageValue, 1);
     us1->Health -= glm::max(us2->Attack - us1->Defense, 1);
 
     us2->Health = glm::max(us2->Health, 0);

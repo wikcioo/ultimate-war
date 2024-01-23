@@ -7,9 +7,9 @@
 
 enum class BuildingType
 {
+    GOLD_MINE,
     TARGET,
     BLACKSMITH,
-    GOLD_MINE,
     HARPY_TOWER,
     DEMON_CASTLE,
     COUNT,
@@ -32,11 +32,20 @@ public:
     ~Building() = default;
 
     void Upgrade() { m_Level += 1; }
+    void SetLevel(unsigned int level) { m_Level = level; }
 
     const BuildingType GetType() const { return m_Type; }
     const unsigned int GetLevel() const { return m_Level; }
 
+    Resources GetUpgradeCost() const;
+
 private:
     BuildingType m_Type;
     unsigned int m_Level;
+};
+
+struct BuildingUpgradeInfo
+{
+    bool Show;
+    Building* _Building;
 };

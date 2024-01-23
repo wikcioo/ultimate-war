@@ -13,8 +13,8 @@ enum class UnitGroupType
     SWORDSMAN,
     ARCHER,
     DWARF,
-    DEMON,
     HARPY,
+    DEMON,
     COUNT,
     NONE
 };
@@ -26,6 +26,8 @@ struct UnitStats
     int Health;
 
     UnitStats operator+(int scalar);
+    UnitStats operator+(UnitStats stats);
+    bool operator>(UnitStats stats);
 };
 
 struct UnitGroupData
@@ -41,12 +43,14 @@ extern std::unordered_map<UnitGroupType, UnitGroupData> UnitGroupDataMap;
 class UnitGroup
 {
 public:
-    UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats = std::nullopt);
+    UnitGroup(UnitGroupType type, std::optional<UnitStats*> stats = std::nullopt, int movedOnIteration = 0);
     ~UnitGroup() = default;
 
     void ToggleSelected() { m_IsSelected = !m_IsSelected; }
     void SetSelected(bool isSelected) { m_IsSelected = isSelected; }
     void SetMovedOnIteration(int iteration) { m_MovedOnIteration = iteration; }
+
+    int GetMovedOnIteration() { return m_MovedOnIteration; }
 
     // TODO: Rethink
     void IncrementQuantity(int quantity = 1);

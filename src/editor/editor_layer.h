@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <string>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
@@ -23,6 +24,16 @@ public:
     virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
+    static EditorLayer& Get() { return *s_Instance; }
+
+    inline const std::shared_ptr<OrthographicCameraController>& GetCameraController() const { return m_CameraController; }
+    inline TileEnvironment GetSelectedTileEnvType() { return m_SelectedTileEnvType; }
+
+    void SaveMap(const std::string& mapName);
+
+    const std::string& GetName() { return m_Name; }
+    void SetName(const std::string& name) { m_Name = name; }
+
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
@@ -30,15 +41,17 @@ private:
 
     void CreateAdjacentHightlightTiles(glm::ivec2 coords);
     void UpdateTile(Tile* tile);
-    void SaveMap();
     void RemoveTileWithNoAdjacent(Tile* tile);
     void CheckAdjacentTilesForRemoval(Tile* tile);
     void CheckForTileInRange();
 
 private:
-    std::shared_ptr<OrthographicCamera> m_UICamera;
+    static EditorLayer* s_Instance;
+
     std::shared_ptr<OrthographicCameraController> m_CameraController;
     std::unordered_map<glm::ivec2, Tile*> m_Map;
+    size_t m_SavedMapHash;
     Tile* m_PreviousTile;
     TileEnvironment m_SelectedTileEnvType;
+    std::string m_Name;
 };

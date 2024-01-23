@@ -6,12 +6,26 @@
 #include "core/input.h"
 #include "graphics/renderer.h"
 
-EditorLayer::EditorLayer()
-    : Layer("EditorLayer")
+static std::size_t HashMap(const std::unordered_map<glm::ivec2, Tile*>& m)
 {
+    size_t hash = 0;
+    for (const auto& pair : m)
+    {
+        const glm::ivec2& key = pair.first;
+        hash ^= std::hash<int>{}(key.x) ^ std::hash<int>{}(key.y);
+    }
+
+    return hash;
+}
+
+EditorLayer* EditorLayer::s_Instance = nullptr;
+
+EditorLayer::EditorLayer()
+    : Layer("EditorLayer"), m_Name("")
+{
+    s_Instance = this;
     auto window = Application::Get().GetWindow();
     m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
-    m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
 }
 
 void EditorLayer::OnAttach()
@@ -20,6 +34,7 @@ void EditorLayer::OnAttach()
     Tile* baseTile = new Tile(TileEnvironment::HIGHLIGHT, coords);
     m_PreviousTile = baseTile;
     m_Map.insert({ coords, baseTile });
+    m_SavedMapHash = HashMap(m_Map);
     m_SelectedTileEnvType = TileEnvironment::FOREST;
 
     m_CameraController->GetCamera()->SetPosition({ baseTile->GetPosition(), 0.0f });
@@ -31,10 +46,10 @@ void EditorLayer::OnDetach()
 
 void EditorLayer::OnUpdate(float dt)
 {
-    if (Input::IsKeyPressed(GLFW_KEY_W) ||
-        Input::IsKeyPressed(GLFW_KEY_S) ||
-        Input::IsKeyPressed(GLFW_KEY_A) ||
-        Input::IsKeyPressed(GLFW_KEY_D))
+    if (m_CameraController->IsKeyPressed(GLFW_KEY_W) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_S) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_A) ||
+        m_CameraController->IsKeyPressed(GLFW_KEY_D))
     {
         if (Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
             CheckForTileInRange();
@@ -46,22 +61,8 @@ void EditorLayer::OnUpdate(float dt)
     Renderer2D::BeginScene(m_CameraController->GetCamera());
 
     for (const auto& pair : m_Map) {
-        pair.second->Draw();
+        pair.second->DrawEnvironment(m_CameraController->GetCamera());
     }
-
-    Renderer2D::EndScene();
-
-    auto halfOfWidth = m_UICamera->GetHalfOfRelativeWidth();
-    auto halfOfHeight = m_UICamera->GetHalfOfRelativeHeight();
-    static float textScale = 0.3f;
-
-    std::string selectedEnvironment = Tile::GetEnvironmentName(m_SelectedTileEnvType);
-    std::string mapEditor = "Map Editor";
-
-    Renderer2D::BeginScene(m_UICamera);
-
-    Renderer2D::DrawTextStr(selectedEnvironment, {  halfOfWidth - 0.05f, halfOfHeight - 0.1f }, textScale, glm::vec3(0.9f), HTextAlign::RIGHT);
-    Renderer2D::DrawTextStr(mapEditor, { 0.0f, halfOfHeight - 0.1f }, textScale, glm::vec3(0.9f), HTextAlign::MIDDLE);
 
     Renderer2D::EndScene();
 }
@@ -95,8 +96,6 @@ void EditorLayer::CreateAdjacentHightlightTiles(glm::ivec2 coords)
 void EditorLayer::OnEvent(Event& event)
 {
     m_CameraController->OnEvent(event);
-    m_UICamera->SetAspectRatio(m_CameraController->GetCamera()->GetAspectRatio());
-    m_UICamera->SetScale(m_CameraController->GetCamera()->GetScale());
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
@@ -104,8 +103,13 @@ void EditorLayer::OnEvent(Event& event)
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(EditorLayer::OnKeyPressed));
 }
 
-void EditorLayer::SaveMap()
+void EditorLayer::SaveMap(const std::string& mapName)
 {
+    if (m_Name.empty())
+        m_Name = mapName;
+
+    m_SavedMapHash = HashMap(m_Map);
+
     int minX = 0, minY = 0;
     int maxX = 0, maxY = 0;
 
@@ -132,7 +136,7 @@ void EditorLayer::SaveMap()
         }
     }
 
-    std::ofstream outputFile("assets/maps/test.map");
+    std::ofstream outputFile("assets/maps/" + mapName + ".map");
     bool addExtraLine = minX % 2 != 0;
     if (outputFile.is_open())
     {
@@ -171,13 +175,39 @@ bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
         case GLFW_KEY_TAB:
         {
             if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
-                Application::Get().OpenMainMenu();
-            break;
-        }
-        case GLFW_KEY_X:
-        {
-            SaveMap();
-            break;
+            {
+                size_t currentMapHash = HashMap(m_Map);
+
+                if (m_SavedMapHash != currentMapHash)
+                {
+                    bool hasOneHighlighTile = false;
+                    if (m_Map.size() == 1)
+                    {
+                        for (const auto& pair : m_Map)
+                        {
+                            if (pair.second->GetEnvironment() == TileEnvironment::HIGHLIGHT)
+                                hasOneHighlighTile = true;
+                        }
+                    }
+                    if (hasOneHighlighTile)
+                    {
+                        Application::Get().OpenMainMenu();
+                    }
+                    else
+                    {
+                        UILayer::s_ConfirmPopup->Open(
+                            "You have unsaved changes\nExit without saving?",
+                            [](){ Application::Get().OpenMainMenu(); },
+                            [](){ UILayer::s_ConfirmPopup->Close(); }
+                        );
+                    }
+                }
+                else
+                {
+                    Application::Get().OpenMainMenu();
+                }
+                break;
+            }
         }
         case GLFW_KEY_1:
         {
@@ -222,8 +252,17 @@ bool EditorLayer::OnMouseMoved(MouseMovedEvent& event)
 
 bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
 {
-    CheckForTileInRange();
-    return true;
+    switch (event.GetMouseButton())
+    {
+        case GLFW_MOUSE_BUTTON_LEFT:
+        {
+            CheckForTileInRange();
+            return true;
+        }
+        default:
+            return false;
+    }
+
 }
 
 // Remove a tile if it has no adjacent environment tile

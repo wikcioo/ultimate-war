@@ -18,6 +18,7 @@ public:
     glm::vec2 CalculateRelativeMousePosition();
     glm::vec2 CalculateScreenRelativeMousePosition();
     glm::vec2 CalculateRelativeWindowSize();
+    glm::vec2 CalculateMousePositionInGameObjectInUI(const glm::vec2& uiObjBottomLeft, const glm::vec2& uiObjSize, const glm::vec2& relObjSize, const glm::vec2& relObjCenterPos);
 
     void SetPosition(const glm::vec3& position);
     void SetAspectRatio(float ratio);

@@ -4,54 +4,41 @@
 #include "core/application.h"
 #include "game/game_layer.h"
 #include "graphics/renderer.h"
-#include "ui/minimap.h"
-#include "ui/shop_panel.h"
-#include "ui/info.h"
+#include "ui/game/minimap.h"
+#include "ui/game/shop_panel.h"
+#include "ui/game/game_info.h"
+#include "ui/game/game_save_popup.h"
+#include "ui/editor/editor_info.h"
+#include "ui/editor/editor_save_popup.h"
+#include "widgets/notification.h"
+
+std::shared_ptr<ConfirmPopup> UILayer::s_ConfirmPopup = nullptr;
 
 UILayer::UILayer()
     : Layer("UILayer")
 {
-    m_GameCamera = GameLayer::Get().GetCameraController()->GetCamera();
-    m_UICamera = std::make_shared<OrthographicCamera>(m_GameCamera->GetAspectRatio());
+    auto window = Application::Get().GetWindow();
+    m_UICamera = std::make_shared<OrthographicCamera>((float)window->GetWidth() / (float)window->GetHeight());
 
-    float minimapHeight = 0.5f;
-    m_UIElements.emplace_back(
-        std::make_shared<Minimap>(
-            m_UICamera,
-            m_GameCamera,
-            GameLayer::Get().GetGameMapManager(),
-            glm::vec2(0.0f, 0.0f),
-            glm::vec2(minimapHeight * MINIMAP_ASPECT_RATIO, minimapHeight)
-        ));
-
-    m_UIElements.emplace_back(
-        std::make_shared<ShopPanel>(
-            m_UICamera,
-            glm::vec2(m_UICamera->GetHalfOfRelativeWidth(), 0.0f)
-        ));
-
-    m_UIElements.emplace_back(std::make_shared<Info>(m_UICamera, GameLayer::Get().GetPlayerManager()));
+    UILayer::s_ConfirmPopup = std::make_shared<ConfirmPopup>(m_UICamera);
 }
 
 void UILayer::OnAttach()
 {
+    ConfigureNotification();
 }
 
 void UILayer::OnDetach()
 {
+    m_UIElementStack.Clear();
 }
 
 void UILayer::OnUpdate(float dt)
 {
-    if(!GameLayer::Get().IsGameActive())
-    {
-        Renderer2D::BeginScene(m_UICamera);
-        Renderer2D::DrawTextStr("Game Over", { 0.0f, 0.0f }, 1.0f,
-                          { 0.95, 0.7, 0.5 }, HTextAlign::MIDDLE);
-        Renderer2D::EndScene();
-    }
-    for (auto element : m_UIElements)
+    for (const auto& element : m_UIElementStack)
         element->Draw();
+
+    Notification::OnUpdate(dt);
 }
 
 void UILayer::OnEvent(Event& event)
@@ -59,8 +46,40 @@ void UILayer::OnEvent(Event& event)
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowResizedEvent>(BIND_EVENT_FN(UILayer::OnWindowResized));
 
-    for (auto element : m_UIElements)
-        element->OnEvent(event);
+    Notification::OnEvent(event);
+
+    for (auto it = m_UIElementStack.rbegin(); it != m_UIElementStack.rend(); it++)
+        (*it)->OnEvent(event);
+}
+
+void UILayer::PushGameLayerElements()
+{
+    auto gameCamera = GameLayer::Get().GetCameraController()->GetCamera();
+    float minimapHeight = 0.5f;
+    m_UIElementStack.PushElement(
+        std::make_shared<Minimap>(
+            m_UICamera,
+            gameCamera,
+            GameLayer::Get().GetGameMapManager(),
+            glm::vec2(0.0f, 0.0f),
+            glm::vec2(minimapHeight * MINIMAP_ASPECT_RATIO, minimapHeight)
+        ));
+
+    m_UIElementStack.PushElement(
+        std::make_shared<ShopPanel>(
+            m_UICamera,
+            glm::vec2(m_UICamera->GetHalfOfRelativeWidth(), 0.0f)
+        ));
+
+    m_UIElementStack.PushElement(std::make_shared<GameInfo>(m_UICamera, GameLayer::Get().GetPlayerManager()));
+    m_UIElementStack.PushElement(std::make_shared<GameSavePopup>(m_UICamera));
+}
+
+void UILayer::PushEditorLayerElements()
+{
+    m_UIElementStack.PushElement(std::make_shared<EditorInfo>(m_UICamera));
+    m_UIElementStack.PushElement(std::make_shared<EditorSavePopup>(m_UICamera));
+    m_UIElementStack.PushElement(UILayer::s_ConfirmPopup);
 }
 
 bool UILayer::OnWindowResized(WindowResizedEvent& event)
@@ -68,4 +87,11 @@ bool UILayer::OnWindowResized(WindowResizedEvent& event)
     m_UICamera->SetAspectRatio((float)event.GetWidth() / (float)event.GetHeight());
     m_UICamera->SetScale(event.GetHeight() / INITIAL_RELATIVE_HEIGHT_IN_PIXELS);
     return false;
+}
+
+void UILayer::ConfigureNotification()
+{
+    NotificationConfig config;
+    config.WindowOffset = { 0.05f, 0.1f };
+    Notification::Configure(m_UICamera, config);
 }

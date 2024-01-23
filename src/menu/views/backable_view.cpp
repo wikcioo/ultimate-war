@@ -1,9 +1,10 @@
 #include "backable_view.h"
 
 #include "menu/main_menu_layer.h"
+#include "core/input.h"
 
-BackableView::BackableView()
-    : m_BackButtonSize(0.4, 0.1)
+BackableView::BackableView(ViewName backViewName)
+    : m_BackButtonSize(0.4, 0.1), m_BackViewName(backViewName)
 {
     ButtonConfig buttonConfig;
     buttonConfig.Text = "BACK";
@@ -23,7 +24,7 @@ void BackableView::OnAttach()
     m_BackButton->SetPosition(CalculateBackButtonPosition());
 }
 
-void BackableView::OnUpdate()
+void BackableView::OnUpdate(float dt)
 {
     m_BackButton->OnUpdate();
 }
@@ -33,7 +34,22 @@ void BackableView::OnEvent(Event& event)
     if (event.GetCategory() == EventCategory::Window)
         OnWindowSizeChanged();
 
+    EventDispatcher dispatcher(event);
+
+    dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(BackableView::OnKeyPressed));
+
     m_BackButton->OnEvent(event);
+}
+
+bool BackableView::OnKeyPressed(KeyPressedEvent& event)
+{
+    if (event.GetKeyCode() == GLFW_KEY_TAB && Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+    {
+        MainMenuLayer::Get().SetView(m_BackViewName);
+        return true;
+    }
+
+    return false;
 }
 
 void BackableView::OnWindowSizeChanged()
@@ -43,7 +59,7 @@ void BackableView::OnWindowSizeChanged()
 
 void BackableView::OnBackButtonPressed(ButtonCallbackData data)
 {
-    MainMenuLayer::Get().SetView(ViewName::MAIN);
+    MainMenuLayer::Get().SetView(m_BackViewName);
 }
 
 glm::vec2 BackableView::CalculateBackButtonPosition()

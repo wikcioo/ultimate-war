@@ -20,6 +20,8 @@ struct NewGameDTO
 {
     std::string MapName;
     std::vector<PlayerDTO> Players;
+    std::optional<std::vector<std::vector<std::string>>> MapData = std::nullopt;
+    bool LoadedFromSave = false;
 };
 
 class GameLayer : public Layer
@@ -44,16 +46,27 @@ public:
     inline bool IsGameActive() const { return m_GameActive; }
     inline int GetIteration() { return m_IterationNumber; }
 
+    bool IsEarnedResourcesInfoVisible() { return m_ShowEarnedResourcesInfo; }
+    void SetEarnedResourcesInfoVisible(bool isVisible) { m_ShowEarnedResourcesInfo = isVisible; }
+
+    BuildingUpgradeInfo GetBuildingUpgradeInfo() { return m_BuildingUpgradeInfo; }
+    void SetBuildingUpgradeInfo(BuildingUpgradeInfo info) { m_BuildingUpgradeInfo = info; }
+
+    const std::string& GetName() { return m_Name; }
+    void SetName(const std::string& name) { m_Name = name; }
+
     void InitGame(NewGameDTO newGameData);
-    void NextIteration() { m_IterationNumber++; }
+    void SetIterationNumber(int iterationNumber) { m_IterationNumber = iterationNumber; }
+    void NextIteration();
     void ResetArrow();
     void EndGame();
 
 private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
-    bool OnKeyReleased(KeyReleasedEvent& event);
     bool OnKeyPressed(KeyPressedEvent& event);
+    bool OnKeyReleased(KeyReleasedEvent& event);
     void ProcessTileInRange(const std::shared_ptr<Tile>& tile, const std::shared_ptr<Player>& currentPlayer, const glm::vec2& relMousePos);
+    void SelectAllIfInRange();
 
 private:
     static GameLayer* s_Instance;
@@ -64,4 +77,7 @@ private:
     std::shared_ptr<Arrow> m_Arrow;
     int m_IterationNumber;
     bool m_GameActive;
+    bool m_ShowEarnedResourcesInfo;
+    BuildingUpgradeInfo m_BuildingUpgradeInfo;
+    std::string m_Name;
 };

@@ -5,7 +5,7 @@
 
 #include "event/window_event.h"
 #include "menu/views/backable_view.h"
-#include "widgets/toggle_button_group.h"
+#include "widgets/button.h"
 
 class ChooseMapView : public BackableView
 {
@@ -14,7 +14,7 @@ public:
     ~ChooseMapView();
 
     virtual void OnAttach() override;
-    virtual void OnUpdate() override;
+    virtual void OnUpdate(float dt) override;
     virtual void OnEvent(Event& event) override;
 
     const std::string& GetSelectedMap() { return m_SelectedMap; }

@@ -10,6 +10,7 @@
 #include "event/mouse_event.h"
 #include "event/window_event.h"
 #include "ui/ui_element.h"
+#include "widgets/button.h"
 
 #define MINIMAP_ASPECT_RATIO 1.7777f
 
@@ -30,12 +31,18 @@ private:
     bool OnMouseMoved(MouseMovedEvent& event);
     bool OnMouseScrolled(MouseScrolledEvent& event);
     bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
+    void MoveCameraToClickLocation();
 
+    void OnNextTurnButtonPressed(ButtonCallbackData data);
 private:
+    bool m_MouseWasPressed = false;
+    float m_NextTurnButtonHeight = 0.1f;
     glm::vec2 m_Offset;
     glm::vec2 m_MinimapPos;
+    glm::vec2 m_MapSize;
     std::unique_ptr<FrameBuffer> m_Framebuffer;
     std::shared_ptr<OrthographicCamera> m_GameCamera;
     std::shared_ptr<OrthographicCamera> m_MinimapCamera;
     std::shared_ptr<GameMapManager> m_GameMapManager;
+    std::unique_ptr<Button> m_NextTurnButton;
 };

@@ -20,6 +20,7 @@ enum class LayerStackReload
     OPEN_MAIN_MENU,
     START_NEW_GAME,
     CONTINUE_LAST_GAME,
+    LOAD_SAVE,
     OPEN_MAP_EDITOR
 };
 
@@ -36,6 +37,8 @@ public:
     void OpenMapEditor();
     void StartNewGame(NewGameDTO newGameData);
     void ContinueLastGame();
+    void SaveGame(const std::string& saveName);
+    void LoadSave(const std::string& saveName);
     void Exit() { m_Running = false; }
 
     bool LastGameAvailable() { return m_LastGameLayer ? true : false; }
@@ -66,5 +69,6 @@ private:
     bool m_Running = true;
     LayerStackReload m_LayerStackReload = LayerStackReload::NONE;
     NewGameDTO m_NewGameData;
+    std::string m_SaveName;
     float m_DeltaTime;
 };

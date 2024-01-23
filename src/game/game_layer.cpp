@@ -15,12 +15,17 @@
 GameLayer* GameLayer::s_Instance = nullptr;
 
 GameLayer::GameLayer()
-    : Layer("GameLayer"), m_IterationNumber(0), m_GameActive(true)
+    : Layer("GameLayer"), m_IterationNumber(0), m_GameActive(true), m_ShowEarnedResourcesInfo(false),
+      m_BuildingUpgradeInfo({false}), m_Name("")
 {
     s_Instance = this;
 
     auto window = Application::Get().GetWindow();
-    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), true);
+    bool enableCameraRotation = false;
+#if defined(DEBUG)
+    enableCameraRotation = true;
+#endif
+    m_CameraController = std::make_shared<OrthographicCameraController>((float)window->GetWidth() / (float)window->GetHeight(), enableCameraRotation);
     m_GameMapManager = std::make_shared<GameMapManager>("");
     m_PlayerManager = std::make_shared<PlayerManager>();
     m_Arrow = std::make_shared<Arrow>();
@@ -37,13 +42,14 @@ void GameLayer::OnDetach()
 void GameLayer::OnUpdate(float dt)
 {
     m_CameraController->OnUpdate(dt);
+    auto camera = m_CameraController->GetCamera();
 
     Renderer2D::ClearColor({0.2f, 0.2f, 0.2f, 1.0f});
 
-    Renderer2D::BeginScene(m_CameraController->GetCamera());
+    Renderer2D::BeginScene(camera);
 
     auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
-    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
+    auto relMousePos = camera->CalculateRelativeMousePosition();
     bool isCursorOnAdjacentTile = false;
 
     struct
@@ -119,7 +125,7 @@ void GameLayer::OnUpdate(float dt)
         Renderer2D::DrawTextStr(
             "Not enough space",
             notEnoughSpaceInfo.Position,
-            1.0f / m_CameraController->GetCamera()->GetZoom(),
+            1.0f / camera->GetZoom(),
             glm::vec3(1.0f),
             HTextAlign::MIDDLE
         );
@@ -134,21 +140,8 @@ void GameLayer::OnEvent(Event& event)
 
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(GameLayer::OnMouseButtonPressed));
-    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(GameLayer::OnKeyReleased));
     dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(GameLayer::OnKeyPressed));
-}
-
-bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
-{
-    if(!m_GameActive) return true;
-
-    if(event.GetKeyCode() == GLFW_KEY_ENTER)
-    {
-        m_PlayerManager->NextTurn();
-        return true;
-    }
-
-    return false;
+    dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT_FN(GameLayer::OnKeyReleased));
 }
 
 bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
@@ -159,36 +152,124 @@ bool GameLayer::OnKeyPressed(KeyPressedEvent& event)
         return true;
     }
 
+    if (event.GetKeyCode() == GLFW_KEY_A && Input::IsKeyPressed(GLFW_KEY_LEFT_CONTROL))
+    {
+        SelectAllIfInRange();
+        return true;
+    }
+
+    if (m_GameActive && event.GetKeyCode() == GLFW_KEY_ENTER && event.GetRepeatCount() != 1)
+    {
+        m_PlayerManager->NextTurn();
+        return true;
+    }
+
+    if (m_GameActive && event.GetKeyCode() == GLFW_KEY_LEFT_ALT)
+    {
+        m_ShowEarnedResourcesInfo = true;
+        return true;
+    }
+
+    return false;
+}
+
+void GameLayer::SelectAllIfInRange()
+{
+    auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
+
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    {
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        {
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+
+            if (!tile->InRange(relMousePos))
+                continue;
+
+            if (tile->GetOwnedBy() != m_PlayerManager->GetCurrentPlayer())
+                continue;
+
+            if (m_Arrow->GetStartTile())
+                m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+
+            tile->SelectAllUnitGroups();
+            m_Arrow->SetStartTile(tile);
+            m_Arrow->SetActivated(tile && tile->HasSelectedUnitGroups());
+
+            return;
+        }
+    }
+}
+
+bool GameLayer::OnKeyReleased(KeyReleasedEvent& event)
+{
+    if (event.GetKeyCode() == GLFW_KEY_LEFT_ALT)
+    {
+        m_ShowEarnedResourcesInfo = false;
+        return true;
+    }
+
     return false;
 }
 
 void GameLayer::InitGame(NewGameDTO newGameData)
 {
-    m_GameMapManager->Load(newGameData.MapName);
+    if (newGameData.MapData.has_value())
+        m_GameMapManager->Load(newGameData.MapName, newGameData.MapData.value());
+    else
+        m_GameMapManager->Load(newGameData.MapName);
 
     glm::vec2 mapMiddle = {
-        (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) / 2.0f) - TILE_HEIGHT / 2.0f,
-        (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) / 2.0f) - (TILE_HEIGHT + TILE_OFFSET) / 2.0f
+        (m_GameMapManager->GetGameMap()->GetTileCountX() * (3.0f / 4.0f * TILE_WIDTH + TILE_OFFSET) / 2.0f) - TILE_WIDTH / 2.0f,
+        (m_GameMapManager->GetGameMap()->GetTileCountY() * (TILE_HEIGHT + TILE_OFFSET) / 2.0f) - (TILE_HEIGHT + TILE_OFFSET) / 4.0f
     };
 
     m_CameraController->GetCamera()->SetPosition(glm::vec3(mapMiddle, 0.0f));
 
     for (auto player : newGameData.Players)
-        m_PlayerManager->AddPlayer(player);
-
-#if defined(DEBUG)
-    int i = 6;
-    for (auto player : m_PlayerManager->GetAllPlayers())
     {
-        auto tile = m_GameMapManager->GetGameMap()->GetTile(i, 5);
-        tile->CreateUnitGroup(UnitGroupType::SWORDSMAN);
-        tile->CreateUnitGroup(UnitGroupType::DWARF);
-        tile->CreateUnitGroup(UnitGroupType::DEMON);
-        tile->CreateBuilding(BuildingType::GOLD_MINE);
-        player->AddOwnedTile(tile);
-        i++;
+        auto _player = m_PlayerManager->AddPlayer(player);
+        for (const auto& tileCoords : player.TileCoords)
+        {
+            auto tile = GameLayer::Get().GetGameMapManager()->GetGameMap()->GetTile(tileCoords.x, tileCoords.y);
+
+            if (!newGameData.LoadedFromSave)
+            {
+                UnitGroup ug(UnitGroupType::SWORDSMAN);
+                ug.SetMovedOnIteration(-1);
+                tile->CreateUnitGroup(ug);
+            }
+
+            _player->AddOwnedTile(tile);
+        }
     }
-#endif
+
+    if (!newGameData.LoadedFromSave)
+    {
+        for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+        {
+            for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+            {
+                auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+                if (tile->AssetsCanExist() && !tile->IsOwned())
+                    tile->AddRandomUnits();
+            }
+        }
+    }
+}
+
+void GameLayer::NextIteration()
+{
+    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    {
+        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        {
+            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            tile->TickPotion();
+        }
+    }
+
+    m_IterationNumber++;
 }
 
 void GameLayer::ResetArrow()
@@ -210,29 +291,39 @@ bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     if (!m_GameActive) return true;
 
     auto relMousePos = m_CameraController->GetCamera()->CalculateRelativeMousePosition();
-    auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
 
-    for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+    switch (event.GetMouseButton())
     {
-        for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+        case GLFW_MOUSE_BUTTON_LEFT:
         {
-            auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
+            auto currentPlayer = m_PlayerManager->GetCurrentPlayer();
 
-            if (!tile->InRange(relMousePos))
-                continue;
+            for (int y = 0; y < m_GameMapManager->GetGameMap()->GetTileCountY(); y++)
+            {
+                for (int x = 0; x < m_GameMapManager->GetGameMap()->GetTileCountX(); x++)
+                {
+                    auto tile = m_GameMapManager->GetGameMap()->GetTile(x, y);
 
-            ProcessTileInRange(tile, currentPlayer, relMousePos);
-            m_Arrow->SetActivated(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
+                    if (!tile->InRange(relMousePos))
+                        continue;
+
+                    ProcessTileInRange(tile, currentPlayer, relMousePos);
+                    m_Arrow->SetActivated(m_Arrow->GetStartTile() && m_Arrow->GetStartTile()->HasSelectedUnitGroups());
+                    return true;
+                }
+            }
+
+            // If no tile in range then deselect all unit groups
+            if (m_Arrow->GetStartTile())
+                m_Arrow->GetStartTile()->DeselectAllUnitGroups();
+
+            m_Arrow->SetActivated(false);
             return true;
         }
+        default:
+            return false;
     }
 
-    // If no tile in range then deselect all unit groups
-    if (m_Arrow->GetStartTile())
-        m_Arrow->GetStartTile()->DeselectAllUnitGroups();
-
-    m_Arrow->SetActivated(false);
-    return true;
 }
 
 void GameLayer::ProcessTileInRange(const std::shared_ptr<Tile>& tile, const std::shared_ptr<Player>& currentPlayer, const glm::vec2& relMousePos)

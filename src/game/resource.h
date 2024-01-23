@@ -10,6 +10,7 @@ struct ResourceData
     static const int NumResources = 4;
     glm::vec3 ResourceNumberColors[NumResources];
     std::shared_ptr<Texture2D> ResourceTextures[NumResources];
+    float ResourceTextureScales[NumResources];
 };
 
 struct Resources
@@ -19,7 +20,9 @@ struct Resources
     int Steel;
     int Gold;
 
-    Resources operator*(int scalar);
+    static void Draw2x2(const Resources& res, const glm::vec2& position);
+
+    Resources operator*(double scalar);
     Resources& operator+=(const Resources& other);
     Resources& operator-=(const Resources& other);
     bool operator>=(const Resources& other);

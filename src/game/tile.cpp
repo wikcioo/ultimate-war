@@ -12,6 +12,9 @@
 #include "util/util.h"
 #include "game/game_layer.h"
 #include "game/battle.h"
+#include "widgets/notification.h"
+
+#include <GLFW/glfw3.h>
 
 float Tile::s_BackgroundHeightRatio = 0.8f;
 
@@ -25,7 +28,7 @@ int Tile::s_BuildingWidthToOffsetRatio = 10;
 
 const int Tile::s_StatCount = 3;
 const char* Tile::s_StatTextures[s_StatCount] = { "swords", "shield", "heart" };
-const std::array<glm::ivec2, 6> Tile::s_AdjacentTileOffsets = {
+const std::vector<glm::ivec2> Tile::s_AdjacentTileOffsets = {
     glm::ivec2(-1, 1), {0,  1}, {1, 1},
               {-1, 0}, {0, -1}, {1, 0}
 };
@@ -35,15 +38,16 @@ std::shared_ptr<Texture2D> Tile::s_UpgradeIconTexture;
 std::unordered_map<TileEnvironment, Resources> EnvironmentResourcesMap = {
     { TileEnvironment::NONE,      { 0, 0, 0, 0 } },
     { TileEnvironment::OCEAN,     { 1, 1, 1, 1 } },
-    { TileEnvironment::FOREST,    { 7, 2, 1, 2 } },
-    { TileEnvironment::DESERT,    { 2, 1, 0, 4 } },
-    { TileEnvironment::MOUNTAINS, { 1, 7, 3, 3 } }
+    { TileEnvironment::FOREST,    { 6, 2, 1, 1 } },
+    { TileEnvironment::DESERT,    { 2, 1, 6, 1 } },
+    { TileEnvironment::MOUNTAINS, { 1, 6, 2, 1 } }
 };
 
 Tile::Tile(TileEnvironment environment, const glm::ivec2& coords)
     : m_Environment(environment), m_Coords(coords), m_Position(Tile::CalculateTilePosition(coords.x, coords.y))
 {
     m_Resources = EnvironmentResourcesMap[m_Environment];
+    m_Potion = std::make_shared<Potion>();
     InitStaticRuntimeData();
 }
 
@@ -81,15 +85,31 @@ void Tile::CreateUnitGroup(UnitGroupType type)
         if (maxRequiredBuildingLevel > 0)
         {
             UnitStats* upgradedUnitStats = new UnitStats(UnitGroupDataMap[type].Stats + maxRequiredBuildingLevel);
-            m_UnitGroups.emplace_back(new UnitGroup(type, upgradedUnitStats));
+            m_UnitGroups.emplace_back(new UnitGroup(type, upgradedUnitStats, GameLayer::Get().GetIteration()));
         }
         else
         {
-            m_UnitGroups.emplace_back(new UnitGroup(type));
+            m_UnitGroups.emplace_back(new UnitGroup(type, std::nullopt, GameLayer::Get().GetIteration()));
         }
     }
     else
         LOG_WARN("Trying to add unit group of type '{0}' to non-existent tile", UnitGroupDataMap[type].TextureName);
+}
+
+void Tile::CreateUnitGroup(UnitGroup unitGroup)
+{
+    if (!HasSpaceForUnitGroups(1))
+    {
+        LOG_WARN("Not enough space to add unit group object of type '{0}' to tile",
+                 UnitGroupDataMap[unitGroup.GetType()].TextureName);
+        return;
+    }
+
+    if (AssetsCanExist())
+        m_UnitGroups.emplace_back(new UnitGroup(unitGroup));
+    else
+        LOG_WARN("Trying to add unit group object of type '{0}' to non-existent tile",
+                 UnitGroupDataMap[unitGroup.GetType()].TextureName);
 }
 
 bool Tile::CanRecruitUnitGroup(UnitGroupType type)
@@ -137,18 +157,80 @@ void Tile::CreateBuilding(BuildingType type)
         LOG_WARN("Trying to add building of type '{0}' to non-existent tile", BuildingDataMap[type].TextureName);
 }
 
+void Tile::CreateBuilding(Building building)
+{
+    if (!HasSpaceForBuildings(1))
+    {
+        LOG_WARN("Not enough space to add building of type '{0}' to tile",
+                 BuildingDataMap[building.GetType()].TextureName);
+        return;
+    }
+
+    if (AssetsCanExist())
+        m_Buildings.emplace_back(new Building(building));
+    else
+        LOG_WARN("Trying to add building of type '{0}' to non-existent tile",
+                 BuildingDataMap[building.GetType()].TextureName);
+}
+
 void Tile::Draw()
 {
-    DrawEnvironment();
+    auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+    auto relBtmLeft = glm::vec2(
+        m_Position.x - TILE_WIDTH / 4.0f,
+        m_Position.y - TILE_HEIGHT / 4.0f
+    ) - camera->CalculateRelativeBottomLeftPosition();
+    auto pxBtmLeft = camera->ConvertRelativeSizeToPixel(relBtmLeft);
+    auto pxSize = camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT});
+
+    static auto hueShader = ResourceManager::GetShader("hue");
+    auto hueShaderData = ShaderData();
+    hueShaderData.UniformMap["u_BottomLeftPx"] = pxBtmLeft;
+    hueShaderData.UniformMap["u_SizePx"] = pxSize;
 
     if (m_OwnedBy)
     {
-        // If tile owned by player, draw border around the tile with player's color
-        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(m_OwnedBy->GetColor(), 1.0f), 3.0f);
+        static float t = 1.3f;
+        hueShaderData.UniformMap["u_Color"] = m_OwnedBy->GetColor();
+        hueShaderData.UniformMap["u_Time"] = t;
+
+        if (m_OwnedBy == GameLayer::Get().GetPlayerManager()->GetCurrentPlayer())
+        {
+            int iteration = GameLayer::Get().GetIteration();
+            bool hasNotMovedUnits = false;
+            for (auto ug : m_UnitGroups)
+            {
+                if (ug->GetMovedOnIteration() != iteration)
+                {
+                    hasNotMovedUnits = true;
+                    break;
+                }
+            }
+
+            if (hasNotMovedUnits)
+                hueShaderData.UniformMap["u_Time"] = (float)glfwGetTime();
+        }
+
+        Renderer2D::DrawHexagon(m_Position, glm::vec2(2.0f), hueShader, hueShaderData);
     }
 
+    DrawEnvironment(camera);
     DrawUnitGroups();
     DrawBuildings();
+
+    if (m_OwnedBy)
+        Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(m_OwnedBy->GetColor(), 1.0f), 3.0f);
+
+    if (m_Potion->IsApplied())
+    {
+        DrawPotionEffect();
+    }
+
+    if (GameLayer::Get().IsEarnedResourcesInfoVisible() &&
+        GameLayer::Get().GetPlayerManager()->GetCurrentPlayer() == m_OwnedBy)
+    {
+        DrawEarnedResourcesInfoOverlay();
+    }
 }
 
 DrawData Tile::GetUnitGroupDrawData()
@@ -216,7 +298,11 @@ void Tile::DrawUnitGroups()
     int totalStats[s_StatCount] = { 0, 0, 0 };
     int selectedStats[s_StatCount] = { 0, 0, 0 };
 
-    Renderer2D::DrawQuad(unitData.BackgroundPosition, unitData.BackgroundSize, {0.0f, 0.4f, 0.0f, 0.4f});
+    Renderer2D::DrawQuad(
+        unitData.BackgroundPosition,
+        unitData.BackgroundSize,
+        ColorData::Get().TileColors.AssetBackgroundColor
+    );
 
     for (int i = 0; i < m_UnitGroups.size(); i++)
     {
@@ -233,12 +319,12 @@ void Tile::DrawUnitGroups()
             for (auto unitStats : unitStatsVector)
             {
                 selectedStats[0] += unitStats->Attack;
-                selectedStats[1] += unitStats->Health;
-                selectedStats[2] += unitStats->Defense;
+                selectedStats[1] += unitStats->Defense;
+                selectedStats[2] += unitStats->Health;
 
                 totalStats[0] += unitStats->Attack;
-                totalStats[1] += unitStats->Health;
-                totalStats[2] += unitStats->Defense;
+                totalStats[1] += unitStats->Defense;
+                totalStats[2] += unitStats->Health;
             }
         }
         else
@@ -246,8 +332,8 @@ void Tile::DrawUnitGroups()
             for (auto unitStats : unitStatsVector)
             {
                 totalStats[0] += unitStats->Attack;
-                totalStats[1] += unitStats->Health;
-                totalStats[2] += unitStats->Defense;
+                totalStats[1] += unitStats->Defense;
+                totalStats[2] += unitStats->Health;
             }
         }
 
@@ -398,6 +484,7 @@ void Tile::CheckBuildingHover(const glm::vec2& relMousePos)
     auto buildingData = GetBuildingDrawData();
     float initialX = buildingData.Position.x;
     static glm::vec2 upgradeIconSize = buildingData.Size * 0.3f;
+    bool hoveredOverUpgradeIcon = false;
 
     for (int i = 0; i < m_Buildings.size(); i++)
     {
@@ -420,6 +507,9 @@ void Tile::CheckBuildingHover(const glm::vec2& relMousePos)
                     glm::vec2(upgradeIconSize * 1.1f),
                     s_UpgradeIconTexture
                 );
+
+                GameLayer::Get().SetBuildingUpgradeInfo({ true, m_Buildings[i] });
+                hoveredOverUpgradeIcon = true;
             }
         }
 
@@ -433,6 +523,18 @@ void Tile::CheckBuildingHover(const glm::vec2& relMousePos)
             buildingData.Position.x += buildingData.Size.x + buildingData.OffsetSize.x;
         }
     }
+
+    if (!hoveredOverUpgradeIcon)
+        GameLayer::Get().SetBuildingUpgradeInfo({ false });
+}
+
+void Tile::SelectAllUnitGroups()
+{
+    for (auto unitGroup : m_UnitGroups)
+    {
+        if (!unitGroup->UnitWasMovedInIteration(GameLayer::Get().GetIteration()))
+            unitGroup->SetSelected(true);
+    }
 }
 
 void Tile::DrawBuildings()
@@ -443,7 +545,11 @@ void Tile::DrawBuildings()
     float initialX = buildingData.Position.x;
     auto camera = GameLayer::Get().GetCameraController()->GetCamera();
 
-    Renderer2D::DrawQuad(buildingData.BackgroundPosition, buildingData.BackgroundSize, {0.4f, 0.4f, 0.4f, 1.0f});
+    Renderer2D::DrawQuad(
+        buildingData.BackgroundPosition,
+        buildingData.BackgroundSize,
+        ColorData::Get().TileColors.AssetBackgroundColor
+    );
 
     for (int i = 0; i < m_Buildings.size(); i++)
     {
@@ -478,35 +584,199 @@ void Tile::DrawBuildings()
     }
 }
 
-void Tile::DrawEnvironment()
+void Tile::TickPotion()
+{
+    if (m_Potion->IsApplied())
+    {
+        switch (m_Potion->GetType())
+        {
+            case PotionType::HEALING:
+            {
+                for (auto ug : m_UnitGroups)
+                {
+                    auto stats = ug->GetUnitStats()[0];
+                    if (stats->Health < UnitGroupDataMap[ug->GetType()].Stats.Health)
+                        stats->Health = stats->Health + 1;
+                }
+                break;
+            }
+            case PotionType::DEAL_DAMAGE:
+            {
+                for (auto ug : m_UnitGroups)
+                {
+                    auto stats = ug->GetUnitStats()[0];
+                    stats->Health = stats->Health + (-1);
+                }
+
+                Util::RemoveElementsFromContainerWithCondition<std::vector<UnitGroup*>, UnitGroup*>(
+                    m_UnitGroups, [](UnitGroup* ug) {
+                        return ug->GetUnitStats()[0]->Health <= 0;
+                    }
+                );
+                break;
+            }
+            default:
+                break; // the rest of potions are handled elsewhere
+        };
+    }
+
+    m_Potion->Tick();
+}
+
+void Tile::DrawPotionEffect()
+{
+    auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+    auto relBtmLeft = glm::vec2(
+        m_Position.x - TILE_WIDTH / 4.0f,
+        m_Position.y - TILE_HEIGHT / 4.0f
+    ) - camera->CalculateRelativeBottomLeftPosition();
+    auto pxBtmLeft = camera->ConvertRelativeSizeToPixel(relBtmLeft);
+    auto pxSize = camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT});
+
+    static auto potionShader = ResourceManager::GetShader("potion");
+    ShaderData potionShaderData{};
+    potionShaderData.UniformMap["u_Time"] = (float)glfwGetTime();
+    potionShaderData.UniformMap["u_BottomLeftPx"] = pxBtmLeft;
+    potionShaderData.UniformMap["u_SizePx"] = pxSize;
+
+    glm::vec3 effectColor = glm::vec3(1.0f);
+    switch (m_Potion->GetType())
+    {
+        case PotionType::HEALING:
+        {
+            effectColor = glm::vec3(0.95f, 0.3f, 0.2f);
+            break;
+        }
+        case PotionType::IMMUNITY:
+        {
+            effectColor = glm::vec3(0.25f, 0.6f, 0.95f);
+            break;
+        }
+        case PotionType::REDUCE_DAMAGE:
+        {
+            effectColor = glm::vec3(0.25f, 0.9f, 0.2f);
+            break;
+        }
+        case PotionType::INCREASE_YIELD:
+        {
+            effectColor = glm::vec3(0.9f, 0.9f, 0.2f);
+            break;
+        }
+        case PotionType::DEAL_DAMAGE:
+        {
+            effectColor = glm::vec3(0.1f, 0.1f, 0.1f);
+            break;
+        }
+        default:
+        {
+            LOG_WARN("Tile: Unknow potion type");
+            return;
+        }
+    }
+
+    potionShaderData.UniformMap["u_Color"] = effectColor;
+    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), potionShader, potionShaderData);
+
+    Renderer2D::DrawTextStr(
+        Util::ReplaceChar(PotionDataMap[m_Potion->GetType()].TextureName, '_', ' '),
+        {
+            m_Position.x,
+            m_Position.y + TILE_HEIGHT / 2.0f - 0.07f
+        },
+        0.4f / camera->GetZoom(),
+        glm::vec3(0.9f),
+        HTextAlign::MIDDLE,
+        VTextAlign::TOP,
+        "rexlia"
+    );
+}
+
+void Tile::DrawEarnedResourcesInfoOverlay()
+{
+    auto camera = GameLayer::Get().GetCameraController()->GetCamera();
+
+    Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 0.8f));
+
+    static auto resourceData = Resources::GetResourceData();
+    auto resources = GetResources();
+
+    int resourceNumbers[resourceData.NumResources] = {
+        resources.Wood,
+        resources.Rock,
+        resources.Steel,
+        resources.Gold
+    };
+
+    float yStartOffset = 0.3f;
+    float yOffset = 0.2f;
+    for (int i = 0; i < resourceData.NumResources; i++)
+    {
+        Renderer2D::DrawQuad(
+            {
+                m_Position.x - 0.1f,
+                m_Position.y + yStartOffset - i * yOffset
+            },
+            glm::vec2(0.15f * resourceData.ResourceTextureScales[i]),
+            resourceData.ResourceTextures[i]
+        );
+
+        Renderer2D::DrawTextStr(
+            std::to_string(resourceNumbers[i]),
+            {
+                m_Position.x + 0.02f,
+                m_Position.y + yStartOffset - i * yOffset
+            },
+            0.5f / camera->GetZoom(),
+            resourceData.ResourceNumberColors[i],
+            HTextAlign::LEFT,
+            VTextAlign::MIDDLE,
+            "rexlia"
+        );
+    }
+}
+
+void Tile::DrawEnvironment(const std::shared_ptr<OrthographicCamera>& camera)
 {
     if (m_Environment != TileEnvironment::NONE)
     {
         glm::vec3 color;
         float yOffset = TILE_HEIGHT / 2.0f - 0.15f;
+        static auto tileColors = ColorData::Get().TileColors;
         switch (m_Environment)
         {
             case TileEnvironment::OCEAN:
             {
+                auto relBtmLeft = glm::vec2(
+                    m_Position.x - TILE_WIDTH / 4.0f,
+                    m_Position.y - TILE_HEIGHT / 4.0f
+                ) - camera->CalculateRelativeBottomLeftPosition();
+                auto pxBtmLeft = camera->ConvertRelativeSizeToPixel(relBtmLeft);
+                auto pxSize = camera->ConvertRelativeSizeToPixel({TILE_WIDTH, TILE_HEIGHT});
+
                 static auto waterShader = ResourceManager::GetShader("water");
-                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), waterShader);
+                auto waterShaderData = ShaderData();
+                waterShaderData.UniformMap["u_Time"] = (float)glfwGetTime();
+                waterShaderData.UniformMap["u_BottomLeftPx"] = pxBtmLeft;
+                waterShaderData.UniformMap["u_SizePx"] = pxSize;
+
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), waterShader, waterShaderData);
                 return;
             }
             case TileEnvironment::FOREST:
             {
-                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.133f, 0.545f, 0.133f, 1.0f });
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { tileColors.ForestColor, 1.0f });
                 Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("tree"));
                 break;
             }
             case TileEnvironment::DESERT:
             {
-                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.898f, 0.788f, 0.643f, 1.0f });
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { tileColors.DesertColor, 1.0f });
                 Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("sand"));
                 break;
             }
             case TileEnvironment::MOUNTAINS:
             {
-                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { 0.5f, 0.5f, 0.5f, 1.0f });
+                Renderer2D::DrawHexagon(m_Position, glm::vec2(1.0f), { tileColors.MountainsColor, 1.0f });
                 Renderer2D::DrawQuad({m_Position.x, m_Position.y - yOffset}, glm::vec2(0.2f), ResourceManager::GetTexture("stone"));
                 break;
             }
@@ -525,17 +795,29 @@ void Tile::DrawEnvironment()
 
 const Resources Tile::GetResources() const
 {
+    int extraWood = 0;
+    int extraRock = 0;
+    int extraSteel = 0;
     int extraGold = 0;
+
     for (auto building : m_Buildings)
     {
         if (building->GetType() == BuildingType::GOLD_MINE)
-            extraGold += building->GetLevel() * 2;
+            extraGold += building->GetLevel() * 2 + 2;
+    }
+
+    if (m_Potion->IsApplied() && m_Potion->GetType() == PotionType::INCREASE_YIELD)
+    {
+        extraWood = (int)(m_Resources.Wood / 2.0f + 0.5f);
+        extraRock = (int)(m_Resources.Rock / 2.0f + 0.5f);
+        extraSteel = (int)(m_Resources.Steel / 2.0f + 0.5f);
+        extraGold = (int)(m_Resources.Gold / 2.0f + 0.5f);
     }
 
     return {
-        m_Resources.Wood,
-        m_Resources.Rock,
-        m_Resources.Steel,
+        m_Resources.Wood + extraWood,
+        m_Resources.Rock + extraRock,
+        m_Resources.Steel + extraSteel,
         m_Resources.Gold + extraGold
     };
 }
@@ -547,6 +829,16 @@ int Tile::GetNumSelectedUnitGroups()
             return sum + 1;
         return sum;
     });
+}
+
+UnitStats Tile::GetTotalUnitStats() const
+{
+    UnitStats stats{};
+
+    for (auto unitGroup : m_UnitGroups)
+        stats = stats + *unitGroup->GetUnitStats()[0];
+
+    return stats;
 }
 
 void Tile::SetOwnership(const std::shared_ptr<Player>& player)
@@ -567,6 +859,12 @@ void Tile::MoveToTile(const std::shared_ptr<Tile>& destTile)
     if(destTile->m_OwnedBy == m_OwnedBy)
     {
         TransferUnitGroupsToTile(destTile);
+        return;
+    }
+
+    if (destTile->GetPotion()->IsApplied() && destTile->GetPotion()->GetType() == PotionType::IMMUNITY)
+    {
+        Notification::Create("Cannot attack because the tile has immunity potion applied", NotificationLevel::INFO);
         return;
     }
 
@@ -652,8 +950,7 @@ bool Tile::HandleBuildingUpgradeIconMouseClick(const glm::vec2& relMousePos)
             upgradeIconSize,
             relMousePos))
         {
-            // NOTE: Consider using non-linear function for calculating cost based on current building upgrade level
-            Resources upgradeCost = BuildingDataMap[m_Buildings[i]->GetType()].BaseUpgradeCost * (m_Buildings[i]->GetLevel() + 1);
+            Resources upgradeCost = m_Buildings[i]->GetUpgradeCost();
             if (GameLayer::Get().GetPlayerManager()->GetCurrentPlayer()->SubtractResources(upgradeCost))
             {
                 m_Buildings[i]->Upgrade();
@@ -773,13 +1070,24 @@ std::string Tile::GetEnvironmentName(TileEnvironment environment)
 {
     switch (environment)
     {
-        case TileEnvironment::NONE:      return "none";
-        case TileEnvironment::OCEAN:     return "ocean";
-        case TileEnvironment::FOREST:    return "forest";
-        case TileEnvironment::DESERT:    return "desert";
-        case TileEnvironment::MOUNTAINS: return "mountains";
-        case TileEnvironment::HIGHLIGHT: return "highlight";
+        case TileEnvironment::NONE:      return "None";
+        case TileEnvironment::OCEAN:     return "Ocean";
+        case TileEnvironment::FOREST:    return "Forest";
+        case TileEnvironment::DESERT:    return "Desert";
+        case TileEnvironment::MOUNTAINS: return "Mountains";
+        case TileEnvironment::HIGHLIGHT: return "Highlight";
     }
 
     return "unknown";
+}
+
+void Tile::AddRandomUnits()
+{
+    int unitGroupCount = (int)Util::GenerateRandomNumber(2, 6);
+
+    for (int i = 0; i < unitGroupCount; i++)
+    {
+        UnitGroupType unitGroupType = (UnitGroupType)Util::GenerateRandomNumber(0, (double)UnitGroupType::COUNT);
+        this->CreateUnitGroup(unitGroupType);
+    }
 }
